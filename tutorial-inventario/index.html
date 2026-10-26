@@ -235,7 +235,41 @@ var hechos={};try{hechos=JSON.parse(localStorage.getItem('dr_tut_hechos')||'{}')
 function guardarHechos(){try{localStorage.setItem('dr_tut_hechos',JSON.stringify(hechos))}catch(e){}}
 var L=null,iPaso=0,st=null,cuenta=0,tecleado='';
 var app=document.getElementById('app');
-function hablar(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t.replace(/[«»]/g,''));u.lang='es-MX';u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
+/* Voz: primero la grabación de voz/<clave>.wav (voz Sabina es-MX; suena en
+   cualquier celular, aunque no tenga voz en español instalada, como los
+   Huawei sin servicios de Google). Si no hay grabación para ese texto, usa la
+   voz del sistema. La clave es djb2 del texto sin «» (la misma con que se
+   grabaron los audios: al cambiar un texto hay que volver a grabarlo). */
+var vozAudio=null;
+function claveVoz(t){var x=5381;for(var i=0;i<t.length;i++)x=(((x<<5)+x)+t.charCodeAt(i))>>>0;return x.toString(36)}
+function hablar(t){
+  t=String(t).replace(/[«»]/g,'').replace(/\s+/g,' ').trim();
+  try{if(vozAudio){vozAudio.pause();vozAudio=null}if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  var usado=false;function sistema(){if(usado)return;usado=true;hablarSistema(t)}
+  try{
+    var a=new Audio('voz/'+claveVoz(t)+'.wav');vozAudio=a;
+    a.onerror=sistema;
+    var p=a.play();if(p&&p.catch)p.catch(function(e){if(e&&e.name==='NotAllowedError')return;sistema()});
+  }catch(e){sistema()}
+}
+function vozEspanol(){
+  if(!window.speechSynthesis)return null;
+  var v=speechSynthesis.getVoices()||[];
+  return v.filter(function(x){return /^es[-_]MX/i.test(x.lang)})[0]||v.filter(function(x){return /^es/i.test(x.lang)})[0]||null;
+}
+if(window.speechSynthesis&&speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',vozEspanol);
+function hablarSistema(t){
+  try{
+    if(!window.speechSynthesis)return;
+    speechSynthesis.cancel();
+    // Chrome a veces se queda "pausado" o ignora un speak() pegado a cancel().
+    setTimeout(function(){
+      var u=new SpeechSynthesisUtterance(t);u.lang='es-MX';u.rate=.95;
+      var v=vozEspanol();if(v)u.voice=v;
+      speechSynthesis.resume();speechSynthesis.speak(u);
+    },120);
+  }catch(e){}
+}
 function menu(){
   L=null;var n=LECCIONES.filter(function(x){return hechos[x.id]}).length;
   app.innerHTML='<header style="display:flex;flex-direction:column;gap:8px"><div style="font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fram)">POS Dulce Ruta · práctica</div><h1>Practica el inventario</h1>'+
