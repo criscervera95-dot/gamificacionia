@@ -3,352 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inventario para cajeras</title>
+<title>Practica el inventario</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
-/* Layout: una columna de lectura tipo libreta de tienda; cada tarea es una "tarjeta de receta"
-   con sus pasos a la izquierda y la pantalla del POS dibujada a la derecha. */
+/* Layout: una tableta de práctica al centro; arriba la instrucción del paso,
+   grande y sola; el botón que toca tocar brilla. Menú de lecciones antes. */
 :root{
-  --bg:#FCF2EB;          /* vainilla */
-  --paper:#FFFFFF;
-  --ink:#5A3E3E;         /* chocolate */
-  --muted:#8A6F6A;
-  --rosa:#E8A0B4;
-  --frambuesa:#BF2959;
-  --menta:#7EB7C3;
-  --caramelo:#F3D0AE;
-  --line:rgba(90,62,62,.14);
-  --soft:rgba(243,208,174,.38);
-  --azul-soft:rgba(126,183,195,.18);
-  --ok:#2e7d32;
-  --display:"Fredoka","Nunito",system-ui,sans-serif;
-  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#FCF2EB;--paper:#FFFFFF;--ink:#5A3E3E;--muted:#8A6F6A;--rosa:#E8A0B4;--fram:#BF2959;--menta:#7EB7C3;
+  --caramelo:#F3D0AE;--line:rgba(90,62,62,.14);--soft:rgba(243,208,174,.38);--side:#5A3E3E;--sidetx:rgba(243,208,174,.75);
+  --ok:#2e7d32;--okbg:rgba(46,125,50,.1);
+  --display:"Fredoka","Nunito",system-ui,sans-serif;--body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--frambuesa:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
-  --line:rgba(246,230,220,.14);--soft:rgba(243,208,174,.12);--azul-soft:rgba(126,183,195,.16);--ok:#7BCB80;color-scheme:dark}}
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.12);color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--frambuesa:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
-  --line:rgba(246,230,220,.14);--soft:rgba(243,208,174,.12);--azul-soft:rgba(126,183,195,.16);--ok:#7BCB80;color-scheme:dark}
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.12);color-scheme:dark}
 *{box-sizing:border-box}
-html{color-scheme:light}img{max-width:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
-.wrap{max-width:980px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
-h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
-h1{font-size:clamp(2rem,5vw,2.8rem)}
-h2{font-size:1.5rem}
-h3{font-size:1.08rem}
-p{margin:0}
-.lead{max-width:62ch;font-size:1.06rem;color:var(--muted)}
-.eyebrow{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--frambuesa)}
-header{display:flex;flex-direction:column;gap:10px}
-.ruta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:700;font-size:.92rem}
-.ruta span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
-.ruta i{font-style:normal;color:var(--muted)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-block:22px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:600;margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(1.8rem,5vw,2.5rem)}
+button{font-family:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--menta);outline-offset:2px}
+.sub{color:var(--muted);max-width:60ch}
 
-/* Resumen: ¿qué pasó? → ¿qué toco? */
-.resumen{background:var(--paper);border:2px solid var(--rosa);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
-.tabla{display:grid;grid-template-columns:1fr auto;gap:0;border-top:1px solid var(--line)}
-.tabla>div{padding:10px 4px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;min-width:0}
-.tabla .boton{justify-content:flex-end}
+/* Menú de lecciones */
+.lecciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lec{display:flex;align-items:center;gap:14px;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;min-height:86px}
+.lec:hover{border-color:var(--rosa)}
+.lec .n{font-family:var(--display);font-size:2rem;line-height:1;flex-shrink:0;width:48px;text-align:center}
+.lec b{display:block;font-family:var(--display);font-weight:600;font-size:1.15rem}
+.lec small{color:var(--muted);font-size:.88rem}
+.lec .chk{margin-left:auto;font-size:1.5rem;color:var(--ok);flex-shrink:0}
+.barra-prog{display:flex;align-items:center;gap:10px;font-weight:700}
+.barra-prog .pista{flex:1;height:12px;background:var(--soft);border-radius:999px;overflow:hidden}
+.barra-prog .lleno{height:100%;background:var(--fram);border-radius:999px;transition:width .4s}
+.guia{color:var(--fram);font-weight:700}
 
-/* Las 4 formas */
-.formas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.forma{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.forma .ic{font-size:1.7rem;line-height:1}
-.forma b{font-family:var(--display);font-weight:600;font-size:1.1rem}
-.forma small{color:var(--muted);font-size:.85rem}
-.forma .ej{margin-top:auto;font-size:.84rem;background:var(--soft);border-radius:10px;padding:6px 8px}
+/* Práctica */
+.instr{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border:3px solid var(--fram);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.instr .num{font-family:var(--display);background:var(--fram);color:#fff;border-radius:12px;padding:4px 10px;font-weight:600;flex-shrink:0}
+.instr p{margin:0;font-size:1.2rem;font-weight:700;flex:1;min-width:0}
+.instr .oir{flex-shrink:0;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 10px;font-weight:800;cursor:pointer}
+.msg{min-height:1.6em;font-weight:800;text-align:center;font-size:1.05rem}
+.msg.mal{color:var(--fram)}.msg.bien{color:var(--ok)}
+.controles{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ctl{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:1rem}
+.ctl.prim{background:var(--fram);border-color:var(--fram);color:#fff}
 
-/* Tarjeta de tarea */
-.tarea{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,330px);gap:22px;align-items:start}
-.tarea-txt{display:flex;flex-direction:column;gap:12px;min-width:0}
-.cuando{font-weight:700;color:var(--frambuesa)}
-ol.pasos{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px}
-ol.pasos li::marker{font-family:var(--display);font-weight:600;color:var(--frambuesa)}
-.tip{background:var(--azul-soft);border-radius:12px;padding:10px 12px;font-size:.92rem}
-.ojo{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:.92rem}
-
-/* Pantalla dibujada del POS */
-.pantalla{background:var(--bg);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:.86rem}
-.pantalla .tit{font-family:var(--display);font-weight:600;font-size:1rem}
+/* Tableta de práctica (imita el POS) */
+.tablet{background:var(--side);border-radius:26px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.pos{display:flex;background:var(--bg);border-radius:18px;overflow:hidden;min-height:440px;position:relative}
+.lado{background:var(--side);display:flex;flex-direction:column;gap:6px;padding:8px 6px;flex-shrink:0}
+.sb{width:62px;border:none;background:none;color:var(--sidetx);border-radius:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer}
+.sb .ic{font-size:1.3rem}
+.sb.on{background:var(--fram);color:#fff}
+.area{flex:1;min-width:0;padding:14px;display:flex;flex-direction:column;gap:10px}
+.area h3{font-size:1.2rem}
+.buscar{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-weight:600}
+.prods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prods div{background:var(--paper);border:1px solid var(--line);border-radius:12px;height:64px;display:grid;place-items:center;font-weight:700;font-size:.85rem;color:var(--muted)}
+.franja{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:800;font-size:.9rem}
+.chip{border:2px solid var(--fram);background:rgba(191,41,89,.06);border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer;font-size:.9rem}
+.chip small{color:var(--fram)}
+.fila{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;text-align:left;width:100%}
+.fila b{display:block}.fila small{color:var(--muted)}
+.fila .flecha{margin-left:auto;color:var(--muted);font-size:1.3rem}
+.btn{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+.btn.prim{background:var(--fram);border-color:var(--fram);color:#fff}
+.ficha{background:var(--paper);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line)}
+.stock{display:flex;gap:8px}
+.stock div{flex:1;background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center;font-size:.8rem;color:var(--muted);font-weight:700}
+.stock span{display:block;font-size:1.4rem;color:var(--ink);font-family:var(--display)}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acc{border:2px solid var(--rosa);background:var(--paper);border-radius:14px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:800;cursor:pointer;text-align:center}
+.acc .e{font-size:1.5rem}.acc small{color:var(--muted);font-weight:600;font-size:.72rem}
+.acc.sel{border-color:var(--fram);background:rgba(191,41,89,.08)}
 .campo{display:flex;flex-direction:column;gap:4px}
-.campo label{font-size:.74rem;font-weight:700}
-.input{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-weight:700;font-variant-numeric:tabular-nums}
+.campo label{font-size:.8rem;font-weight:800}
+.caja{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:800;font-variant-numeric:tabular-nums;min-height:46px;text-align:left;cursor:pointer;width:100%}
 .step{display:flex;gap:6px}
-.step .menos,.step .mas{width:42px;border-radius:10px;background:var(--rosa);color:#fff;font-weight:800;display:grid;place-items:center;font-size:1.2rem}
-.step .input{flex:1;text-align:center;font-size:1.15rem}
+.step .menos,.step .mas{width:52px;border:none;border-radius:12px;background:var(--rosa);color:#fff;font-weight:800;font-size:1.5rem;cursor:pointer}
+.step .caja{flex:1;text-align:center;font-size:1.3rem;cursor:default}
 .dos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.total{font-size:.8rem}
-.btn-reg{background:var(--frambuesa);color:#fff;border-radius:12px;text-align:center;padding:10px;font-weight:800}
-.acc{background:var(--paper);border:2px solid var(--rosa);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:800;text-align:center;min-width:0}
-.acc .e{font-size:1.25rem}
-.acc small{font-weight:600;color:var(--muted);font-size:.68rem}
-.acc.sel{border-color:var(--frambuesa);background:rgba(191,41,89,.08)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.radio{display:flex;flex-direction:column;gap:6px}
-.radio div{display:flex;align-items:center;gap:6px;font-weight:600}
-.radio .pt{width:16px;height:16px;border-radius:50%;border:2px solid var(--frambuesa);flex-shrink:0}
-.radio .pt.on{background:radial-gradient(var(--frambuesa) 45%,transparent 50%)}
-.mini{width:70px;display:inline-block;text-align:center;padding:4px}
-.franja{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:800;font-size:.8rem}
-.chip{border:2px solid var(--frambuesa);border-radius:999px;padding:4px 10px;font-weight:800;font-size:.78rem;background:rgba(191,41,89,.06)}
-.chip small{color:var(--frambuesa)}
-.chip.rojo{background:var(--frambuesa);color:#fff}.chip.rojo small{color:#fff}
-.productos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.productos div{background:var(--paper);border-radius:10px;height:44px;border:1px solid var(--line)}
-.rapidos{display:flex;flex-wrap:wrap;gap:6px}
-.rapidos span{border:1.5px solid var(--line);border-radius:8px;padding:3px 8px;font-weight:700;font-size:.76rem;background:var(--paper)}
-.rapidos span.sel{border-color:var(--frambuesa);color:var(--frambuesa)}
-.hint{font-size:.76rem;color:var(--muted)}
+.total{font-size:.9rem}
+.radio{display:flex;align-items:center;gap:8px;font-weight:700;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;text-align:left;width:100%}
+.radio .pt{width:20px;height:20px;border-radius:50%;border:2px solid var(--fram);flex-shrink:0}
+.radio.on .pt{background:radial-gradient(var(--fram) 45%,transparent 50%)}
+.opciones{display:flex;flex-direction:column;gap:6px}
+.teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.teclado button{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:12px;font-size:1.3rem;font-weight:800;cursor:pointer}
+.aviso{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:.92rem;font-weight:600}
+.exito{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;flex:1;padding:20px}
+.exito .grande{font-size:3.5rem}
 
-.faq{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.faq>div{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.faq b{font-family:var(--display);font-weight:600}
-footer{color:var(--muted);font-size:.85rem}
-
-@media (max-width:820px){.formas{grid-template-columns:1fr 1fr}.tarea{grid-template-columns:1fr}.faq{grid-template-columns:1fr}}
-@media (max-width:420px){.formas{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+/* Lo que hay que tocar */
+.brilla{position:relative;z-index:2;animation:pulso 1.3s ease-in-out infinite;border-color:var(--fram)!important}
+.brilla::after{content:"👆";position:absolute;right:-6px;bottom:-22px;font-size:1.7rem;animation:mano 1.3s ease-in-out infinite;pointer-events:none}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(191,41,89,.55)}50%{box-shadow:0 0 0 9px rgba(191,41,89,0)}}
+@keyframes mano{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.sacude{animation:sacude .35s}
+@keyframes sacude{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.brilla,.brilla::after,.sacude{animation:none}.brilla{box-shadow:0 0 0 4px rgba(191,41,89,.5)}}
+@media (max-width:640px){.lecciones{grid-template-columns:1fr}.sb{width:50px;font-size:.55rem}.prods{grid-template-columns:repeat(2,1fr)}.instr p{font-size:1.05rem}.area{padding:10px}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-<header>
-  <div class="eyebrow">POS Dulce Ruta · guía para cajeras</div>
-  <h1>Cómo usar el inventario</h1>
-  <p class="lead">El inventario lleva la cuenta de vasos, toppings, leche, café y todo lo que usamos. Tú solo registras lo que pasa en la tienda: llegó una compra, abriste un paquete, se tiró algo o ya se va a acabar. Lo demás lo hace el sistema.</p>
-  <div class="ruta"><span>☰ Menú lateral</span><i>→</i><span>📦 Inventario</span><i>→</i><span>🔍 busca el insumo</span><i>→</i><span>tócalo</span></div>
-</header>
-
-<section class="resumen" aria-labelledby="r-tit">
-  <h2 id="r-tit">Resumen rápido</h2>
-  <div class="tabla">
-    <div>🚚 Llegó una compra (paquetes, botellas, bolsas)</div><div class="boton"><span class="chip">📥 Entrada</span></div>
-    <div>✂️ Abriste un paquete o una botella nueva para usarla</div><div class="boton"><span class="chip">📦 Liberar</span></div>
-    <div>📣 Salió el aviso rosa en Venta</div><div class="boton"><span class="chip">📦 Liberar</span></div>
-    <div>😟 Algo ya se va a acabar o no se puede contar</div><div class="boton"><span class="chip">🙋 Pedir resurtido</span></div>
-    <div>🗑️ Se cayó, se derramó o caducó</div><div class="boton"><span class="chip">🗑️ Merma</span></div>
-    <div>🆕 Llegó algo que no está en la lista</div><div class="boton"><span class="chip">+ Nuevo insumo</span></div>
-  </div>
-  <p class="hint">Cada vez que registras algo, tu nombre queda guardado. Así el administrador sabe quién lo hizo y te puede preguntar si algo no cuadra.</p>
-</section>
-
-<section aria-labelledby="f-tit" style="display:flex;flex-direction:column;gap:12px">
-  <h2 id="f-tit">Primero: cada insumo llega de una de 4 formas</h2>
-  <p class="lead">De eso depende qué te pregunta el POS. No tienes que hacer cuentas: el sistema multiplica solo.</p>
-  <div class="formas">
-    <div class="forma"><span class="ic">📦</span><b>Paquete</b><small>Trae varias piezas. Se cuenta en piezas.</small><div class="ej">Vasos 16 oz: paquete de 50 piezas</div></div>
-    <div class="forma"><span class="ic">🥛</span><b>Líquido</b><small>Leche, jarabe, crema. Se descuenta en ml.</small><div class="ej">Leche entera: botella de 1000 ml (1 L)</div></div>
-    <div class="forma"><span class="ic">1️⃣</span><b>Por unidad</b><small>Se cuenta pieza por pieza.</small><div class="ej">Pan de muerto, carlota, agua</div></div>
-    <div class="forma"><span class="ic">⚖️</span><b>Por peso</b><small>Polvos, café, bases. Se descuenta en gramos.</small><div class="ej">Café expresso: bolsa de 1000 g (1 kg)</div></div>
-  </div>
-</section>
-
-<!-- ENTRADA -->
-<section class="tarea" aria-labelledby="t1">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 1</div>
-    <h2 id="t1">📥 Llegó una compra: Entrada</h2>
-    <p class="cuando">Cuando llega mercancía y la guardas en el almacén.</p>
-    <ol class="pasos">
-      <li>Abre el insumo y toca <b>Entrada</b>.</li>
-      <li>Escribe <b>cuántos paquetes</b> (o botellas, o bolsas) llegaron. Usa los botones <b>−</b> y <b>+</b>.</li>
-      <li>Revisa <b>cuánto trae cada uno</b>. Ya viene lleno; solo cámbialo si esta vez el paquete trae otra cantidad.</li>
-      <li>Mira el <b>Total</b>, que el sistema calcula solo, y toca <b>Registrar</b>.</li>
-    </ol>
-    <div class="tip">💡 El costo y la caducidad son opcionales. Si tienes el ticket a la mano, escribe el costo total: le ayuda al administrador.</div>
-    <div class="ojo">Para <b>insumos por unidad</b> solo te pregunta <b>¿Cuántas piezas?</b>. Por ejemplo, llegaron 12 carlotas: escribes 12.</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo de pantalla de Entrada">
-    <div class="tit">📥 Entrada (llegó una compra)</div>
-    <div class="dos">
-      <div class="campo"><label>Cantidad de paquetes</label><div class="step"><span class="menos">−</span><span class="input">3</span><span class="mas">+</span></div></div>
-      <div class="campo"><label>¿Cuánto trae cada paquete? (piezas)</label><span class="input">50</span></div>
-    </div>
-    <div class="total">Total: <b>150 piezas</b></div>
-    <div class="dos">
-      <div class="campo"><label>Costo total ($, opcional)</label><span class="input">0.00</span></div>
-      <div class="campo"><label>Caducidad (opcional)</label><span class="input">dd/mm/aaaa</span></div>
-    </div>
-    <div class="btn-reg">Registrar</div>
-    <p class="hint">Ejemplo: llegaron 3 paquetes de Vaso 16 oz.</p>
-  </div>
-</section>
-
-<!-- LIBERAR -->
-<section class="tarea" aria-labelledby="t2">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 2 · la más importante</div>
-    <h2 id="t2">📦 Abriste uno nuevo: Liberar</h2>
-    <p class="cuando">Cada vez que sacas del almacén un paquete, botella o bolsa cerrada y la abres para usarla.</p>
-    <ol class="pasos">
-      <li>Abre el insumo y toca <b>Liberar paquete</b>. Si es líquido dice <b>Liberar botella</b>; si es por peso, <b>Liberar bolsa</b>.</li>
-      <li>Normalmente es <b>1</b>. Déjalo así y revisa cuánto trae.</li>
-      <li>Contesta <b>¿Y el que estaba en uso?</b>
-        <ul>
-          <li><b>Se terminó</b>: el anterior ya se acabó.</li>
-          <li><b>Todavía queda</b>: escribe más o menos cuánto queda, en piezas, ml o gramos.</li>
-        </ul>
-      </li>
-      <li>Toca <b>Registrar</b>.</li>
-    </ol>
-    <div class="tip">💡 Contesta con la verdad aunque no coincida con lo que dice el sistema. Esa respuesta le dice al administrador si una receta está descontando de más o de menos.</div>
-    <div class="ojo">Los insumos <b>por unidad</b> no tienen este botón: se descuentan de uno en uno.</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo de pantalla de Liberar">
-    <div class="tit">📦 Liberar botella</div>
-    <p class="hint">Se abrió una botella del almacén para usarla. En almacén hay <b>4000 ml (4 botellas)</b>.</p>
-    <div class="dos">
-      <div class="campo"><label>Cantidad de botellas</label><div class="step"><span class="menos">−</span><span class="input">1</span><span class="mas">+</span></div></div>
-      <div class="campo"><label>¿Cuánto trae cada botella? (ml)</label><span class="input">1000</span></div>
-    </div>
-    <div class="total">Total: <b>1000 ml</b></div>
-    <div class="campo"><label>¿Y el que estaba en uso?</label>
-      <div class="radio">
-        <div><span class="pt on"></span>Se terminó</div>
-        <div><span class="pt"></span>Todavía queda: <span class="input mini">120</span> ml</div>
-      </div>
-      <p class="hint">El sistema calcula que quedan 120 ml (12%).</p>
-    </div>
-    <div class="btn-reg">Registrar</div>
-  </div>
-</section>
-
-<!-- AVISO EN VENTA -->
-<section class="tarea" aria-labelledby="t3">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 3</div>
-    <h2 id="t3">📣 Salió el aviso rosa en Venta</h2>
-    <p class="cuando">Arriba de los productos aparece «📦 Liberar:» con el nombre de un insumo y un porcentaje.</p>
-    <ol class="pasos">
-      <li>Quiere decir que del paquete abierto queda poco, más o menos el 15% o menos.</li>
-      <li>Termina tu venta con calma. El aviso no estorba para cobrar.</li>
-      <li>Cuando abras el paquete nuevo, toca el aviso: te lleva directo a <b>Liberar</b>.</li>
-      <li>Al registrar, el aviso desaparece solo.</li>
-    </ol>
-    <div class="ojo">🔴 Si el aviso está <b>relleno de rojo</b>, el sistema cree que ya se acabó. Revisa y libera uno nuevo. Si en el almacén ya no hay, usa <b>Pedir resurtido</b>.</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo del aviso en Venta">
-    <div class="tit">Venta</div>
-    <span class="input" style="font-weight:600;color:var(--muted)">🔍 Buscar producto o sabor…</span>
-    <div class="franja">📦 Liberar: <span class="chip">Vaso 16 oz <small>14%</small></span><span class="chip rojo">Leche entera <small>0%</small></span></div>
-    <div class="productos"><div></div><div></div><div></div><div></div><div></div><div></div></div>
-  </div>
-</section>
-
-<!-- PEDIR RESURTIDO -->
-<section class="tarea" aria-labelledby="t4">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 4</div>
-    <h2 id="t4">🙋 Ya se va a acabar: Pedir resurtido</h2>
-    <p class="cuando">Cuando ves que algo se está terminando, o cuando es difícil de contar (avellana, fruta, cajeta).</p>
-    <ol class="pasos">
-      <li>Abre el insumo y toca <b>Pedir resurtido</b>.</li>
-      <li>Elige qué tan urgente es:
-        <ul>
-          <li>🔴 <b>Urgente</b>: se acaba hoy.</li>
-          <li>🟠 <b>Pronto</b>: alcanza para 1 o 2 días.</li>
-          <li>🟢 <b>Para la próxima compra</b>: no corre prisa.</li>
-        </ul>
-      </li>
-      <li>Si quieres, escribe una nota corta, como «queda para 2 frappés».</li>
-      <li>Toca <b>Enviar</b>. Al administrador le llega con tu nombre.</li>
-    </ol>
-    <div class="tip">💡 Si otra compañera ya lo pidió, no se repite: se agrega tu nombre a la misma solicitud. Al abrir el insumo verás «Ya lo pidió…».</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo de Pedir resurtido">
-    <div class="tit">🙋 Pedir resurtido</div>
-    <div class="campo"><label>¿Qué tan urgente?</label>
-      <div class="grid3">
-        <div class="acc sel"><span class="e">🔴</span>Urgente<small>Se acaba hoy</small></div>
-        <div class="acc"><span class="e">🟠</span>Pronto<small>Alcanza 1 o 2 días</small></div>
-        <div class="acc"><span class="e">🟢</span>Próxima compra<small>No corre prisa</small></div>
-      </div>
-    </div>
-    <div class="campo"><label>Nota (opcional)</label><span class="input" style="font-weight:600">queda para 2 frappés</span></div>
-    <div class="btn-reg">Enviar</div>
-    <p class="hint">El administrador lo ve así: <b>Ana solicita — Urgente · Café soluble</b></p>
-  </div>
-</section>
-
-<!-- MERMA -->
-<section class="tarea" aria-labelledby="t5">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 5</div>
-    <h2 id="t5">🗑️ Se tiró algo: Merma</h2>
-    <p class="cuando">Se cayó, se derramó, caducó o llegó dañado.</p>
-    <ol class="pasos">
-      <li>Abre el insumo y toca <b>Merma</b>.</li>
-      <li>Escribe <b>cuánto se tiró</b> en la unidad que te muestra: piezas, ml o gramos.</li>
-      <li>Elige el <b>motivo</b> y <b>de dónde</b> salió: lo que estaba en uso o el almacén.</li>
-      <li>Toca <b>Registrar</b>.</li>
-    </ol>
-    <div class="tip">💡 Registrar la merma no es para regañar a nadie. Si no se registra, el sistema cree que todavía hay y luego no cuadra.</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo de Merma">
-    <div class="tit">🗑️ Merma</div>
-    <div class="campo"><label>¿Cuánto se tiró? (ml)</label><div class="step"><span class="menos">−</span><span class="input">250</span><span class="mas">+</span></div></div>
-    <div class="dos">
-      <div class="campo"><label>Motivo</label><span class="input" style="font-weight:600">Se derramó / cayó</span></div>
-      <div class="campo"><label>¿De dónde?</label><span class="input" style="font-weight:600">En uso</span></div>
-    </div>
-    <div class="btn-reg">Registrar</div>
-  </div>
-</section>
-
-<!-- NUEVO INSUMO -->
-<section class="tarea" aria-labelledby="t6">
-  <div class="tarea-txt">
-    <div class="eyebrow">Tarea 6</div>
-    <h2 id="t6">🆕 No está en la lista: Nuevo insumo</h2>
-    <p class="cuando">Llegó algo que todavía no existe en el inventario.</p>
-    <ol class="pasos">
-      <li>En Inventario, toca <b>+ Nuevo insumo</b>.</li>
-      <li>Escribe el <b>nombre</b> y elige la <b>categoría</b>.</li>
-      <li>En <b>¿Cómo llega este insumo?</b> elige una de las 4 formas.</li>
-      <li>Si elegiste Paquete, Líquido o Por peso, di <b>en qué viene</b> (paquete, botella, bolsa…) y <b>cuánto trae</b>. Para líquidos y peso hay botones rápidos: 1 L, 4 L, 1 kg…</li>
-      <li>Toca <b>Guardar</b>. Queda «por revisar» y el administrador termina de llenarlo.</li>
-    </ol>
-    <div class="ojo">Primero búscalo con la lupa. Muchas veces ya existe con otro nombre, por ejemplo «Galletas Oreo» y «Oreo».</div>
-  </div>
-  <div class="pantalla" aria-label="Ejemplo de Nuevo insumo">
-    <div class="tit">Nuevo insumo</div>
-    <div class="campo"><label>Nombre *</label><span class="input" style="font-weight:600">Leche entera</span></div>
-    <div class="campo"><label>¿Cómo llega este insumo? *</label>
-      <div class="grid2">
-        <div class="acc"><span class="e">📦</span>Paquete<small>Trae varias piezas</small></div>
-        <div class="acc sel"><span class="e">🥛</span>Líquido<small>se descuenta en ml</small></div>
-        <div class="acc"><span class="e">1️⃣</span>Por unidad<small>pieza por pieza</small></div>
-        <div class="acc"><span class="e">⚖️</span>Por peso<small>se descuenta en gramos</small></div>
-      </div>
-    </div>
-    <div class="dos">
-      <div class="campo"><label>¿En qué viene?</label><span class="input" style="font-weight:600">Botella</span></div>
-      <div class="campo"><label>¿Cuántos ml trae?</label><span class="input">1000</span></div>
-    </div>
-    <div class="rapidos"><span>250 ml</span><span>500 ml</span><span class="sel">1 L</span><span>4 L</span><span>1 galón</span></div>
-    <p class="hint">→ Cada botella que registren suma <b>1,000 ml</b>.</p>
-    <div class="btn-reg">Guardar</div>
-  </div>
-</section>
-
-<section aria-labelledby="q-tit" style="display:flex;flex-direction:column;gap:12px">
-  <h2 id="q-tit">Dudas comunes</h2>
-  <div class="faq">
-    <div><b>Me equivoqué al registrar</b><p>No lo vuelvas a registrar al revés. Avísale al administrador o a la encargada de almacén: hacen un <b>Conteo</b> y dejan el número correcto.</p></div>
-    <div><b>No hay internet</b><p>Registra normal. Se guarda en la tablet y se sube solo cuando regrese la señal. Verás «por subir» junto al movimiento.</p></div>
-    <div><b>¿Tengo que descontar cada vaso o topping que vendo?</b><p>No. Lo que tiene receta se descuenta solo al cobrar. Tú solo registras compras, paquetes abiertos y lo que se tira.</p></div>
-    <div><b>El número del sistema no se parece a lo que veo</b><p>Pasa, y para eso está la pregunta «¿Y el que estaba en uso?». Contesta lo que ves de verdad. Si la diferencia es grande, pide resurtido o avísale al administrador.</p></div>
-    <div><b>Aparece «Falta decir cómo llega»</b><p>Ese insumo es de antes y todavía no tiene su forma. Avísale al administrador o a la encargada de almacén: lo pueden definir desde Editar insumo o al hacer el Conteo. Mientras, puedes seguir registrando entradas.</p></div>
-    <div><b>¿Quién ve lo que registro?</b><p>El administrador, en su bandeja de Avisos: quién liberó, quién pidió resurtido y cuándo. No es para vigilar, es para saber a quién preguntar.</p></div>
-  </div>
-</section>
-
-<footer>Guía del inventario del POS Dulce Ruta · octubre 2026. Los nombres, números y pantallas son ejemplos.</footer>
+  <div id="app"></div>
+  <p class="sub" style="font-size:.85rem">¿Prefieres leer todos los pasos? <a class="guia" href="guia.html">Ver la guía escrita</a>. Esta práctica no cambia nada en el POS real.</p>
 </div>
+
+<script>
+/* ── Datos de ejemplo de la práctica (no son del POS real) ── */
+var INS={
+  vaso:{n:'Vaso 16 oz',emp:'paquete',u:'piezas',trae:50,alm:100,uso:7,pct:14},
+  leche:{n:'Leche entera',emp:'botella',u:'ml',trae:1000,alm:4000,uso:0,pct:0},
+  cafe:{n:'Café soluble',emp:'bolsa',u:'gramos',trae:500,alm:0,uso:120,pct:24},
+  conos:{n:'Cono 11 cm',emp:'caja',u:'piezas',trae:576,alm:1152,uso:300,pct:52}
+};
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function art(e){return /a$/.test(e)?'la':'el'}
+
+/* ── Piezas de pantalla ── */
+function marco(sel,contenido){
+  var it=[['venta','🛒','Venta'],['ordenes','🧾','Órdenes'],['caja','💰','Caja'],['corte','📊','Corte'],['inv','📦','Inventario']];
+  return '<div class="tablet"><div class="pos"><nav class="lado">'+it.map(function(x){return '<button class="sb'+(x[0]===sel?' on':'')+'" data-t="sb-'+x[0]+'"><span class="ic">'+x[1]+'</span>'+x[2]+'</button>'}).join('')+'</nav><div class="area">'+contenido+'</div></div></div>';
+}
+function pVenta(s){
+  var f=s.chip?'<div class="franja">📦 Liberar: <button class="chip" data-t="chip">Vaso 16 oz <small>14%</small></button></div>':'';
+  return marco('venta','<div class="buscar">🔍 Buscar producto o sabor…</div>'+f+'<div class="prods"><div>Frappé</div><div>Sundae</div><div>Malteada</div><div>Cono</div><div>Smoothie</div><div>Café</div></div>');
+}
+function pLista(){
+  var f=function(k,id){var i=INS[k];return '<button class="fila" data-t="'+id+'"><span>🟢</span><span><b>'+i.n+'</b><small>Almacén '+i.alm+' '+i.u+' · En uso '+i.uso+'</small></span><span class="flecha">›</span></button>'};
+  return marco('inv','<h3>📦 Inventario</h3><div class="buscar">🔍 Buscar insumo…</div><button class="btn prim" data-t="nuevo" style="align-self:flex-end">+ Nuevo insumo</button>'+f('vaso','ins-vaso')+f('leche','ins-leche')+f('cafe','ins-cafe')+f('conos','ins-conos'));
+}
+function pFicha(k){
+  var i=INS[k];
+  return marco('inv','<div class="ficha"><h3>'+i.n+'</h3><div class="stock"><div><span>'+i.alm+'</span>'+i.u+' en almacén</div><div><span>'+i.uso+'</span>'+i.u+' en uso<br>'+i.pct+'% '+(art(i.emp)==='la'?'de la':'del')+' '+i.emp+'</div></div>'+
+    '<div class="acciones"><button class="acc" data-t="acc-entrada"><span class="e">📥</span>Entrada<small>Llegó una compra</small></button>'+
+    '<button class="acc" data-t="acc-liberar"><span class="e">📦</span>Liberar '+i.emp+'<small>Se abrió uno del almacén</small></button>'+
+    '<button class="acc" data-t="acc-pedir"><span class="e">🙋</span>Pedir resurtido<small>Avisar al admin</small></button>'+
+    '<button class="acc" data-t="acc-merma"><span class="e">🗑️</span>Merma<small>Se tiró o se echó a perder</small></button></div></div>');
+}
+function pEntrada(s){
+  var i=INS.vaso;
+  return marco('inv','<div class="ficha"><h3>📥 Entrada (llegó una compra)</h3><div class="dos"><div class="campo"><label>Cantidad de paquetes</label><div class="step"><button class="menos" data-t="menos">−</button><span class="caja">'+s.cant+'</span><button class="mas" data-t="mas">+</button></div></div>'+
+    '<div class="campo"><label>¿Cuánto trae cada paquete? (piezas)</label><span class="caja">'+i.trae+'</span></div></div><div class="total">Total: <b>'+(s.cant*i.trae)+' piezas</b></div><button class="btn prim" data-t="registrar">Registrar</button></div>');
+}
+function pLiberar(k,s){
+  var i=INS[k];
+  return marco('inv','<div class="ficha"><h3>📦 Liberar '+i.emp+'</h3><div class="dos"><div class="campo"><label>Cantidad de '+i.emp+'s</label><div class="step"><button class="menos" data-t="menos">−</button><span class="caja">1</span><button class="mas" data-t="mas">+</button></div></div>'+
+    '<div class="campo"><label>¿Cuánto trae cad'+(art(i.emp)==='la'?'a':'a')+' '+i.emp+'? ('+i.u+')</label><span class="caja">'+i.trae+'</span></div></div>'+
+    '<div class="campo"><label>¿Y '+art(i.emp)+' que estaba en uso?</label><div class="opciones"><button class="radio'+(s.fin?' on':'')+'" data-t="fin"><span class="pt"></span>Se terminó</button><button class="radio" data-t="queda"><span class="pt"></span>Todavía queda algo</button></div></div>'+
+    '<button class="btn prim" data-t="registrar">Registrar</button></div>');
+}
+function pPedir(s){
+  var u=[['urg','🔴','Urgente','Se acaba hoy'],['pronto','🟠','Pronto','Alcanza 1 o 2 días'],['compra','🟢','Próxima compra','No corre prisa']];
+  return marco('inv','<div class="ficha"><h3>🙋 Pedir resurtido · Café soluble</h3><div class="campo"><label>¿Qué tan urgente?</label><div class="opciones">'+u.map(function(x){return '<button class="acc'+(s.urg===x[0]?' sel':'')+'" data-t="'+x[0]+'" style="flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px"><span class="e">'+x[1]+'</span><span style="text-align:left">'+x[2]+'<br><small>'+x[3]+'</small></span></button>'}).join('')+'</div></div><button class="btn prim" data-t="enviar">Enviar</button></div>');
+}
+function pMerma(s){
+  var mot=['Caducó / se echó a perder','Se derramó / cayó','Llegó dañado','Otro'];
+  var tec=s.tec?'<div class="teclado">'+[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(function(d){return d===''?'<span></span>':'<button data-t="k-'+d+'">'+d+'</button>'}).join('')+'</div>':'';
+  return marco('inv','<div class="ficha"><h3>🗑️ Merma · Leche entera</h3><div class="campo"><label>¿Cuánto se tiró? (ml)</label><button class="caja" data-t="cant">'+(s.num||'<span style="color:var(--muted)">toca aquí</span>')+'</button></div>'+tec+
+    (s.paso>=3?'<div class="campo"><label>Motivo</label><div class="opciones">'+mot.map(function(m,ix){return '<button class="radio'+(s.mot===ix?' on':'')+'" data-t="mot-'+ix+'"><span class="pt"></span>'+m+'</button>'}).join('')+'</div></div><button class="btn prim" data-t="registrar">Registrar</button>':'')+'</div>');
+}
+function pNuevo(s){
+  var f=[['paquete','📦','Paquete','Trae varias piezas'],['liquido','🥛','Líquido','Se descuenta en ml'],['unidad','1️⃣','Por unidad','Pieza por pieza'],['peso','⚖️','Por peso','Se descuenta en gramos']];
+  return marco('inv','<div class="ficha"><h3>Nuevo insumo</h3><div class="campo"><label>Nombre *</label><button class="caja" data-t="nombre">'+(s.nombre||'<span style="color:var(--muted)">toca aquí</span>')+'</button></div>'+
+    '<div class="campo"><label>Categoría *</label><button class="caja" data-t="cat">'+(s.cat||'— Elige —')+'</button></div>'+
+    (s.abrirCat?'<div class="opciones"><button class="radio" data-t="cat-desech"><span class="pt"></span>Desechables</button><button class="radio" data-t="cat-top"><span class="pt"></span>Toppings</button><button class="radio" data-t="cat-lac"><span class="pt"></span>Lácteos</button></div>':'')+
+    '<div class="campo"><label>¿Cómo llega este insumo? *</label><div class="acciones">'+f.map(function(x){return '<button class="acc'+(s.forma===x[0]?' sel':'')+'" data-t="f-'+x[0]+'"><span class="e">'+x[1]+'</span>'+x[2]+'<small>'+x[3]+'</small></button>'}).join('')+'</div></div>'+
+    '<button class="btn prim" data-t="guardar">Guardar</button></div>');
+}
+function pExito(t,d){return marco('inv','<div class="exito"><div class="grande">✅</div><h3>'+t+'</h3><p class="sub">'+d+'</p></div>')}
+
+/* ── Lecciones: cada paso dice qué tocar (t) y qué cambia al tocarlo ── */
+var LECCIONES=[
+ {id:'entrada',ic:'📥',n:'Llegó una compra',d:'Registrar una Entrada',ini:function(){return {cant:1}},pasos:[
+  {txt:'Abre el inventario: toca «Inventario» en el menú de la izquierda.',p:function(){return pVenta({})},t:'sb-inv'},
+  {txt:'Llegaron vasos de 16 oz. Búscalos en la lista y tócalos.',p:pLista,t:'ins-vaso'},
+  {txt:'Como llegó una compra, toca «Entrada».',p:function(){return pFicha('vaso')},t:'acc-entrada'},
+  {txt:'Llegaron 3 paquetes. Toca el botón + dos veces.',p:pEntrada,t:'mas',veces:2,al:function(s){s.cant++}},
+  {txt:'Mira: cada paquete trae 50 y el total dice 150 piezas. Ahora toca «Registrar».',p:pEntrada,t:'registrar'},
+  {fin:true,txt:'¡Listo! Ya registraste la compra.',p:function(){return pExito('Entrada registrada','Se sumaron 150 piezas de Vaso 16 oz al almacén.')}}]},
+ {id:'liberar',ic:'📦',n:'Abrí uno nuevo',d:'Liberar un paquete o una botella',ini:function(){return {}},pasos:[
+  {txt:'Se acabó la leche y abriste una botella nueva. Abre el inventario.',p:function(){return pVenta({})},t:'sb-inv'},
+  {txt:'Toca «Leche entera».',p:pLista,t:'ins-leche'},
+  {txt:'Como abriste una botella nueva, toca «Liberar botella».',p:function(){return pFicha('leche')},t:'acc-liberar'},
+  {txt:'La botella de antes ya se acabó. Toca «Se terminó».',p:function(s){return pLiberar('leche',s)},t:'fin',al:function(s){s.fin=true}},
+  {txt:'Ahora toca «Registrar».',p:function(s){return pLiberar('leche',s)},t:'registrar'},
+  {fin:true,txt:'¡Muy bien! Así el sistema sabe que abriste una nueva.',p:function(){return pExito('Botella liberada','Ahora el sistema descuenta de la botella nueva. Si quedaba algo de la anterior, hubieras tocado «Todavía queda algo».')}}]},
+ {id:'aviso',ic:'📣',n:'Salió el aviso rosa',d:'Qué hacer con el aviso en Venta',ini:function(){return {chip:true}},pasos:[
+  {txt:'Arriba salió un aviso rosa: queda poco del paquete de vasos abierto. Cuando abras uno nuevo, toca el aviso.',p:pVenta,t:'chip'},
+  {txt:'Te llevó directo a liberar. El paquete de antes se acabó: toca «Se terminó».',p:function(s){return pLiberar('vaso',s)},t:'fin',al:function(s){s.fin=true}},
+  {txt:'Toca «Registrar».',p:function(s){return pLiberar('vaso',s)},t:'registrar',al:function(s){s.chip=false}},
+  {txt:'¿Ves? El aviso ya se quitó solo. Toca «Venta» para seguir vendiendo.',p:function(s){return pVenta(s)},t:'sb-venta'},
+  {fin:true,txt:'¡Perfecto! El aviso nunca te impide cobrar.',p:function(){return pExito('Aviso atendido','Termina tu venta con calma y libera el paquete cuando lo abras.')}}]},
+ {id:'pedir',ic:'🙋',n:'Ya se va a acabar',d:'Pedir resurtido al administrador',ini:function(){return {}},pasos:[
+  {txt:'Ya casi no hay café soluble en el almacén. Abre el inventario.',p:function(){return pVenta({})},t:'sb-inv'},
+  {txt:'Toca «Café soluble».',p:pLista,t:'ins-cafe'},
+  {txt:'Toca «Pedir resurtido».',p:function(){return pFicha('cafe')},t:'acc-pedir'},
+  {txt:'Se acaba hoy. Toca «Urgente».',p:pPedir,t:'urg',al:function(s){s.urg='urg'}},
+  {txt:'Toca «Enviar».',p:pPedir,t:'enviar'},
+  {fin:true,txt:'¡Enviado! Al administrador le llegó con tu nombre.',p:function(){return pExito('Solicitud enviada','El administrador lo ve así: «Ana solicita — Urgente · Café soluble».')}}]},
+ {id:'merma',ic:'🗑️',n:'Se tiró algo',d:'Registrar una Merma',ini:function(){return {num:'',paso:0}},pasos:[
+  {txt:'Se derramaron 250 ml de leche. Abre el inventario y toca «Leche entera».',p:pLista,t:'ins-leche'},
+  {txt:'Toca «Merma».',p:function(){return pFicha('leche')},t:'acc-merma'},
+  {txt:'Toca el cuadro donde dice «toca aquí» para escribir la cantidad.',p:pMerma,t:'cant',al:function(s){s.tec=true;s.paso=1}},
+  {txt:'Escribe 250 con los números: toca 2, luego 5, luego 0.',p:pMerma,teclado:'250',al:function(s){s.tec=false;s.paso=3}},
+  {txt:'¿Por qué se tiró? Toca «Se derramó / cayó».',p:pMerma,t:'mot-1',al:function(s){s.mot=1}},
+  {txt:'Toca «Registrar».',p:pMerma,t:'registrar'},
+  {fin:true,txt:'¡Muy bien! Registrar la merma hace que el número cuadre.',p:function(){return pExito('Merma registrada','Se restaron 250 ml de leche que estaba en uso.')}}]},
+ {id:'nuevo',ic:'🆕',n:'No está en la lista',d:'Dar de alta un insumo nuevo',ini:function(){return {}},pasos:[
+  {txt:'Llegó avellana entera y no está en la lista. Toca «+ Nuevo insumo».',p:pLista,t:'nuevo'},
+  {txt:'Toca el cuadro del nombre. (En la práctica se escribe solo.)',p:pNuevo,t:'nombre',al:function(s){s.nombre='Avellana entera'}},
+  {txt:'Toca el cuadro de «Categoría».',p:pNuevo,t:'cat',al:function(s){s.abrirCat=true}},
+  {txt:'Es un topping: toca «Toppings».',p:pNuevo,t:'cat-top',al:function(s){s.cat='Toppings';s.abrirCat=false}},
+  {txt:'La avellana se cuenta de una en una. Toca «Por unidad».',p:pNuevo,t:'f-unidad',al:function(s){s.forma='unidad'}},
+  {txt:'Toca «Guardar».',p:pNuevo,t:'guardar'},
+  {fin:true,txt:'¡Listo! El administrador lo revisa y lo aprueba.',p:function(){return pExito('Insumo dado de alta','Queda «por revisar» hasta que el administrador lo apruebe. Antes de dar de alta algo, búscalo con la lupa: a veces ya existe con otro nombre.')}}]}
+];
+
+/* ── Motor ── */
+var hechos={};try{hechos=JSON.parse(localStorage.getItem('dr_tut_hechos')||'{}')||{}}catch(e){}
+function guardarHechos(){try{localStorage.setItem('dr_tut_hechos',JSON.stringify(hechos))}catch(e){}}
+var L=null,iPaso=0,st=null,cuenta=0,tecleado='';
+var app=document.getElementById('app');
+function hablar(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t.replace(/[«»]/g,''));u.lang='es-MX';u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
+function menu(){
+  L=null;var n=LECCIONES.filter(function(x){return hechos[x.id]}).length;
+  app.innerHTML='<header style="display:flex;flex-direction:column;gap:8px"><div style="font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fram)">POS Dulce Ruta · práctica</div><h1>Practica el inventario</h1>'+
+   '<p class="sub">Aquí practicas tocando, como en la tableta de verdad. Sigue la instrucción de arriba y toca el botón que <b>brilla</b> 👆. Si te equivocas no pasa nada: solo es práctica.</p></header>'+
+   '<div class="barra-prog"><span>'+n+' de '+LECCIONES.length+'</span><div class="pista"><div class="lleno" style="width:'+(n/LECCIONES.length*100)+'%"></div></div></div>'+
+   '<div class="lecciones">'+LECCIONES.map(function(x,i){return '<button class="lec" data-lec="'+i+'"><span class="n">'+x.ic+'</span><span><b>'+(i+1)+'. '+x.n+'</b><small>'+x.d+'</small></span>'+(hechos[x.id]?'<span class="chk" aria-label="hecha">✓</span>':'')+'</button>'}).join('')+'</div>';
+}
+function empezar(i){L=LECCIONES[i];iPaso=0;st=L.ini();cuenta=0;tecleado='';pintar('')}
+function pintar(msg,clase){
+  var p=L.pasos[iPaso],fin=!!p.fin,total=L.pasos.length-1;
+  var h='<div class="instr"><span class="num">'+(fin?'✓':(iPaso+1)+'/'+total)+'</span><p id="txt">'+p.txt+'</p><button class="oir" data-oir="1" aria-label="Escuchar la instrucción">🔊 Escuchar</button></div>';
+  h+='<div class="msg '+(clase||'')+'" role="status">'+(msg||'')+'</div>';
+  h+=p.p(st);
+  var sig=LECCIONES.indexOf(L)+1;
+  h+='<div class="controles"><button class="ctl" data-menu="1">← Lecciones</button>'+(fin?(sig<LECCIONES.length?'<button class="ctl prim" data-lec="'+sig+'">Siguiente lección →</button>':'<button class="ctl prim" data-menu="1">¡Terminé todo! 🎉</button>'):'<button class="ctl" data-reiniciar="1">↺ Empezar de nuevo</button>')+'</div>';
+  app.innerHTML=h;
+  if(fin){hechos[L.id]=1;guardarHechos();return}
+  if(p.t){var b=app.querySelector('[data-t="'+p.t+'"]');if(b)b.classList.add('brilla')}
+  if(p.teclado){var d=p.teclado.charAt(tecleado.length),k=app.querySelector('[data-t="k-'+d+'"]');if(k)k.classList.add('brilla')}
+}
+function avanzar(){iPaso++;cuenta=0;tecleado='';pintar('¡Muy bien! 👏','bien')}
+app.addEventListener('click',function(ev){
+  var x=ev.target.closest('button');if(!x)return;
+  if(x.dataset.lec){empezar(+x.dataset.lec);window.scrollTo(0,0);return}
+  if(x.dataset.menu){menu();window.scrollTo(0,0);return}
+  if(x.dataset.reiniciar){empezar(LECCIONES.indexOf(L));return}
+  if(x.dataset.oir){hablar(document.getElementById('txt').textContent);return}
+  if(!L)return;
+  var p=L.pasos[iPaso],t=x.dataset.t;if(!t||p.fin)return;
+  if(p.teclado){
+    var esperado=p.teclado.charAt(tecleado.length);
+    if(t==='k-'+esperado){tecleado+=esperado;st.num=tecleado;
+      if(tecleado===p.teclado){if(p.al)p.al(st);avanzar()}else pintar('¡Eso! Sigue: ahora el '+p.teclado.charAt(tecleado.length)+'.','bien');}
+    else{x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Toca el número que brilla 👆'}
+    return;
+  }
+  if(t===p.t){
+    if(p.al)p.al(st);cuenta++;
+    if(p.veces&&cuenta<p.veces){pintar('¡Bien! Una vez más.','bien');return}
+    avanzar();
+  }else{
+    x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Busca el botón que brilla 👆';
+  }
+});
+menu();
+</script>
 </body>
 </html>
