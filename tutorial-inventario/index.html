@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inventario para cajeras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: una columna de lectura tipo libreta de tienda; cada tarea es una "tarjeta de receta"
+   con sus pasos a la izquierda y la pantalla del POS dibujada a la derecha. */
+:root{
+  --bg:#FCF2EB;          /* vainilla */
+  --paper:#FFFFFF;
+  --ink:#5A3E3E;         /* chocolate */
+  --muted:#8A6F6A;
+  --rosa:#E8A0B4;
+  --frambuesa:#BF2959;
+  --menta:#7EB7C3;
+  --caramelo:#F3D0AE;
+  --line:rgba(90,62,62,.14);
+  --soft:rgba(243,208,174,.38);
+  --azul-soft:rgba(126,183,195,.18);
+  --ok:#2e7d32;
+  --display:"Fredoka","Nunito",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--frambuesa:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.14);--soft:rgba(243,208,174,.12);--azul-soft:rgba(126,183,195,.16);--ok:#7BCB80;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--frambuesa:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.14);--soft:rgba(243,208,174,.12);--azul-soft:rgba(126,183,195,.16);--ok:#7BCB80;color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,2.8rem)}
+h2{font-size:1.5rem}
+h3{font-size:1.08rem}
+p{margin:0}
+.lead{max-width:62ch;font-size:1.06rem;color:var(--muted)}
+.eyebrow{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--frambuesa)}
+header{display:flex;flex-direction:column;gap:10px}
+.ruta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:700;font-size:.92rem}
+.ruta span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.ruta i{font-style:normal;color:var(--muted)}
+
+/* Resumen: ¿qué pasó? → ¿qué toco? */
+.resumen{background:var(--paper);border:2px solid var(--rosa);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.tabla{display:grid;grid-template-columns:1fr auto;gap:0;border-top:1px solid var(--line)}
+.tabla>div{padding:10px 4px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;min-width:0}
+.tabla .boton{justify-content:flex-end}
+
+/* Las 4 formas */
+.formas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.forma{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.forma .ic{font-size:1.7rem;line-height:1}
+.forma b{font-family:var(--display);font-weight:600;font-size:1.1rem}
+.forma small{color:var(--muted);font-size:.85rem}
+.forma .ej{margin-top:auto;font-size:.84rem;background:var(--soft);border-radius:10px;padding:6px 8px}
+
+/* Tarjeta de tarea */
+.tarea{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,330px);gap:22px;align-items:start}
+.tarea-txt{display:flex;flex-direction:column;gap:12px;min-width:0}
+.cuando{font-weight:700;color:var(--frambuesa)}
+ol.pasos{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px}
+ol.pasos li::marker{font-family:var(--display);font-weight:600;color:var(--frambuesa)}
+.tip{background:var(--azul-soft);border-radius:12px;padding:10px 12px;font-size:.92rem}
+.ojo{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:.92rem}
+
+/* Pantalla dibujada del POS */
+.pantalla{background:var(--bg);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:.86rem}
+.pantalla .tit{font-family:var(--display);font-weight:600;font-size:1rem}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:.74rem;font-weight:700}
+.input{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-weight:700;font-variant-numeric:tabular-nums}
+.step{display:flex;gap:6px}
+.step .menos,.step .mas{width:42px;border-radius:10px;background:var(--rosa);color:#fff;font-weight:800;display:grid;place-items:center;font-size:1.2rem}
+.step .input{flex:1;text-align:center;font-size:1.15rem}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.total{font-size:.8rem}
+.btn-reg{background:var(--frambuesa);color:#fff;border-radius:12px;text-align:center;padding:10px;font-weight:800}
+.acc{background:var(--paper);border:2px solid var(--rosa);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:800;text-align:center;min-width:0}
+.acc .e{font-size:1.25rem}
+.acc small{font-weight:600;color:var(--muted);font-size:.68rem}
+.acc.sel{border-color:var(--frambuesa);background:rgba(191,41,89,.08)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio div{display:flex;align-items:center;gap:6px;font-weight:600}
+.radio .pt{width:16px;height:16px;border-radius:50%;border:2px solid var(--frambuesa);flex-shrink:0}
+.radio .pt.on{background:radial-gradient(var(--frambuesa) 45%,transparent 50%)}
+.mini{width:70px;display:inline-block;text-align:center;padding:4px}
+.franja{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:800;font-size:.8rem}
+.chip{border:2px solid var(--frambuesa);border-radius:999px;padding:4px 10px;font-weight:800;font-size:.78rem;background:rgba(191,41,89,.06)}
+.chip small{color:var(--frambuesa)}
+.chip.rojo{background:var(--frambuesa);color:#fff}.chip.rojo small{color:#fff}
+.productos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.productos div{background:var(--paper);border-radius:10px;height:44px;border:1px solid var(--line)}
+.rapidos{display:flex;flex-wrap:wrap;gap:6px}
+.rapidos span{border:1.5px solid var(--line);border-radius:8px;padding:3px 8px;font-weight:700;font-size:.76rem;background:var(--paper)}
+.rapidos span.sel{border-color:var(--frambuesa);color:var(--frambuesa)}
+.hint{font-size:.76rem;color:var(--muted)}
+
+.faq{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.faq>div{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.faq b{font-family:var(--display);font-weight:600}
+footer{color:var(--muted);font-size:.85rem}
+
+@media (max-width:820px){.formas{grid-template-columns:1fr 1fr}.tarea{grid-template-columns:1fr}.faq{grid-template-columns:1fr}}
+@media (max-width:420px){.formas{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">POS Dulce Ruta · guía para cajeras</div>
+  <h1>Cómo usar el inventario</h1>
+  <p class="lead">El inventario lleva la cuenta de vasos, toppings, leche, café y todo lo que usamos. Tú solo registras lo que pasa en la tienda: llegó una compra, abriste un paquete, se tiró algo o ya se va a acabar. Lo demás lo hace el sistema.</p>
+  <div class="ruta"><span>☰ Menú lateral</span><i>→</i><span>📦 Inventario</span><i>→</i><span>🔍 busca el insumo</span><i>→</i><span>tócalo</span></div>
+</header>
+
+<section class="resumen" aria-labelledby="r-tit">
+  <h2 id="r-tit">Resumen rápido</h2>
+  <div class="tabla">
+    <div>🚚 Llegó una compra (paquetes, botellas, bolsas)</div><div class="boton"><span class="chip">📥 Entrada</span></div>
+    <div>✂️ Abriste un paquete o una botella nueva para usarla</div><div class="boton"><span class="chip">📦 Liberar</span></div>
+    <div>📣 Salió el aviso rosa en Venta</div><div class="boton"><span class="chip">📦 Liberar</span></div>
+    <div>😟 Algo ya se va a acabar o no se puede contar</div><div class="boton"><span class="chip">🙋 Pedir resurtido</span></div>
+    <div>🗑️ Se cayó, se derramó o caducó</div><div class="boton"><span class="chip">🗑️ Merma</span></div>
+    <div>🆕 Llegó algo que no está en la lista</div><div class="boton"><span class="chip">+ Nuevo insumo</span></div>
+  </div>
+  <p class="hint">Cada vez que registras algo, tu nombre queda guardado. Así el administrador sabe quién lo hizo y te puede preguntar si algo no cuadra.</p>
+</section>
+
+<section aria-labelledby="f-tit" style="display:flex;flex-direction:column;gap:12px">
+  <h2 id="f-tit">Primero: cada insumo llega de una de 4 formas</h2>
+  <p class="lead">De eso depende qué te pregunta el POS. No tienes que hacer cuentas: el sistema multiplica solo.</p>
+  <div class="formas">
+    <div class="forma"><span class="ic">📦</span><b>Paquete</b><small>Trae varias piezas. Se cuenta en piezas.</small><div class="ej">Vasos 16 oz: paquete de 50 piezas</div></div>
+    <div class="forma"><span class="ic">🥛</span><b>Líquido</b><small>Leche, jarabe, crema. Se descuenta en ml.</small><div class="ej">Leche entera: botella de 1000 ml (1 L)</div></div>
+    <div class="forma"><span class="ic">1️⃣</span><b>Por unidad</b><small>Se cuenta pieza por pieza.</small><div class="ej">Pan de muerto, carlota, agua</div></div>
+    <div class="forma"><span class="ic">⚖️</span><b>Por peso</b><small>Polvos, café, bases. Se descuenta en gramos.</small><div class="ej">Café expresso: bolsa de 1000 g (1 kg)</div></div>
+  </div>
+</section>
+
+<!-- ENTRADA -->
+<section class="tarea" aria-labelledby="t1">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 1</div>
+    <h2 id="t1">📥 Llegó una compra: Entrada</h2>
+    <p class="cuando">Cuando llega mercancía y la guardas en el almacén.</p>
+    <ol class="pasos">
+      <li>Abre el insumo y toca <b>Entrada</b>.</li>
+      <li>Escribe <b>cuántos paquetes</b> (o botellas, o bolsas) llegaron. Usa los botones <b>−</b> y <b>+</b>.</li>
+      <li>Revisa <b>cuánto trae cada uno</b>. Ya viene lleno; solo cámbialo si esta vez el paquete trae otra cantidad.</li>
+      <li>Mira el <b>Total</b>, que el sistema calcula solo, y toca <b>Registrar</b>.</li>
+    </ol>
+    <div class="tip">💡 El costo y la caducidad son opcionales. Si tienes el ticket a la mano, escribe el costo total: le ayuda al administrador.</div>
+    <div class="ojo">Para <b>insumos por unidad</b> solo te pregunta <b>¿Cuántas piezas?</b>. Por ejemplo, llegaron 12 carlotas: escribes 12.</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo de pantalla de Entrada">
+    <div class="tit">📥 Entrada (llegó una compra)</div>
+    <div class="dos">
+      <div class="campo"><label>Cantidad de paquetes</label><div class="step"><span class="menos">−</span><span class="input">3</span><span class="mas">+</span></div></div>
+      <div class="campo"><label>¿Cuánto trae cada paquete? (piezas)</label><span class="input">50</span></div>
+    </div>
+    <div class="total">Total: <b>150 piezas</b></div>
+    <div class="dos">
+      <div class="campo"><label>Costo total ($, opcional)</label><span class="input">0.00</span></div>
+      <div class="campo"><label>Caducidad (opcional)</label><span class="input">dd/mm/aaaa</span></div>
+    </div>
+    <div class="btn-reg">Registrar</div>
+    <p class="hint">Ejemplo: llegaron 3 paquetes de Vaso 16 oz.</p>
+  </div>
+</section>
+
+<!-- LIBERAR -->
+<section class="tarea" aria-labelledby="t2">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 2 · la más importante</div>
+    <h2 id="t2">📦 Abriste uno nuevo: Liberar</h2>
+    <p class="cuando">Cada vez que sacas del almacén un paquete, botella o bolsa cerrada y la abres para usarla.</p>
+    <ol class="pasos">
+      <li>Abre el insumo y toca <b>Liberar paquete</b>. Si es líquido dice <b>Liberar botella</b>; si es por peso, <b>Liberar bolsa</b>.</li>
+      <li>Normalmente es <b>1</b>. Déjalo así y revisa cuánto trae.</li>
+      <li>Contesta <b>¿Y el que estaba en uso?</b>
+        <ul>
+          <li><b>Se terminó</b>: el anterior ya se acabó.</li>
+          <li><b>Todavía queda</b>: escribe más o menos cuánto queda, en piezas, ml o gramos.</li>
+        </ul>
+      </li>
+      <li>Toca <b>Registrar</b>.</li>
+    </ol>
+    <div class="tip">💡 Contesta con la verdad aunque no coincida con lo que dice el sistema. Esa respuesta le dice al administrador si una receta está descontando de más o de menos.</div>
+    <div class="ojo">Los insumos <b>por unidad</b> no tienen este botón: se descuentan de uno en uno.</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo de pantalla de Liberar">
+    <div class="tit">📦 Liberar botella</div>
+    <p class="hint">Se abrió una botella del almacén para usarla. En almacén hay <b>4000 ml (4 botellas)</b>.</p>
+    <div class="dos">
+      <div class="campo"><label>Cantidad de botellas</label><div class="step"><span class="menos">−</span><span class="input">1</span><span class="mas">+</span></div></div>
+      <div class="campo"><label>¿Cuánto trae cada botella? (ml)</label><span class="input">1000</span></div>
+    </div>
+    <div class="total">Total: <b>1000 ml</b></div>
+    <div class="campo"><label>¿Y el que estaba en uso?</label>
+      <div class="radio">
+        <div><span class="pt on"></span>Se terminó</div>
+        <div><span class="pt"></span>Todavía queda: <span class="input mini">120</span> ml</div>
+      </div>
+      <p class="hint">El sistema calcula que quedan 120 ml (12%).</p>
+    </div>
+    <div class="btn-reg">Registrar</div>
+  </div>
+</section>
+
+<!-- AVISO EN VENTA -->
+<section class="tarea" aria-labelledby="t3">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 3</div>
+    <h2 id="t3">📣 Salió el aviso rosa en Venta</h2>
+    <p class="cuando">Arriba de los productos aparece «📦 Liberar:» con el nombre de un insumo y un porcentaje.</p>
+    <ol class="pasos">
+      <li>Quiere decir que del paquete abierto queda poco, más o menos el 15% o menos.</li>
+      <li>Termina tu venta con calma. El aviso no estorba para cobrar.</li>
+      <li>Cuando abras el paquete nuevo, toca el aviso: te lleva directo a <b>Liberar</b>.</li>
+      <li>Al registrar, el aviso desaparece solo.</li>
+    </ol>
+    <div class="ojo">🔴 Si el aviso está <b>relleno de rojo</b>, el sistema cree que ya se acabó. Revisa y libera uno nuevo. Si en el almacén ya no hay, usa <b>Pedir resurtido</b>.</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo del aviso en Venta">
+    <div class="tit">Venta</div>
+    <span class="input" style="font-weight:600;color:var(--muted)">🔍 Buscar producto o sabor…</span>
+    <div class="franja">📦 Liberar: <span class="chip">Vaso 16 oz <small>14%</small></span><span class="chip rojo">Leche entera <small>0%</small></span></div>
+    <div class="productos"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+  </div>
+</section>
+
+<!-- PEDIR RESURTIDO -->
+<section class="tarea" aria-labelledby="t4">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 4</div>
+    <h2 id="t4">🙋 Ya se va a acabar: Pedir resurtido</h2>
+    <p class="cuando">Cuando ves que algo se está terminando, o cuando es difícil de contar (avellana, fruta, cajeta).</p>
+    <ol class="pasos">
+      <li>Abre el insumo y toca <b>Pedir resurtido</b>.</li>
+      <li>Elige qué tan urgente es:
+        <ul>
+          <li>🔴 <b>Urgente</b>: se acaba hoy.</li>
+          <li>🟠 <b>Pronto</b>: alcanza para 1 o 2 días.</li>
+          <li>🟢 <b>Para la próxima compra</b>: no corre prisa.</li>
+        </ul>
+      </li>
+      <li>Si quieres, escribe una nota corta, como «queda para 2 frappés».</li>
+      <li>Toca <b>Enviar</b>. Al administrador le llega con tu nombre.</li>
+    </ol>
+    <div class="tip">💡 Si otra compañera ya lo pidió, no se repite: se agrega tu nombre a la misma solicitud. Al abrir el insumo verás «Ya lo pidió…».</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo de Pedir resurtido">
+    <div class="tit">🙋 Pedir resurtido</div>
+    <div class="campo"><label>¿Qué tan urgente?</label>
+      <div class="grid3">
+        <div class="acc sel"><span class="e">🔴</span>Urgente<small>Se acaba hoy</small></div>
+        <div class="acc"><span class="e">🟠</span>Pronto<small>Alcanza 1 o 2 días</small></div>
+        <div class="acc"><span class="e">🟢</span>Próxima compra<small>No corre prisa</small></div>
+      </div>
+    </div>
+    <div class="campo"><label>Nota (opcional)</label><span class="input" style="font-weight:600">queda para 2 frappés</span></div>
+    <div class="btn-reg">Enviar</div>
+    <p class="hint">El administrador lo ve así: <b>Ana solicita — Urgente · Café soluble</b></p>
+  </div>
+</section>
+
+<!-- MERMA -->
+<section class="tarea" aria-labelledby="t5">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 5</div>
+    <h2 id="t5">🗑️ Se tiró algo: Merma</h2>
+    <p class="cuando">Se cayó, se derramó, caducó o llegó dañado.</p>
+    <ol class="pasos">
+      <li>Abre el insumo y toca <b>Merma</b>.</li>
+      <li>Escribe <b>cuánto se tiró</b> en la unidad que te muestra: piezas, ml o gramos.</li>
+      <li>Elige el <b>motivo</b> y <b>de dónde</b> salió: lo que estaba en uso o el almacén.</li>
+      <li>Toca <b>Registrar</b>.</li>
+    </ol>
+    <div class="tip">💡 Registrar la merma no es para regañar a nadie. Si no se registra, el sistema cree que todavía hay y luego no cuadra.</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo de Merma">
+    <div class="tit">🗑️ Merma</div>
+    <div class="campo"><label>¿Cuánto se tiró? (ml)</label><div class="step"><span class="menos">−</span><span class="input">250</span><span class="mas">+</span></div></div>
+    <div class="dos">
+      <div class="campo"><label>Motivo</label><span class="input" style="font-weight:600">Se derramó / cayó</span></div>
+      <div class="campo"><label>¿De dónde?</label><span class="input" style="font-weight:600">En uso</span></div>
+    </div>
+    <div class="btn-reg">Registrar</div>
+  </div>
+</section>
+
+<!-- NUEVO INSUMO -->
+<section class="tarea" aria-labelledby="t6">
+  <div class="tarea-txt">
+    <div class="eyebrow">Tarea 6</div>
+    <h2 id="t6">🆕 No está en la lista: Nuevo insumo</h2>
+    <p class="cuando">Llegó algo que todavía no existe en el inventario.</p>
+    <ol class="pasos">
+      <li>En Inventario, toca <b>+ Nuevo insumo</b>.</li>
+      <li>Escribe el <b>nombre</b> y elige la <b>categoría</b>.</li>
+      <li>En <b>¿Cómo llega este insumo?</b> elige una de las 4 formas.</li>
+      <li>Si elegiste Paquete, Líquido o Por peso, di <b>en qué viene</b> (paquete, botella, bolsa…) y <b>cuánto trae</b>. Para líquidos y peso hay botones rápidos: 1 L, 4 L, 1 kg…</li>
+      <li>Toca <b>Guardar</b>. Queda «por revisar» y el administrador termina de llenarlo.</li>
+    </ol>
+    <div class="ojo">Primero búscalo con la lupa. Muchas veces ya existe con otro nombre, por ejemplo «Galletas Oreo» y «Oreo».</div>
+  </div>
+  <div class="pantalla" aria-label="Ejemplo de Nuevo insumo">
+    <div class="tit">Nuevo insumo</div>
+    <div class="campo"><label>Nombre *</label><span class="input" style="font-weight:600">Leche entera</span></div>
+    <div class="campo"><label>¿Cómo llega este insumo? *</label>
+      <div class="grid2">
+        <div class="acc"><span class="e">📦</span>Paquete<small>Trae varias piezas</small></div>
+        <div class="acc sel"><span class="e">🥛</span>Líquido<small>se descuenta en ml</small></div>
+        <div class="acc"><span class="e">1️⃣</span>Por unidad<small>pieza por pieza</small></div>
+        <div class="acc"><span class="e">⚖️</span>Por peso<small>se descuenta en gramos</small></div>
+      </div>
+    </div>
+    <div class="dos">
+      <div class="campo"><label>¿En qué viene?</label><span class="input" style="font-weight:600">Botella</span></div>
+      <div class="campo"><label>¿Cuántos ml trae?</label><span class="input">1000</span></div>
+    </div>
+    <div class="rapidos"><span>250 ml</span><span>500 ml</span><span class="sel">1 L</span><span>4 L</span><span>1 galón</span></div>
+    <p class="hint">→ Cada botella que registren suma <b>1,000 ml</b>.</p>
+    <div class="btn-reg">Guardar</div>
+  </div>
+</section>
+
+<section aria-labelledby="q-tit" style="display:flex;flex-direction:column;gap:12px">
+  <h2 id="q-tit">Dudas comunes</h2>
+  <div class="faq">
+    <div><b>Me equivoqué al registrar</b><p>No lo vuelvas a registrar al revés. Avísale al administrador: él hace un <b>Conteo</b> y deja el número correcto.</p></div>
+    <div><b>No hay internet</b><p>Registra normal. Se guarda en la tablet y se sube solo cuando regrese la señal. Verás «por subir» junto al movimiento.</p></div>
+    <div><b>¿Tengo que descontar cada vaso o topping que vendo?</b><p>No. Lo que tiene receta se descuenta solo al cobrar. Tú solo registras compras, paquetes abiertos y lo que se tira.</p></div>
+    <div><b>El número del sistema no se parece a lo que veo</b><p>Pasa, y para eso está la pregunta «¿Y el que estaba en uso?». Contesta lo que ves de verdad. Si la diferencia es grande, pide resurtido o avísale al administrador.</p></div>
+    <div><b>Aparece «Falta decir cómo llega»</b><p>Ese insumo es de antes y el administrador todavía no le pone su forma. Avísale; mientras, puedes seguir registrando entradas.</p></div>
+    <div><b>¿Quién ve lo que registro?</b><p>El administrador, en su bandeja de Avisos: quién liberó, quién pidió resurtido y cuándo. No es para vigilar, es para saber a quién preguntar.</p></div>
+  </div>
+</section>
+
+<footer>Guía del inventario del POS Dulce Ruta · octubre 2026. Los nombres, números y pantallas son ejemplos.</footer>
+</div>
+</body>
+</html>
