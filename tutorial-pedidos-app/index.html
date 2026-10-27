@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practica los pedidos de la app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Misma práctica que la del inventario: arriba una instrucción a la vez, en
+   medio la pantalla (tableta del POS o celular del cliente) y el botón que
+   toca tocar brilla. */
+:root{
+  --bg:#FCF2EB;--paper:#FFFFFF;--ink:#5A3E3E;--muted:#8A6F6A;--rosa:#E8A0B4;--fram:#BF2959;--menta:#7EB7C3;
+  --caramelo:#F3D0AE;--line:rgba(90,62,62,.14);--soft:rgba(243,208,174,.38);--side:#5A3E3E;--sidetx:rgba(243,208,174,.75);
+  --ok:#2e7d32;--okbg:rgba(46,125,50,.1);
+  --display:"Fredoka","Nunito",system-ui,sans-serif;--body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.12);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.12);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-block:22px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(1.8rem,5vw,2.5rem)}
+button{font-family:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--menta);outline-offset:2px}
+.sub{color:var(--muted);max-width:60ch}
+a{color:var(--fram);font-weight:700}
+
+/* Menú de lecciones */
+.lecciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lec{display:flex;align-items:center;gap:14px;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;min-height:86px}
+.lec:hover{border-color:var(--rosa)}
+.lec .n{font-family:var(--display);font-size:2rem;line-height:1;flex-shrink:0;width:48px;text-align:center}
+.lec b{display:block;font-family:var(--display);font-weight:600;font-size:1.15rem}
+.lec small{color:var(--muted);font-size:.88rem}
+.lec .chk{margin-left:auto;font-size:1.5rem;color:var(--ok);flex-shrink:0}
+.barra-prog{display:flex;align-items:center;gap:10px;font-weight:700}
+.barra-prog .pista{flex:1;height:12px;background:var(--soft);border-radius:999px;overflow:hidden}
+.barra-prog .lleno{height:100%;background:var(--fram);border-radius:999px;transition:width .4s}
+.camino{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:12px 14px;font-weight:800}
+.camino span{background:var(--soft);border-radius:999px;padding:6px 12px}
+.camino i{font-style:normal;color:var(--muted)}
+
+/* Práctica */
+.instr{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border:3px solid var(--fram);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.instr .num{font-family:var(--display);background:var(--fram);color:#fff;border-radius:12px;padding:4px 10px;font-weight:600;flex-shrink:0}
+.instr p{margin:0;font-size:1.2rem;font-weight:700;flex:1;min-width:0}
+.instr .oir{flex-shrink:0;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 10px;font-weight:800;cursor:pointer}
+.msg{min-height:1.6em;font-weight:800;text-align:center;font-size:1.05rem}
+.msg.mal{color:var(--fram)}.msg.bien{color:var(--ok)}
+.controles{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ctl{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:1rem}
+.ctl.prim{background:var(--fram);border-color:var(--fram);color:#fff}
+
+/* Tableta de práctica (imita el POS) */
+.tablet{background:var(--side);border-radius:26px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.pos{display:flex;background:var(--bg);border-radius:18px;overflow:hidden;min-height:470px;position:relative}
+.lado{background:var(--side);display:flex;flex-direction:column;gap:6px;padding:8px 6px;flex-shrink:0}
+.sb{width:62px;border:none;background:none;color:var(--sidetx);border-radius:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer}
+.sb .ic{font-size:1.3rem}
+.sb.on{background:var(--fram);color:#fff}
+.area{flex:1;min-width:0;padding:12px;display:flex;flex-direction:column;gap:10px}
+.tope{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tope .logo{font-family:var(--display);font-weight:600}
+.hb{border:none;border-radius:10px;padding:8px 12px;font-weight:800;font-size:.85rem;cursor:pointer;background:#5A3E3E;color:#fff;display:inline-flex;align-items:center;gap:6px}
+.hb.naranja{background:#b85c00}
+.hb.hay{animation:latido 1.2s ease-in-out infinite}
+@keyframes latido{50%{transform:scale(1.06)}}
+.badge{background:var(--fram);color:#fff;border-radius:9px;min-width:20px;padding:0 6px;font-size:.75rem;text-align:center}
+.hb.naranja .badge{background:#fff;color:#b85c00}
+.venta{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:10px;flex:1}
+.izq{display:flex;flex-direction:column;gap:8px;min-width:0}
+.buscar{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-weight:600}
+.prods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prods button{background:var(--paper);border:1px solid var(--line);border-radius:12px;height:64px;font-weight:700;font-size:.85rem;color:var(--muted);cursor:pointer}
+.mesabar{display:flex;align-items:center;gap:8px;background:var(--paper);border:2px solid var(--menta);border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;text-align:left}
+.mesabar small{margin-left:auto;color:var(--muted)}
+.orden{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.orden .vacio{color:var(--muted);margin:0;font-size:.85rem}
+.tag{background:rgba(191,41,89,.1);color:var(--fram);border-radius:10px;padding:6px 8px;font-weight:800;font-size:.8rem}
+.lin{display:flex;justify-content:space-between;gap:8px}
+.lin.tot{border-top:1px dashed var(--line);padding-top:6px;font-size:1rem}
+.nota{color:var(--muted);font-size:.8rem}
+.pagos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pago{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 2px;font-weight:800;font-size:.72rem;cursor:pointer}
+.pago.on{border-color:var(--fram);background:rgba(191,41,89,.1)}
+.btn{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+.btn.prim{background:var(--fram);border-color:var(--fram);color:#fff}
+.btn.ancho{width:100%;padding:14px}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:.8rem;font-weight:800}
+.caja{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:800;font-variant-numeric:tabular-nums;min-height:42px;text-align:left;cursor:pointer;width:100%}
+.teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.teclado button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:8px;font-size:1.1rem;font-weight:800;cursor:pointer}
+
+/* Ventanas del POS encima de la tableta */
+.velo{position:absolute;inset:0;background:rgba(30,20,20,.45);display:flex;align-items:flex-start;justify-content:center;padding:14px;overflow:auto;z-index:3}
+.modal{background:var(--paper);border-radius:16px;padding:14px;width:100%;max-width:470px;display:flex;flex-direction:column;gap:10px;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.modal .sec{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.modal p{margin:0;white-space:pre-line}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bi{border:1px solid var(--rosa);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.bi-tit{font-weight:800;font-size:.92rem}
+.bi-sub{font-size:.78rem;color:var(--muted)}
+.bi-prods{font-size:.85rem}
+.bi-acc{display:flex;flex-wrap:wrap;gap:6px}
+.est{display:inline-block;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:800;margin-left:4px;vertical-align:middle}
+.est.nuevo{background:#fdecc8;color:#8a5a00}.est.ok{background:var(--okbg);color:var(--ok)}
+.ba{border:2px solid transparent;border-radius:10px;padding:8px 12px;font-weight:800;font-size:.82rem;cursor:pointer;background:var(--rosa);color:#fff}
+.ba.wa{background:#25D366}.ba.verde{background:#2E7D4F}.ba.cafe{background:#5A3E3E;border-color:rgba(255,255,255,.15)}
+.ba.rojo{background:none;border-color:#c0392b;color:#c0392b}
+.ba.orig{outline:3px solid var(--menta)}
+.mesas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mesa{border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:14px 6px;font-weight:800;cursor:pointer}
+.mesa.ocup{border-color:var(--menta)}
+.alarma{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:min(380px,calc(100% - 20px));background:#BF2959;color:#fff;border-radius:16px;padding:14px;text-align:center;z-index:4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.alarma b{display:block;font-size:1.1rem}
+.alarma small{opacity:.9}
+.alarma .acc{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.alarma button{border:none;border-radius:999px;padding:9px 16px;font-weight:800;cursor:pointer}
+.alarma .ver{background:#fff;color:#BF2959}
+.alarma .sil{background:rgba(255,255,255,.2);color:#fff}
+.sonido{position:absolute;top:-6px;right:6px;font-size:1.4rem;animation:mano 1s ease-in-out infinite}
+
+/* WhatsApp (dentro de la tableta) */
+.wa-app{background:#ECE5DD;border-radius:18px;overflow:hidden;min-height:470px;display:flex;flex-direction:column;color:#222}
+.wa-cab{background:#075E54;color:#fff;display:flex;align-items:center;gap:10px;padding:10px 12px;font-weight:700}
+.wa-av{width:34px;height:34px;border-radius:50%;background:#dfe5e7;color:#075E54;display:grid;place-items:center;font-weight:800}
+.wa-volver{border:2px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;border-radius:10px;padding:6px 10px;font-weight:800;cursor:pointer}
+.wa-chat{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px}
+.burb{max-width:85%;border-radius:12px;padding:8px 10px;font-size:.86rem;line-height:1.4;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+.burb.yo{align-self:flex-end;background:#DCF8C6}
+.burb.el{align-self:flex-start;background:#fff}
+.burb .hr{display:block;text-align:right;font-size:.68rem;color:#667}
+.wa-pie{display:flex;gap:8px;padding:8px;align-items:flex-end}
+.wa-input{flex:1;background:#fff;border-radius:18px;padding:8px 12px;font-size:.82rem;max-height:190px;overflow:auto;color:#333}
+.wa-send{width:48px;height:48px;border-radius:50%;border:none;background:#25D366;color:#fff;font-size:1.3rem;cursor:pointer;flex-shrink:0}
+
+/* Celular con la app DulceFriends (colores fijos: así se ve la app real) */
+.escena{display:flex;justify-content:center}
+.cel{width:min(340px,100%);background:#2b2222;border-radius:36px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+.app{border-radius:28px;min-height:540px;background:linear-gradient(165deg,#FFE3EC 0%,#FFF4E6 60%,#E6F4F6 100%);color:#5A3E3E;padding:16px 14px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.a-cab{display:flex;justify-content:space-between;align-items:baseline}
+.a-cab b{font-family:var(--display);font-size:1.3rem}
+.a-cab small{color:#8A6F6A;font-weight:700}
+.a-buscar{background:#fff;border-radius:14px;padding:9px 12px;color:#8A6F6A;font-weight:600;font-size:.9rem}
+.a-prods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a-prod{background:#fff;border:2px solid transparent;border-radius:18px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;cursor:pointer;color:#5A3E3E}
+.a-prod .e{font-size:2rem}
+.a-prod small{color:#BF2959;font-weight:800}
+.a-barra{margin-top:auto;border:none;border-radius:16px;background:linear-gradient(135deg,#E8A0B4,#BF2959);color:#fff;font-weight:800;padding:14px;display:flex;justify-content:space-between;cursor:pointer;font-size:.95rem}
+.a-hoja{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;padding:18px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 -10px 30px rgba(0,0,0,.18)}
+.a-velo{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+.a-hoja h4{font-size:1.25rem}
+.a-hoja p{margin:0;color:#8A6F6A;font-size:.9rem}
+.a-agregar{border:none;border-radius:14px;padding:14px;background:linear-gradient(135deg,#E8A0B4,#BF2959);color:#fff;font-weight:800;font-size:.95rem;cursor:pointer}
+.a-card{background:#fff;border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.a-card h5{margin:0;font-size:.95rem}
+.a-ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px}
+.a-chip{border:2px solid #F3D0AE;background:#fff;border-radius:12px;padding:9px 6px;font-weight:800;font-size:.82rem;cursor:pointer;color:#5A3E3E}
+.a-chip.on{border-color:#BF2959;background:#FFE3EC}
+.a-ayuda{font-size:.78rem;color:#8A6F6A;margin:0}
+.ped-cab{display:flex;justify-content:space-between;font-size:.78rem;color:#8A6F6A;font-weight:700}
+.ep{text-align:center;padding:8px 0}
+.ep .e{font-size:2.6rem}
+.ep b{display:block;font-family:var(--display);font-size:1.2rem;font-weight:600}
+.ep p{margin:4px 0 0;color:#8A6F6A;font-size:.88rem}
+.pasos-est{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.pasos-est span{font-size:.7rem;font-weight:800;border-radius:999px;padding:4px 8px;background:#f2e8e2;color:#a08c86}
+.pasos-est span.hecho{background:#BF2959;color:#fff}
+
+/* Final de cada lección: lo que pasó + lo que ve el cliente */
+.final{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:16px;align-items:center}
+.exito{background:var(--paper);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px}
+.exito .grande{font-size:3.2rem;line-height:1}
+.lado-cel{display:flex;flex-direction:column;gap:8px;align-items:center}
+.lado-cel .et{font-weight:800;color:var(--muted);font-size:.9rem}
+.lado-cel .app{min-height:0}
+
+/* Lo que hay que tocar */
+.brilla{position:relative;z-index:2;animation:pulso 1.3s ease-in-out infinite;border-color:var(--fram)!important}
+.brilla::after{content:"👆";position:absolute;right:-6px;bottom:-22px;font-size:1.7rem;animation:mano 1.3s ease-in-out infinite;pointer-events:none}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(191,41,89,.55)}50%{box-shadow:0 0 0 9px rgba(191,41,89,0)}}
+@keyframes mano{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.sacude{animation:sacude .35s}
+@keyframes sacude{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.brilla,.brilla::after,.sacude,.hb.hay,.sonido{animation:none}.brilla{box-shadow:0 0 0 4px rgba(191,41,89,.5)}}
+@media (max-width:700px){.venta{grid-template-columns:1fr}.final{grid-template-columns:1fr}}
+@media (max-width:640px){.lecciones{grid-template-columns:1fr}.sb{width:46px;font-size:.5rem}.prods{grid-template-columns:repeat(2,1fr)}.instr{flex-wrap:wrap}.instr p{font-size:1.05rem;flex-basis:calc(100% - 60px)}.instr .oir{margin-left:auto}.area{padding:8px}.pos{min-height:640px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="app"></div>
+  <p class="sub" style="font-size:.85rem">Esta práctica no cambia nada en el POS real ni manda mensajes. Los nombres y teléfonos son de ejemplo. ¿Buscas la del inventario? <a href="../tutorial-inventario/">Practica el inventario</a>.</p>
+</div>
+
+<script>
+/* ── Pedidos de ejemplo (ficticios) ── */
+var PED={
+  laura:{nombre:'Laura Pérez',corto:'Laura',tel:'999 555 0101',cod:'A7K2Q',hora:'4:35 p. m.',dom:false,metodo:'Efectivo',total:75,
+    lineas:[['1x Frappé Oreo',75]],resp:'¡Sí, gracias! Paso en 20 minutos 😊'},
+  jorge:{nombre:'Jorge Ruiz',corto:'Jorge',tel:'999 555 0202',cod:'Q3M8T',hora:'5:10 p. m.',dom:true,metodo:'Efectivo',total:140,envio:30,zona:'Centro',dir:'Calle 60 #123, Centro (casa azul)',
+    lineas:[['1x Sundae de fresa',55],['1x Malteada de chocolate',55]],resp:'📍 Ubicación compartida<br>Sí, aquí lo espero 👍'}
+};
+function pesos(n){return '$'+Number(n).toFixed(2)}
+
+/* ── Tableta del POS ── */
+function marco(sel,contenido,o){
+  o=o||{};
+  var it=[['venta','🛒','Venta'],['ordenes','🧾','Órdenes'],['caja','💰','Caja'],['corte','📊','Corte']];
+  var tope='<div class="tope"><span class="logo">🍦 Dulce Ruta</span><span style="flex:1"></span>'+
+    (o.porCobrar?'<button class="hb naranja hay" data-t="porcobrar">🛵 Por cobrar <span class="badge">'+o.porCobrar+'</span></button>':'')+
+    (o.badge?'<button class="hb hay" data-t="bandeja">📥 Bandeja <span class="badge">'+o.badge+'</span></button>':'')+'</div>';
+  return '<div class="tablet"><div class="pos"><nav class="lado">'+it.map(function(x){return '<button class="sb'+(x[0]===sel?' on':'')+'" data-t="sb-'+x[0]+'"><span class="ic">'+x[1]+'</span>'+x[2]+'</button>'}).join('')+'</nav><div class="area">'+tope+contenido+'</div>'+
+    (o.alarma?alarma(o.alarma):'')+(o.velo?'<div class="velo">'+o.velo+'</div>':'')+'</div></div>';
+}
+function alarma(k){
+  return '<div class="alarma"><span class="sonido" aria-hidden="true">🔔</span><b>📲 ¡Nuevo pedido!</b><small>De la app DulceFriends · revisa la Bandeja</small><div class="acc"><button class="ver" data-t="ver-alarma">📥 Ver pedido</button><button class="sil" data-t="silenciar">🔕 Silenciar</button></div></div>';
+}
+function teclado(){return '<div class="teclado">'+[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(function(d){return d===''?'<span></span>':'<button data-t="k-'+d+'">'+d+'</button>'}).join('')+'</div>'}
+function panelOrden(s){
+  if(!s.carga)return '<div class="orden"><b>Orden</b><p class="vacio">Aquí aparece lo que vas a cobrar.</p></div>';
+  var P=PED[s.carga.ped];
+  var h=s.carga.mesa?'<div class="tag">🍽️ 📲 '+P.corto+' #'+P.cod+'</div>':'<div class="tag">📲 App #'+P.cod+' · '+P.nombre+'</div>';
+  h+=P.lineas.map(function(l){return '<div class="lin"><span>'+l[0]+'</span><b>'+pesos(l[1])+'</b></div>'}).join('');
+  if(P.dom)h+='<div class="lin"><span>🛵 Envío · '+P.zona+'</span><b>'+pesos(P.envio)+'</b></div><div class="nota">📍 '+P.dir+'</div>';
+  h+='<div class="lin tot"><span>Total</span><b>'+pesos(P.total)+'</b></div>';
+  h+='<div class="pagos">'+[['efectivo','💵 Efectivo'],['tarjeta','💳 Tarjeta'],['transf','🏦 Transf.']].map(function(m){return '<button class="pago'+(s.met===m[0]?' on':'')+'" data-t="met-'+m[0]+'">'+m[1]+'</button>'}).join('')+'</div>';
+  if(s.met==='efectivo'&&!P.dom){
+    h+='<div class="campo"><label>Recibido</label><button class="caja" data-t="recibido">'+(s.num?'$'+s.num:'<span style="color:var(--muted)">toca aquí</span>')+'</button></div>';
+    if(s.tec)h+=teclado();
+    if(s.num&&+s.num>=P.total)h+='<div class="lin"><span>Cambio</span><b>'+pesos(s.num-P.total)+'</b></div>';
+  }
+  return '<div class="orden">'+h+'<button class="btn prim" data-t="cobrar">Cobrar '+pesos(P.total)+'</button></div>';
+}
+function pVenta(s,o){
+  s=s||{};
+  var prods=['Frappé','Sundae','Malteada','Cono','Smoothie','Café'];
+  return marco('venta','<div class="venta"><div class="izq">'+(s.mesas?'<button class="mesabar" data-t="mesas">🍽️ Mesas <small>Elegir mesa ›</small></button>':'')+
+    '<div class="buscar">🔍 Buscar producto o sabor…</div><div class="prods">'+prods.map(function(p,i){return '<button data-t="p-'+i+'">'+p+'</button>'}).join('')+'</div></div>'+panelOrden(s)+'</div>',o);
+}
+function tarjetaPedido(k,estado){
+  var P=PED[k],b={recibido:['NUEVO','nuevo'],contactado:['CONTACTADO','ok'],confirmado:['CONFIRMADO','ok']}[estado];
+  return '<div class="bi"><div class="bi-tit">'+(P.dom?'🛵 A domicilio':'🛍️ Para recoger')+' · '+P.nombre+' · #'+P.cod+'<span class="est '+b[1]+'">'+b[0]+'</span></div>'+
+    '<div class="bi-sub">📱 '+P.tel+' · '+P.hora+' · '+P.metodo+' · <b>'+pesos(P.total)+'</b></div>'+
+    '<div class="bi-prods">'+P.lineas.map(function(l){return l[0]}).join('<br>')+(P.dom?'<br>📍 '+P.zona+' · '+P.dir:'')+'</div>'+
+    '<div class="bi-acc"><button class="ba wa" data-t="wa">💬 WhatsApp</button>'+(estado!=='confirmado'?'<button class="ba verde" data-t="confirmar">✅ Confirmar</button>':'')+
+    (P.dom?'':'<button class="ba cafe" data-t="apartar">📌 Apartar en mesa</button>')+'<button class="ba" data-t="cargar">💳 Cargar y cobrar</button><button class="ba rojo" data-t="rechazar">✖ Rechazar</button></div></div>';
+}
+function pBandeja(k,estado){
+  return pVenta({},{badge:1,velo:'<div class="modal"><h4>📥 Bandeja de pedidos</h4><div class="sec">📲 Pedidos de la app DulceFriends</div>'+tarjetaPedido(k,estado)+'<button class="btn" data-t="cerrar">Cerrar</button></div>'});
+}
+function vConfirmar(msg){return '<div class="modal"><p>'+msg+'</p><div class="dos"><button class="btn" data-t="cancelar">Cancelar</button><button class="btn prim" data-t="ok">Confirmar</button></div></div>'}
+function vEstadoPago(){return '<div class="modal"><h4>¿El pedido ya está pagado?</h4><button class="btn ancho" data-t="pagado">✅ Pagado</button><button class="btn ancho" data-t="pendiente">⏳ Pendiente de pago</button><button class="btn" data-t="cancelar">Cancelar</button></div>'}
+function vMesas(){
+  return '<div class="modal"><h4>🍽️ Mesas</h4><div class="mesas"><button class="mesa" data-t="m1">Mesa 1</button><button class="mesa ocup" data-t="m2">Mesa 2<br><small>ocupada</small></button><button class="mesa" data-t="m3">Mesa 3</button><button class="mesa ocup" data-t="mesa-app">📲 Laura #A7K2Q<br><small>apartado</small></button></div></div>';
+}
+function vPorCobrar(){
+  var P=PED.jorge;
+  return '<div class="modal"><h4>🛵 Domicilios por cobrar</h4><div class="bi"><div class="bi-tit">F-0412 · '+P.nombre+' · '+pesos(P.total)+'</div><div class="bi-sub">5:22 p. m. · cobró Ana · '+P.zona+' · capturado como Efectivo</div><div class="bi-prods">📍 '+P.dir+'<br>📞 '+P.tel+'</div>'+
+    '<div class="bi-acc"><button class="ba orig" data-t="liq-ef">💵 Efectivo</button><button class="ba" data-t="liq-tar">💳 Tarjeta</button><button class="ba" data-t="liq-tr">🏦 Transferencia</button></div></div><button class="btn" data-t="cerrar">Cerrar</button></div>';
+}
+function mensajeWa(P){
+  var t='¡Hola '+P.corto+'! 👋 Recibimos tu pedido #'+P.cod+' en Dulce Ruta 🍦<br><br>';
+  t+=P.lineas.map(function(l){return '• '+l[0]+' — '+pesos(l[1])}).join('<br>');
+  if(P.dom)t+='<br>Envío ('+P.zona+'): '+pesos(P.envio);
+  t+='<br><b>Total: '+pesos(P.total)+'</b><br>Pago: '+P.metodo;
+  t+=P.dom?'<br><br>📍 Dirección: '+P.dir+'<br>¿Nos compartes tu ubicación por aquí para llevártelo? 🛵':'<br><br>🛍️ Te avisamos por aquí cuando esté listo para recoger.';
+  return t;
+}
+function pWa(k,s){
+  var P=PED[k],msg=mensajeWa(P);
+  var chat=s.enviado?'<div class="burb yo">'+msg+'<span class="hr">✓✓</span></div><div class="burb el">'+P.resp+'</div>':'';
+  return '<div class="tablet"><div class="wa-app"><div class="wa-cab">'+(s.enviado?'<button class="wa-volver" data-t="wa-volver">← Regresar al POS</button>':'')+'<span class="wa-av">'+P.corto.charAt(0)+'</span><span>'+P.nombre+'</span></div>'+
+    '<div class="wa-chat">'+chat+'</div><div class="wa-pie"><div class="wa-input">'+(s.enviado?'<span style="color:#999">Mensaje</span>':msg)+'</div><button class="wa-send" data-t="wa-enviar" aria-label="Enviar">➤</button></div></div></div>';
+}
+
+/* ── Celular con la app DulceFriends ── */
+function cel(h){return '<div class="cel">'+h+'</div>'}
+function aMenu(s,hoja){
+  var ps=[['frappe','🥤','Frappé Oreo',75],['sundae','🍨','Sundae de fresa',55],['malteada','🥛','Malteada',55],['cono','🍦','Cono',25]];
+  var h='<div class="app"><div class="a-cab"><b>🍦 Menú</b><small>Hola, Laura 👋</small></div><div class="a-buscar">🔍 Buscar en el menú…</div><div class="a-prods">'+
+    ps.map(function(p){return '<button class="a-prod" data-t="prod-'+p[0]+'"><span class="e">'+p[1]+'</span>'+p[2]+'<small>'+pesos(p[3])+'</small></button>'}).join('')+'</div>';
+  if(s.carrito)h+='<button class="a-barra" data-t="ver-pedido"><span>🛒 1 · '+pesos(75)+'</span><span>Ver pedido ›</span></button>';
+  if(hoja)h+='<div class="a-velo"></div><div class="a-hoja"><h4>🥤 Frappé Oreo</h4><p>Frappé de galleta Oreo con crema batida.</p><b>'+pesos(75)+'</b><button class="a-agregar" data-t="agregar">Agregar · '+pesos(75)+'</button></div>';
+  return h+'</div>';
+}
+function aCarrito(s){
+  var ch=function(on,t,txt){return '<button class="a-chip'+(on?' on':'')+'" data-t="'+t+'">'+txt+'</button>'};
+  return '<div class="app"><div class="a-cab"><b>Tu pedido</b></div>'+
+    '<div class="a-card"><h5>🍦 Productos</h5><div class="lin"><span>1x 🥤 Frappé Oreo</span><b>'+pesos(75)+'</b></div></div>'+
+    '<div class="a-card"><h5>🛍️ ¿Cómo lo quieres?</h5><div class="a-ops">'+ch(s.ent==='recoger','ent-recoger','🛍️ Paso por él')+ch(s.ent==='dom','ent-dom','🛵 A domicilio')+'</div>'+(s.ent==='recoger'?'<p class="a-ayuda">📍 Lo recoges en Dulce Ruta. Te avisamos por WhatsApp cuando esté listo.</p>':'')+'</div>'+
+    '<div class="a-card"><h5>💰 ¿Cómo pagas?</h5><div class="a-ops">'+ch(s.met==='efectivo','met-efectivo','Efectivo')+ch(s.met==='tarjeta','met-tarjeta','Tarjeta')+ch(s.met==='transf','met-transf','Transferencia')+'</div></div>'+
+    '<div class="a-card"><div class="lin tot" style="border:0;padding:0"><span>Total</span><b>'+pesos(75)+'</b></div></div>'+
+    '<button class="a-agregar" data-t="enviar">Enviar pedido · '+pesos(75)+'</button></div>';
+}
+var ESTADOS={
+  recibido:['📨','¡Recibimos tu pedido!','En unos minutos te escribimos por WhatsApp para confirmarlo.'],
+  confirmado:['✅','¡Pedido confirmado!','Ya lo estamos preparando 🍦'],
+  apartado:['✅','¡Pedido confirmado!','¡Te lo apartamos! Pásalo a recoger cuando gustes 🍦'],
+  enCamino:['🛵','¡Tu pedido va en camino!','Nuestro repartidor ya va para allá.'],
+  finalizado:['🎉','¡Pedido entregado!','Gracias por tu compra. ¡Que lo disfrutes! 💖'],
+  rechazado:['😔','No pudimos tomar tu pedido','Te escribimos por WhatsApp para explicarte. ¡Perdón!']
+};
+function aEstado(P,k){
+  var e=ESTADOS[k],pasos=['📨 Recibido','✅ Confirmado'].concat(P.dom?['🛵 En camino']:[]).concat(['🎉 Entregado']);
+  var nivel={recibido:0,confirmado:1,apartado:1,enCamino:2,finalizado:pasos.length-1}[k];
+  return '<div class="app"><div class="a-cab"><b>📦 Mis pedidos</b></div><div class="a-card"><div class="ped-cab"><span>#'+P.cod+' · Hoy</span><span>'+(P.dom?'🛵 Domicilio':'🛍️ Recoger')+'</span></div>'+
+    '<div class="ep"><div class="e">'+e[0]+'</div><b>'+e[1]+'</b><p>'+e[2]+'</p></div>'+
+    (nivel==null?'':'<div class="pasos-est">'+pasos.map(function(t,i){return '<span class="'+(i<=nivel?'hecho':'')+'">'+t+'</span>'}).join('')+'</div>')+'</div></div>';
+}
+function pFinal(titulo,desc,P,k){
+  return '<div class="final"><div class="exito"><div class="grande">✅</div><h3>'+titulo+'</h3><p class="sub">'+desc+'</p></div><div class="lado-cel"><div class="et">📱 Así lo ve '+P.corto+' en su app:</div>'+cel(aEstado(P,k))+'</div></div>';
+}
+
+/* ── Lecciones: cada paso dice qué tocar (t) y qué cambia al tocarlo ── */
+var LECCIONES=[
+ {id:'cliente',ic:'📱',n:'Así pide el cliente',d:'Haz un pedido desde la app DulceFriends',ini:function(){return {}},pasos:[
+  {txt:'Imagina que eres Laura, una clienta con la app DulceFriends. Toca el «Frappé Oreo».',p:function(s){return '<div class="escena">'+cel(aMenu(s))+'</div>'},t:'prod-frappe'},
+  {txt:'Se abrió el producto. Toca «Agregar».',p:function(s){return '<div class="escena">'+cel(aMenu(s,true))+'</div>'},t:'agregar',al:function(s){s.carrito=1}},
+  {txt:'Abajo apareció su pedido. Toca «Ver pedido».',p:function(s){return '<div class="escena">'+cel(aMenu(s))+'</div>'},t:'ver-pedido'},
+  {txt:'Laura va a pasar a recogerlo. Toca «Paso por él».',p:function(s){return '<div class="escena">'+cel(aCarrito(s))+'</div>'},t:'ent-recoger',al:function(s){s.ent='recoger'}},
+  {txt:'Va a pagar en efectivo. Toca «Efectivo».',p:function(s){return '<div class="escena">'+cel(aCarrito(s))+'</div>'},t:'met-efectivo',al:function(s){s.met='efectivo'}},
+  {txt:'Toca «Enviar pedido».',p:function(s){return '<div class="escena">'+cel(aCarrito(s))+'</div>'},t:'enviar'},
+  {fin:true,txt:'¡Pedido enviado! En ese mismo momento suena la alarma en la tableta.',p:function(){return pFinal('Así llega un pedido','En cuanto el cliente toca «Enviar pedido», la tableta suena y el pedido aparece en la Bandeja. Eso lo practicas en la siguiente lección.',PED.laura,'recibido')}}]},
+ {id:'alarma',ic:'🔔',n:'Sonó la alarma',d:'Ver el pedido, escribir por WhatsApp y confirmar',ini:function(){return {}},pasos:[
+  {txt:'Sonó la alarma y salió un aviso rosa: llegó un pedido de la app. Toca «Ver pedido».',p:function(){return pVenta({},{badge:1,alarma:'laura'})},t:'ver-alarma'},
+  {txt:'Este es el pedido: Laura pasa a recogerlo y paga en efectivo. Primero escríbele: toca «WhatsApp».',p:function(){return pBandeja('laura','recibido')},t:'wa'},
+  {txt:'Se abrió WhatsApp con el resumen del pedido ya escrito. Toca la flecha verde para enviarlo.',p:function(s){return pWa('laura',s)},t:'wa-enviar',al:function(s){s.enviado=true}},
+  {txt:'Laura contestó que sí. Toca «Regresar al POS».',p:function(s){return pWa('laura',s)},t:'wa-volver'},
+  {txt:'Ahora el pedido dice CONTACTADO. Como Laura ya dijo que sí, toca «Confirmar».',p:function(){return pBandeja('laura','contactado')},t:'confirmar'},
+  {fin:true,txt:'¡Confirmado! Ahora prepara el pedido.',p:function(){return pFinal('Pedido confirmado','Prepáralo. El pedido se queda en la Bandeja hasta que lo cobres. Si paga por transferencia, espera su comprobante por WhatsApp antes de confirmar.',PED.laura,'confirmado')}}]},
+ {id:'recoger',ic:'🛍️',n:'Llegó a recogerlo',d:'Cargar el pedido y cobrarlo',ini:function(){return {met:'efectivo'}},pasos:[
+  {txt:'Laura llegó por su frappé. Toca «Bandeja», arriba a la derecha.',p:function(){return pVenta({},{badge:1})},t:'bandeja'},
+  {txt:'Toca «Cargar y cobrar».',p:function(){return pBandeja('laura','confirmado')},t:'cargar',al:function(s){s.carga={ped:'laura'}}},
+  {txt:'El pedido pasó solo a la venta, con el nombre de Laura y pago en efectivo. Laura te da 100 pesos: toca el cuadro «Recibido».',p:function(s){return pVenta(s)},t:'recibido',al:function(s){s.tec=true}},
+  {txt:'Escribe 100: toca 1, luego 0, luego 0.',p:function(s){return pVenta(s)},teclado:'100',al:function(s){s.tec=false}},
+  {txt:'Ya aparece su cambio: 25 pesos. Toca «Cobrar».',p:function(s){return pVenta(s)},t:'cobrar'},
+  {fin:true,txt:'¡Listo! Pedido entregado y cobrado.',p:function(){return pFinal('Pedido cobrado','Se imprimen los tickets como en cualquier venta y a Laura se le suma su sello de DulceFriends solito.',PED.laura,'finalizado')}}]},
+ {id:'apartar',ic:'📌',n:'Lo recoge más tarde',d:'Apartar el pedido en Mesas',ini:function(){return {}},pasos:[
+  {txt:'Laura pidió por la app y lo va a recoger más tarde. Toca «Bandeja».',p:function(){return pVenta({},{badge:1})},t:'bandeja'},
+  {txt:'Ya la confirmaste por WhatsApp. Para guardarlo hasta que llegue, toca «Apartar en mesa».',p:function(){return pBandeja('laura','confirmado')},t:'apartar'},
+  {txt:'Quedó guardado en Mesas. Para imprimir la comanda y prepararlo, toca «Confirmar».',p:function(){return pVenta({},{velo:vConfirmar('📌 Pedido apartado en Mesas como "📲 Laura #A7K2Q".\n\nEl cliente ya lo ve como confirmado. Cuando llegue, elige esa mesa y cóbrala.\n\n¿Imprimir la comanda ahora?')})},t:'ok'},
+  {txt:'Laura ya llegó. Toca «Mesas».',p:function(){return pVenta({mesas:true})},t:'mesas'},
+  {txt:'Toca la mesa con el nombre de Laura.',p:function(){return pVenta({mesas:true},{velo:vMesas()})},t:'mesa-app',al:function(s){s.mesas=true;s.carga={ped:'laura',mesa:true}}},
+  {txt:'Laura paga con tarjeta. Toca «Tarjeta».',p:function(s){return pVenta(s)},t:'met-tarjeta',al:function(s){s.met='tarjeta'}},
+  {txt:'Toca «Cobrar».',p:function(s){return pVenta(s)},t:'cobrar'},
+  {fin:true,txt:'¡Muy bien! Así se cobra un pedido apartado.',p:function(){return pFinal('Pedido apartado y cobrado','Mientras está apartado, Laura ve «¡Te lo apartamos!». Al cobrar la mesa le aparece «Entregado» y se le suma su sello.',PED.laura,'finalizado')}}]},
+ {id:'domicilio',ic:'🛵',n:'Pedido a domicilio',d:'Confirmar, cobrar y mandar con el repartidor',ini:function(){return {}},pasos:[
+  {txt:'Sonó la alarma otra vez. Toca «Ver pedido».',p:function(){return pVenta({},{badge:1,alarma:'jorge'})},t:'ver-alarma'},
+  {txt:'Jorge lo quiere a domicilio. Toca «WhatsApp»: el mensaje ya le pide su ubicación.',p:function(){return pBandeja('jorge','recibido')},t:'wa'},
+  {txt:'Toca la flecha verde para enviarlo.',p:function(s){return pWa('jorge',s)},t:'wa-enviar',al:function(s){s.enviado=true}},
+  {txt:'Jorge mandó su ubicación. Pásala al repartidor y toca «Regresar al POS».',p:function(s){return pWa('jorge',s)},t:'wa-volver'},
+  {txt:'Toca «Confirmar».',p:function(){return pBandeja('jorge','contactado')},t:'confirmar'},
+  {txt:'Cuando el pedido esté listo para salir, toca «Cargar y cobrar».',p:function(){return pBandeja('jorge','confirmado')},t:'cargar',al:function(s){s.carga={ped:'jorge'};s.met='efectivo'}},
+  {txt:'La dirección y el envío ya vienen cargados. Toca «Cobrar».',p:function(s){return pVenta(s)},t:'cobrar'},
+  {txt:'Jorge le paga al repartidor cuando lo reciba. Toca «Pendiente de pago».',p:function(s){return pVenta(s,{velo:vEstadoPago()})},t:'pendiente'},
+  {fin:true,txt:'¡Salió el pedido! A Jorge le aparece que va en camino.',p:function(){return pFinal('Pedido en camino','Se imprimen los tickets para el repartidor. Como Jorge paga al recibirlo, el pedido queda en «Por cobrar» hasta que regrese el repartidor. Si ya hubiera pagado por transferencia, tocarías «Pagado».',PED.jorge,'enCamino')}}]},
+ {id:'repartidor',ic:'💵',n:'Regresó el repartidor',d:'Registrar el pago del domicilio',ini:function(){return {}},pasos:[
+  {txt:'El repartidor regresó con el dinero de Jorge. Toca «Por cobrar», arriba.',p:function(){return pVenta({},{porCobrar:1})},t:'porcobrar'},
+  {txt:'Jorge pagó en efectivo. Toca «Efectivo».',p:function(){return pVenta({},{porCobrar:1,velo:vPorCobrar()})},t:'liq-ef'},
+  {txt:'Toca «Confirmar».',p:function(){return pVenta({},{porCobrar:1,velo:vConfirmar('¿Ya se recibió el pago de F-0412 (Jorge Ruiz)?\n\n$140.00 en efectivo.')})},t:'ok'},
+  {fin:true,txt:'¡Listo! El pedido quedó pagado y entregado.',p:function(){return pFinal('Domicilio cobrado','El dinero ya cuenta en tu caja. Si Jorge hubiera pagado con tarjeta o transferencia, tocarías ese botón en lugar de «Efectivo».',PED.jorge,'finalizado')}}]},
+ {id:'rechazar',ic:'✖️',n:'No se puede hacer',d:'Rechazar un pedido',ini:function(){return {}},pasos:[
+  {txt:'Se acabó el helado de Oreo y no puedes preparar el pedido de Laura. Toca «Bandeja».',p:function(){return pVenta({},{badge:1})},t:'bandeja'},
+  {txt:'Toca «Rechazar».',p:function(){return pBandeja('laura','recibido')},t:'rechazar'},
+  {txt:'Toca «Confirmar».',p:function(){return pVenta({},{velo:vConfirmar('✖ ¿Rechazar el pedido #A7K2Q de Laura Pérez?\n\nEl cliente verá en su app que no se pudo tomar. Escríbele por WhatsApp para explicarle.')})},t:'ok'},
+  {fin:true,txt:'Pedido rechazado. Ahora escríbele a Laura por WhatsApp.',p:function(){return pFinal('Pedido rechazado','Escríbele por WhatsApp para explicarle y, si quiere, ofrécele otro sabor. Rechaza solo cuando de verdad no se pueda hacer.',PED.laura,'rechazado')}}]}
+];
+
+/* ── Motor (el mismo de la práctica del inventario) ── */
+var hechos={};try{hechos=JSON.parse(localStorage.getItem('dr_tut_pedidos_hechos')||'{}')||{}}catch(e){}
+function guardarHechos(){try{localStorage.setItem('dr_tut_pedidos_hechos',JSON.stringify(hechos))}catch(e){}}
+var L=null,iPaso=0,st=null,cuenta=0,tecleado='';
+var app=document.getElementById('app');
+/* Voz: primero la grabación voz/<clave>.wav (voz Sabina es-MX); si no hay,
+   la voz del sistema. La clave es djb2 del texto sin «»: al cambiar un texto
+   hay que volver a grabarlo. */
+var vozAudio=null;
+function claveVoz(t){var x=5381;for(var i=0;i<t.length;i++)x=(((x<<5)+x)+t.charCodeAt(i))>>>0;return x.toString(36)}
+function hablar(t){
+  t=String(t).replace(/[«»]/g,'').replace(/\s+/g,' ').trim();
+  try{if(vozAudio){vozAudio.pause();vozAudio=null}if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  var usado=false;function sistema(){if(usado)return;usado=true;hablarSistema(t)}
+  try{
+    var a=new Audio('voz/'+claveVoz(t)+'.wav');vozAudio=a;
+    a.onerror=sistema;
+    var p=a.play();if(p&&p.catch)p.catch(function(e){if(e&&e.name==='NotAllowedError')return;sistema()});
+  }catch(e){sistema()}
+}
+function vozEspanol(){
+  if(!window.speechSynthesis)return null;
+  var v=speechSynthesis.getVoices()||[];
+  return v.filter(function(x){return /^es[-_]MX/i.test(x.lang)})[0]||v.filter(function(x){return /^es/i.test(x.lang)})[0]||null;
+}
+if(window.speechSynthesis&&speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',vozEspanol);
+function hablarSistema(t){
+  try{
+    if(!window.speechSynthesis)return;
+    speechSynthesis.cancel();
+    setTimeout(function(){
+      var u=new SpeechSynthesisUtterance(t);u.lang='es-MX';u.rate=.95;
+      var v=vozEspanol();if(v)u.voice=v;
+      speechSynthesis.resume();speechSynthesis.speak(u);
+    },120);
+  }catch(e){}
+}
+function menu(){
+  L=null;var n=LECCIONES.filter(function(x){return hechos[x.id]}).length;
+  app.innerHTML='<header style="display:flex;flex-direction:column;gap:8px"><div style="font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fram)">POS Dulce Ruta · práctica</div><h1>Practica los pedidos de la app</h1>'+
+   '<p class="sub">Aquí ves cómo pide un cliente desde la app DulceFriends y qué haces tú en la tableta hasta entregarlo. Sigue la instrucción de arriba y toca el botón que <b>brilla</b> 👆. Si te equivocas no pasa nada: solo es práctica.</p></header>'+
+   '<div class="camino" aria-label="Los pasos de siempre"><span>🔔 Suena</span><i>→</i><span>💬 WhatsApp</span><i>→</i><span>✅ Confirmar</span><i>→</i><span>💳 Cobrar</span><i>→</i><span>🎉 Entregar</span></div>'+
+   '<div class="barra-prog"><span>'+n+' de '+LECCIONES.length+'</span><div class="pista"><div class="lleno" style="width:'+(n/LECCIONES.length*100)+'%"></div></div></div>'+
+   '<div class="lecciones">'+LECCIONES.map(function(x,i){return '<button class="lec" data-lec="'+i+'"><span class="n">'+x.ic+'</span><span><b>'+(i+1)+'. '+x.n+'</b><small>'+x.d+'</small></span>'+(hechos[x.id]?'<span class="chk" aria-label="hecha">✓</span>':'')+'</button>'}).join('')+'</div>';
+}
+function empezar(i){L=LECCIONES[i];iPaso=0;st=L.ini();cuenta=0;tecleado='';pintar('')}
+function pintar(msg,clase){
+  var p=L.pasos[iPaso],fin=!!p.fin,total=L.pasos.length-1;
+  var h='<div class="instr"><span class="num">'+(fin?'✓':(iPaso+1)+'/'+total)+'</span><p id="txt">'+p.txt+'</p><button class="oir" data-oir="1" aria-label="Escuchar la instrucción">🔊 Escuchar</button></div>';
+  h+='<div class="msg '+(clase||'')+'" role="status">'+(msg||'')+'</div>';
+  h+=p.p(st);
+  var sig=LECCIONES.indexOf(L)+1;
+  h+='<div class="controles"><button class="ctl" data-menu="1">← Lecciones</button>'+(fin?(sig<LECCIONES.length?'<button class="ctl prim" data-lec="'+sig+'">Siguiente lección →</button>':'<button class="ctl prim" data-menu="1">¡Terminé todo! 🎉</button>'):'<button class="ctl" data-reiniciar="1">↺ Empezar de nuevo</button>')+'</div>';
+  app.innerHTML=h;
+  if(fin){hechos[L.id]=1;guardarHechos();return}
+  if(p.t){var b=app.querySelector('[data-t="'+p.t+'"]');if(b)b.classList.add('brilla')}
+  if(p.teclado){var d=p.teclado.charAt(tecleado.length),k=app.querySelector('[data-t="k-'+d+'"]');if(k)k.classList.add('brilla')}
+}
+function avanzar(){iPaso++;cuenta=0;tecleado='';pintar('¡Muy bien! 👏','bien')}
+app.addEventListener('click',function(ev){
+  var x=ev.target.closest('button');if(!x)return;
+  if(x.dataset.lec){empezar(+x.dataset.lec);window.scrollTo(0,0);return}
+  if(x.dataset.menu){menu();window.scrollTo(0,0);return}
+  if(x.dataset.reiniciar){empezar(LECCIONES.indexOf(L));return}
+  if(x.dataset.oir){hablar(document.getElementById('txt').textContent);return}
+  if(!L)return;
+  var p=L.pasos[iPaso],t=x.dataset.t;if(!t||p.fin)return;
+  if(p.teclado){
+    var esperado=p.teclado.charAt(tecleado.length);
+    if(t==='k-'+esperado){tecleado+=esperado;st.num=tecleado;
+      if(tecleado===p.teclado){if(p.al)p.al(st);avanzar()}else pintar('¡Eso! Sigue: ahora el '+p.teclado.charAt(tecleado.length)+'.','bien');}
+    else{x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Toca el número que brilla 👆'}
+    return;
+  }
+  if(t===p.t){
+    if(p.al)p.al(st);cuenta++;
+    if(p.veces&&cuenta<p.veces){pintar('¡Bien! Una vez más.','bien');return}
+    avanzar();
+  }else{
+    x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Busca el botón que brilla 👆';
+  }
+});
+menu();
+</script>
+</body>
+</html>
