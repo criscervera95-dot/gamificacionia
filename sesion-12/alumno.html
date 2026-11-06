@@ -4,33 +4,34 @@
 <title>Jeopardy Arcade · Sesión 12</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0820;--pnk:#ff2bd6;--cy:#19f0ff;--yl:#ffe600;--gr:#39ff88;--rd:#ff4d6d;--pu:#8b5cff;--ink:#f3f0ff;--mut:#a79fd6}
+:root{--bg:#141b2d;--s1:#1b2438;--s2:#252f48;--line:#3a4767;--ink:#eef2ff;--mut:#a3b0cf;--ac:#f2b84b;--cy:#6cb8ee;--pnk:#e07ab0;--yl:#f2b84b;--gr:#5ccf93;--rd:#ee7683;--pu:#9d8cf2;--onac:#1b1405;--hdr:#0f1524;--tile:#27407a;--tv:#ffd27a}
+@media (prefers-color-scheme: light){:root{--bg:#f3f5fa;--s1:#ffffff;--s2:#e9edf6;--line:#c5cee2;--ink:#1a2238;--mut:#55617f;--ac:#b36b00;--cy:#1d62c4;--pnk:#b83a80;--yl:#9a5d00;--gr:#1e8a4f;--rd:#c4384a;--pu:#5b49c2;--onac:#ffffff;--hdr:#ffffff;--tile:#2f5fb3;--tv:#ffffff}}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:radial-gradient(900px 500px at 50% -10%,#2a1a6e,var(--bg) 65%) fixed;color:var(--ink);font-family:'Rajdhani','Trebuchet MS',system-ui,sans-serif;font-weight:600;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--ink);font-family:'Rajdhani','Trebuchet MS',system-ui,sans-serif;font-weight:600;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .px{font-family:'Press Start 2P',monospace}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:#07051a;border-bottom:3px solid var(--pnk);font-size:16px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#777;margin-right:6px}.dot.ok{background:var(--gr);box-shadow:0 0 8px var(--gr)}.dot.bad{background:var(--rd)}
-#sc{font:12px 'Press Start 2P',monospace;color:var(--yl)}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:var(--hdr);border-bottom:2px solid var(--line);font-size:17px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--line);margin-right:6px}.dot.ok{background:var(--gr)}.dot.bad{background:var(--rd)}
+#sc{font:12px 'Press Start 2P',monospace;color:var(--ac)}
 main{flex:1;padding:16px 14px 26px;max-width:560px;width:100%;margin:0 auto}
-h1{font:16px/1.5 'Press Start 2P',monospace;color:var(--pnk);text-shadow:0 0 10px var(--pnk);margin-bottom:12px}
+h1{font:700 26px/1.2 'Rajdhani',sans-serif;color:var(--ink);margin-bottom:10px}
 p.sub{font-size:19px;line-height:1.35;color:var(--ink);margin-bottom:12px}
-input,textarea{width:100%;background:#fff;color:#111;border:3px solid var(--cy);border-radius:12px;padding:12px;font:700 20px 'Rajdhani',sans-serif;margin-bottom:10px}
+input,textarea{width:100%;background:#fff;color:#111;border:2px solid var(--line);border-radius:12px;padding:12px;font:700 20px 'Rajdhani',sans-serif;margin-bottom:10px}
 textarea{min-height:130px;resize:vertical}
-.go{display:block;width:100%;background:#1d1650;color:#fff;border:3px solid var(--yl);border-radius:14px;padding:14px;font:700 22px 'Rajdhani';margin:8px 0;cursor:pointer;box-shadow:0 0 12px rgba(255,230,0,.35)}
-.go:disabled{opacity:.4}
-.go.big{font-size:28px;padding:20px}.go.c{border-color:var(--c);color:var(--c)}
-.opt{display:flex;gap:12px;align-items:center;text-align:left;background:#161047;border:4px solid var(--c);border-radius:14px;padding:14px;font:700 22px/1.15 'Rajdhani';color:#fff;width:100%;margin:8px 0}
-.opt b{font:18px 'Press Start 2P',monospace;color:var(--c)}
-.opt.sel{background:#2c2380;box-shadow:0 0 18px var(--c)}.opt.ok{background:#0b5b2c;border-color:var(--gr)}.opt.bad{background:#5b1022;border-color:var(--rd)}.opt.hid{visibility:hidden;height:0;margin:0;padding:0;border:0}
+.go{display:block;width:100%;background:var(--s2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:14px;font:700 22px 'Rajdhani';margin:8px 0;cursor:pointer}
+.go:disabled{opacity:.45}
+.go.big{font-size:28px;padding:20px;background:var(--ac);border-color:var(--ac);color:var(--onac)}.go.c{border-left:10px solid var(--c)}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;background:var(--s1);border:2px solid var(--line);border-left:10px solid var(--c);border-radius:12px;padding:14px;font:700 22px/1.15 'Rajdhani';color:var(--ink);width:100%;margin:8px 0}
+.opt b{font:16px 'Press Start 2P',monospace;color:var(--c)}
+.opt.sel{background:var(--s2);border-color:var(--cy)}.opt.ok{background:color-mix(in srgb,var(--gr) 25%,var(--s1));border-color:var(--gr)}.opt.bad{background:color-mix(in srgb,var(--rd) 25%,var(--s1));border-color:var(--rd)}.opt.hid{visibility:hidden;height:0;margin:0;padding:0;border:0}
 .q{font:700 27px/1.2 'Rajdhani';margin:8px 0 12px}
-.tag{display:inline-block;font:11px 'Press Start 2P',monospace;background:var(--cy);color:var(--bg);padding:6px 8px;border-radius:6px;margin:0 6px 8px 0}
-.tm{font:16px 'Press Start 2P',monospace;color:var(--cy);float:right}.tm.low{color:var(--rd)}
-.box{background:#120d36;border:3px solid var(--pu);border-radius:14px;padding:12px;margin:10px 0;font-size:19px}
-.big{font:20px/1.5 'Press Start 2P',monospace;text-align:center;color:var(--yl);margin:20px 0}
-.ring{width:40px;height:40px;border:5px solid #3a3070;border-top-color:var(--cy);border-radius:50%;margin:20px auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-.tl{display:flex;justify-content:space-between;border-left:8px solid var(--c);background:#120d36;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:20px}.tl b{color:var(--yl)}
+.tag{display:inline-block;font:700 15px 'Rajdhani';background:var(--s2);color:var(--ink);border:2px solid var(--line);padding:3px 10px;border-radius:8px;margin:0 6px 8px 0;letter-spacing:.04em}
+.tm{font:15px 'Press Start 2P',monospace;color:var(--cy);float:right}.tm.low{color:var(--rd)}
+.box{background:var(--s1);border:2px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;font-size:19px}
+.big{font:700 34px/1.3 'Rajdhani',sans-serif;text-align:center;color:var(--ac);margin:20px 0}
+.ring{width:40px;height:40px;border:5px solid var(--line);border-top-color:var(--cy);border-radius:50%;margin:20px auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.tl{display:flex;justify-content:space-between;border-left:8px solid var(--c);background:var(--s1);border-radius:8px;padding:8px 12px;margin:6px 0;font-size:20px}.tl b{color:var(--ac)}
 .board{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0}
-.board div{background:#1a3cff;border:2px solid var(--cy);border-radius:6px;text-align:center;font:10px 'Press Start 2P',monospace;color:var(--yl);padding:14px 0;cursor:pointer}.board div.pl{background:#0e0b28;border-color:#2c2760;color:#2c2760}.board .h{background:#3a1d9e;border-color:var(--pnk);color:#fff;font:700 11px/1.1 Rajdhani;padding:6px 1px;cursor:default}
+.board div{background:var(--tile);border-radius:6px;text-align:center;font:10px 'Press Start 2P',monospace;color:var(--tv);padding:14px 0;cursor:pointer}.board div.pl{background:var(--s2);color:var(--line)}.board .h{background:var(--s2);color:var(--ink);font:700 11px/1.1 Rajdhani;padding:6px 1px;cursor:default}
 footer{padding:8px;text-align:center;color:var(--mut);font-size:13px}
 </style></head><body>
 <header><span><span class="dot" id="dot"></span><span id="st">Conectando…</span></span><span id="sc"></span></header>
@@ -128,16 +129,16 @@ function draw(){
   var m=$('#m');
   if(!ROOM){set('noroom','<h1>Falta el código de sala</h1><p class="sub">Escanea de nuevo el QR de la pantalla del salón.</p>');return;}
   if(!ready()||editing){
-    set('reg','<h1>¿QUIÉN ERES?</h1><p class="sub">Escribe tu nombre y apellido para jugar.</p><input id="inm" placeholder="Nombre" maxlength="30" autocomplete="given-name" value="'+esc(idn&&idn.nm||'')+'"><input id="iap" placeholder="Apellido" maxlength="30" autocomplete="family-name" value="'+esc(idn&&idn.ap||'')+'"><div id="err" style="color:var(--rd);min-height:22px">'+esc(err)+'</div><button class="go big" data-do="reg">▶ ENTRAR</button>');return;}
-  if(!ST){set('conn','<div class="ring"></div><h1>CONECTANDO…</h1><p class="sub">Si tarda, usa datos móviles. La profesora debe tener abierta la presentación.</p>');return;}
+    set('reg','<h1>¿Quién eres?</h1><p class="sub">Escribe tu nombre y apellido para jugar.</p><input id="inm" placeholder="Nombre" maxlength="30" autocomplete="given-name" value="'+esc(idn&&idn.nm||'')+'"><input id="iap" placeholder="Apellido" maxlength="30" autocomplete="family-name" value="'+esc(idn&&idn.ap||'')+'"><div id="err" style="color:var(--rd);min-height:22px">'+esc(err)+'</div><button class="go big" data-do="reg">▶ ENTRAR</button>');return;}
+  if(!ST){set('conn','<div class="ring"></div><h1>Conectando…</h1><p class="sub">Si tarda, usa datos móviles. La profesora debe tener abierta la presentación.</p>');return;}
   var t=myTeam();
   if(!t){
-    set('team'+ST.teams.length+(ST.teams.map(function(x){return x.n+x.m.length;}).join('')),'<h1>ELIGE TU EQUIPO</h1>'+ST.teams.map(function(x){return '<button class="go c" style="--c:'+x.c+'" data-do="tm" data-t="'+x.id+'">'+esc(x.n)+' <small style="color:var(--mut)">('+x.m.length+')</small></button>';}).join(''));return;}
+    set('team'+ST.teams.length+(ST.teams.map(function(x){return x.n+x.m.length;}).join('')),'<h1>Elige tu equipo</h1>'+ST.teams.map(function(x){return '<button class="go c" style="--c:'+x.c+'" data-do="tm" data-t="'+x.id+'">'+esc(x.n)+' <small style="color:var(--mut)">('+x.m.length+')</small></button>';}).join(''));return;}
   var q=ST.q;
   if(q){drawQ(q,t);return;}
   if(ST.slide===3){
     var rk=ST.teams.filter(function(x){return x.m.length||x.sc>0;}).sort(function(a,b){return b.sc-a.sc;});
-    set('pod'+myT+rk.map(function(x){return x.id+':'+x.sc;}).join(),'<h1>PODIO</h1>'+rk.map(function(x,i){return '<div class="tl" style="--c:'+x.c+'"><span>'+(i+1)+'. '+esc(x.n)+'</span><b>'+money(x.sc)+'</b></div>';}).join('')
+    set('pod'+myT+rk.map(function(x){return x.id+':'+x.sc;}).join(),'<h1>Podio</h1>'+rk.map(function(x,i){return '<div class="tl" style="--c:'+x.c+'"><span>'+(i+1)+'. '+esc(x.n)+'</span><b>'+money(x.sc)+'</b></div>';}).join('')
       +'<div class="box"><b style="color:var(--yl)">Ticket de salida</b><br>¿Qué columna te costó más? (así sabes qué repasar)</div>'+COLN.map(function(n,i){return '<button class="go'+(myT==String(i+1)?' c" style="--c:var(--gr)':'')+'" data-do="tk" data-c="'+(i+1)+'">'+(myT==String(i+1)?'✔ ':'')+esc(n)+'</button>';}).join(''),true);return;}
   var turn=ST.turn===t.id&&ST.slide===2;
   var bd='<div class="board">'+ST.cols.map(function(c,i){return '<div class="h">'+esc(c.split(' ')[0])+'</div>';}).join('');
@@ -145,9 +146,9 @@ function draw(){
   bd+='</div>';
   var tt=ST.teams.filter(function(x){return x.id===ST.turn;})[0];
   set('lobby'+(turn?'T':'W')+ST.board.join('')+ST.teams.map(function(x){return x.sc+'/'+x.b.s+x.b.x+x.b.h+x.m.length;}).join()+ST.slide+(ST.rdy?'F':''),
-    '<span class="tag" style="background:'+t.c+'">'+esc(t.n)+'</span>'
-    +(ST.slide<2?'<h1>LISTO PARA JUGAR</h1><p class="sub">La profesora iniciará el tablero en un momento. Tu equipo:</p>':
-      (turn?'<h1>¡ES TU TURNO!</h1><p class="sub">Toca una ficha del tablero para elegirla (también puede elegirla tu equipo en voz alta).</p>':'<h1>TURNO DE '+esc(tt?tt.n.toUpperCase():'—')+'</h1><p class="sub">Prepárate: todos podrán responder desde su celular.</p>'))
+    '<span class="tag" style="background:'+t.c+';color:#fff">'+esc(t.n)+'</span>'
+    +(ST.slide<2?'<h1>Listo para jugar</h1><p class="sub">La profesora iniciará el tablero en un momento. Tu equipo:</p>':
+      (turn?'<h1>¡Es tu turno!</h1><p class="sub">Toca una ficha del tablero para elegirla (también puede elegirla tu equipo en voz alta).</p>':'<h1>Turno de '+esc(tt?tt.n:'—')+'</h1><p class="sub">Prepárate: todos podrán responder desde su celular.</p>'))
     +bd+'<div class="box">'+ST.teams.map(function(x){return '<div class="tl" style="--c:'+x.c+'"><span>'+esc(x.n)+(x.b.s?' 🛡️':'')+(x.b.x?' ✖2':'')+(x.b.h?' 💡':'')+'</span><b>'+money(x.sc)+'</b></div>';}).join('')+'</div>'
     +'<div class="box"><b style="color:var(--yl)">Tu equipo ('+t.m.length+')</b><br>'+t.m.map(esc).join(' · ')+'</div>',true);
 }
@@ -156,11 +157,11 @@ function drawQ(q,t){
   var k=q.k,ph=q.ph;
   if(k==='VF'||k==='OM'){
     var mine=myA[q.uid],isTurn=q.tid===t.id,hid=(q.hide&&q.hide[t.id])||[];
-    if(q.dd&&!isTurn){set('dd'+q.uid+ph,head(q,t)+'<div class="big">DAILY DOUBLE<br>de '+esc((ST.teams.filter(function(x){return x.id===q.tid;})[0]||{}).n||'')+'</div><p class="sub" style="text-align:center">Mira la pantalla.</p>');return;}
+    if(q.dd&&!isTurn){set('dd'+q.uid+ph,head(q,t)+'<div class="big">Daily Double<br>de '+esc((ST.teams.filter(function(x){return x.id===q.tid;})[0]||{}).n||'')+'</div><p class="sub" style="text-align:center">Mira la pantalla.</p>');return;}
     if(ph==='bet'){
       if(!isTurn){set('betw'+q.uid,head(q,t)+'<div class="big">Tu rival apuesta…</div>');return;}
       var mx=q.mx,ops=[100,200,400,mx].filter(function(v,i,a){return v<=mx&&a.indexOf(v)===i;});
-      set('bet'+q.uid,head(q,t)+'<h1>¡DAILY DOUBLE!</h1><p class="sub">Tu equipo tiene '+money(t.sc)+'. ¿Cuánto apuestas? Pierdes lo apostado si fallan.</p>'+ops.map(function(v){return '<button class="go big" data-do="bet" data-v="'+v+'">'+money(v)+(v===mx&&v>400?' · TODO':'')+'</button>';}).join(''));return;}
+      set('bet'+q.uid,head(q,t)+'<h1>¡Daily Double!</h1><p class="sub">Tu equipo tiene '+money(t.sc)+'. ¿Cuánto apuestas? Pierdes lo apostado si fallan.</p>'+ops.map(function(v){return '<button class="go big" data-do="bet" data-v="'+v+'">'+money(v)+(v===mx&&v>400?' · TODO':'')+'</button>';}).join(''));return;}
     var done=q.done.indexOf(dev)>-1||mine!==undefined;
     var html=head(q,t)+'<div class="q">'+esc(q.text)+'</div>'+q.opts.map(function(o,i){
       var cls='opt',pre=k==='OM'?'ABCD'[i]:(i?'F':'V'),hd=hid.indexOf(i)>-1;
@@ -174,10 +175,10 @@ function drawQ(q,t){
     set('q'+q.uid+ph+(mine===undefined?'-':mine)+(done?'d':'')+hid.join(),html,true);tick();return;}
   if(k==='COMP'){
     var ctl=q.ctl;
-    if(ph==='buzz'){set('bz'+q.uid+ph,head(q,t)+'<div class="q">'+esc(q.text)+'</div><button class="go big" style="border-color:var(--pnk);color:var(--pnk);padding:44px" data-do="buzz">🔔 ¡BUZZ!</button><p class="sub" style="text-align:center">El primero en tocar responde por su equipo.</p>',true);tick();return;}
+    if(ph==='buzz'){set('bz'+q.uid+ph,head(q,t)+'<div class="q">'+esc(q.text)+'</div><button class="go big" style="padding:44px" data-do="buzz">🔔 ¡BUZZ!</button><p class="sub" style="text-align:center">El primero en tocar responde por su equipo.</p>',true);tick();return;}
     if(ph==='ans'||ph==='judge'){
       var me=ctl&&ctl.dev===dev;
-      if(ph==='ans'&&me){if(vk==='cin'+q.uid)return;set('cin'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><h1>¡ERES TÚ!</h1><input id="cmp" placeholder="Escribe la respuesta" maxlength="60" autocomplete="off"><button class="go big" data-do="cmp">ENVIAR</button>');tick();var ie=$('#cmp');if(ie)ie.focus();return;}
+      if(ph==='ans'&&me){if(vk==='cin'+q.uid)return;set('cin'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><h1>¡Eres tú!</h1><input id="cmp" placeholder="Escribe la respuesta" maxlength="60" autocomplete="off"><button class="go big" data-do="cmp">ENVIAR</button>');tick();var ie=$('#cmp');if(ie)ie.focus();return;}
       set('cw'+q.uid+ph+(ctl?ctl.dev:''),head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="big">'+(ctl?esc(ctl.nm)+' (equipo '+esc((ST.teams.filter(function(x){return x.id===ctl.tid;})[0]||{}).n||'')+')<br>responde…':'')+'</div>'+(ph==='judge'?'<div class="box">Respuesta: <b>'+esc(q.txt)+'</b></div>':''),true);tick();return;}
     if(ph==='rev'){set('cr'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="box">Respuesta: <b style="color:var(--gr)">'+esc(q.accOne||'')+'</b></div>',true);return;}
   }
@@ -196,7 +197,7 @@ function drawQ(q,t){
       set('wo'+q.uid+(scribe||''),h2,true);tick();return;}
     if(ph==='vote'||ph==='rev'){
       var voted=q.voted.indexOf(dev)>-1||myV[q.uid];
-      var h3=head(q,t)+'<h1>'+(ph==='vote'?'VOTA LA MEJOR':'RESULTADOS')+'</h1>'+(ph==='vote'?'<p class="sub">No puedes votar por tu propio equipo. Un solo voto.</p>':'<p class="sub">Mira la pantalla del salón.</p>')+(q.resp||[]).map(function(x){
+      var h3=head(q,t)+'<h1>'+(ph==='vote'?'Vota la mejor':'Resultados')+'</h1>'+(ph==='vote'?'<p class="sub">No puedes votar por tu propio equipo. Un solo voto.</p>':'<p class="sub">Mira la pantalla del salón.</p>')+(q.resp||[]).map(function(x){
         var own=q.keys&&q.keys[x.k]===t.id;
         return '<div class="box"><b style="color:var(--pnk)">RESPUESTA '+x.k+'</b><br>'+esc(x.txt)+(ph==='vote'?'<button class="go c" style="--c:var(--cy)" data-do="vote" data-k="'+x.k+'" '+((own||voted)?'disabled':'')+'>'+(own?'(tu equipo)':(myV[q.uid]===x.k?'✔ Votaste':'Votar '+x.k))+'</button>':'')+'</div>';}).join('');
       set('v'+q.uid+ph+(myV[q.uid]||'')+(voted?'d':''),h3,true);tick();return;}
