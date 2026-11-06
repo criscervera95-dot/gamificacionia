@@ -34,7 +34,7 @@ textarea{min-height:130px;resize:vertical}
 .board div{background:var(--tile);border-radius:6px;text-align:center;font:10px 'Press Start 2P',monospace;color:var(--tv);padding:14px 0;cursor:pointer}.board div.pl{background:var(--s2);color:var(--line)}.board .h{background:var(--s2);color:var(--ink);font:700 11px/1.1 Rajdhani;padding:6px 1px;cursor:default}
 footer{padding:8px;text-align:center;color:var(--mut);font-size:13px}
 </style></head><body>
-<header><span><span class="dot" id="dot"></span><span id="st">Conectando…</span></span><span id="sc"></span></header>
+<header><span><span class="dot" id="dot"></span><span id="st">Conectando…</span></span><span><button id="bRules" data-do="rules" style="background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:3px 9px;font:600 14px inherit;cursor:pointer;margin-right:8px">📖 Reglas</button><span id="sc"></span></span></header>
 <main id="m"></main>
 <footer>Jeopardy Arcade · solo se guarda tu nombre y apellido</footer>
 <script>
@@ -99,7 +99,7 @@ function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function rid(){return Math.random().toString(36).slice(2,9);}
 var dev=lsGet('s12dev')||('d'+rid()+rid());lsSet('s12dev',dev);
-var ep=lsGet('s12ep_'+ROOM)||'';var pc=0;var idn=null;try{idn=JSON.parse(lsGet('s12id')||'null');}catch(e){}
+var ep=lsGet('s12ep_'+ROOM)||'';var pc=0,showRules=false;var idn=null;try{idn=JSON.parse(lsGet('s12id')||'null');}catch(e){}
 var ST=null,cli=null,bi=0,got=false,swT=null,lastSeq=0,lastTs=0,off=0,err='',vk='',myA={},myV={},myT=lsGet('s12tk_'+ROOM)||'',pend=null,editing=false;
 function ready(){return idn&&idn.nm&&idn.ap;}
 function money(n){return '$'+n;}
@@ -125,11 +125,25 @@ function connect(){
 }
 function tleft(te){return te?Math.max(0,Math.ceil((te+off-Date.now())/1000)):0;}
 function set(vkey,html,force){var m=$('#m');if(vkey===vk&&!force)return false;vk=vkey;m.innerHTML=html;return true;}
+function rulesHTML(){
+  var R=[['Turnos','Los equipos eligen ficha en orden: Equipo 1, 2, 3… Todos juegan desde su celular.'],
+  ['Fichas sorpresa','Detrás de cada $ hay preguntas, retos de repaso y retos de pura diversión. Nadie sabe cuál toca hasta que se abre.'],
+  ['Cómo responder','Lee la instrucción en tu celular. Tu respuesta se envía una sola vez y queda oculta hasta que la profesora la revele.'],
+  ['Puntos ($)','Tu equipo gana según el porcentaje de integrantes que acierta. En algunas fichas gana quien contesta primero; si falla, pierde dinero y la ficha rebota a otros equipos.'],
+  ['Retos','Un compañero escribe por el equipo, o todo el equipo actúa frente al grupo. Los demás equipos califican o votan en anónimo desde su celular. No puedes votar por tu propio equipo.'],
+  ['Daily Double','Hay 2 fichas ocultas. Solo juega el equipo en turno y apuesta parte de su dinero.'],
+  ['Beneficios','🛡️ Escudo: anula una pérdida · ✖2: duplica tu siguiente premio · 💡 Pista: quita 2 opciones incorrectas · 🔁 Robo: quita hasta $200 al líder.'],
+  ['Reto final','Después de 8 fichas hay un reto final de $1000: premia a los 3 primeros lugares.'],
+  ['Convivencia','Respeto y buen humor. Nadie está obligado a lo que le incomode: puede participar narrando, dirigiendo o animando.'],
+  ['Al terminar','Podio del día y ticket de salida: eliges la columna que más te costó para saber qué repasar.']];
+  return '<h1>📖 Cómo se juega</h1>'+R.map(function(x,i){return '<div class="box"><b style="color:var(--yl)">'+(i+1)+' · '+x[0]+'</b><br>'+x[1]+'</div>';}).join('');
+}
 function draw(){
   var m=$('#m');
   if(!ROOM){set('noroom','<h1>Falta el código de sala</h1><p class="sub">Escanea de nuevo el QR de la pantalla del salón.</p>');return;}
   if(!ready()||editing){
     set('reg','<h1>¿Quién eres?</h1><p class="sub">Escribe tu nombre y apellido para jugar.</p><input id="inm" placeholder="Nombre" maxlength="30" autocomplete="given-name" value="'+esc(idn&&idn.nm||'')+'"><input id="iap" placeholder="Apellido" maxlength="30" autocomplete="family-name" value="'+esc(idn&&idn.ap||'')+'"><div id="err" style="color:var(--rd);min-height:22px">'+esc(err)+'</div><button class="go big" data-do="reg">▶ ENTRAR</button>');return;}
+  if(showRules){set('rules',rulesHTML()+'<button class="go big" data-do="rules">✔ Entendido, volver al juego</button>',true);return;}
   if(!ST){set('conn','<div class="ring"></div><h1>Conectando…</h1><p class="sub">Si tarda, usa datos móviles. La profesora debe tener abierta la presentación.</p>');return;}
   var t=myTeam();
   if(!t){
@@ -149,10 +163,10 @@ function draw(){
     '<span class="tag" style="background:'+t.c+';color:#fff">'+esc(t.n)+'</span>'
     +(ST.slide<2?'<h1>Listo para jugar</h1><p class="sub">La profesora iniciará el tablero en un momento. Tu equipo:</p>':
       (turn?'<h1>¡Es tu turno!</h1><p class="sub">Toca una ficha del tablero para elegirla (también puede elegirla tu equipo en voz alta).</p>':'<h1>Turno de '+esc(tt?tt.n:'—')+'</h1><p class="sub">Prepárate: todos podrán responder desde su celular.</p>'))
-    +bd+'<div class="box">'+ST.teams.map(function(x){return '<div class="tl" style="--c:'+x.c+'"><span>'+esc(x.n)+(x.b.s?' 🛡️':'')+(x.b.x?' ✖2':'')+(x.b.h?' 💡':'')+'</span><b>'+money(x.sc)+'</b></div>';}).join('')+'</div>'
+    +(ST.slide<2?rulesHTML():'')+bd+'<div class="box">'+ST.teams.map(function(x){return '<div class="tl" style="--c:'+x.c+'"><span>'+esc(x.n)+(x.b.s?' 🛡️':'')+(x.b.x?' ✖2':'')+(x.b.h?' 💡':'')+'</span><b>'+money(x.sc)+'</b></div>';}).join('')+'</div>'
     +'<div class="box"><b style="color:var(--yl)">Tu equipo ('+t.m.length+')</b><br>'+t.m.map(esc).join(' · ')+'</div>',true);
 }
-function head(q,t){return '<span class="tm px" id="tmr"></span><span class="tag">'+(q.k==='FINAL'?'RETO FINAL':q.k==='VIVO'?'RETO EN VIVO':esc(ST.cols[0]&&q.k?q.k:''))+'</span><span class="tag" style="background:var(--yl)">'+(q.dd&&q.bet?'APUESTA '+money(q.bet):money(q.val))+'</span>'+(q.dd?'<span class="tag" style="background:var(--pnk)">DAILY DOUBLE</span>':'');}
+function head(q,t){return '<span class="tm px" id="tmr"></span><span class="tag">'+(q.k==='FINAL'?'RETO FINAL':q.k==='VIVO'?(q.fun?'RETO DIVERTIDO':'RETO EN VIVO'):esc(ST.cols[0]&&q.k?q.k:''))+'</span><span class="tag" style="background:var(--yl)">'+(q.dd&&q.bet?'APUESTA '+money(q.bet):money(q.val))+'</span>'+(q.dd?'<span class="tag" style="background:var(--pnk)">DAILY DOUBLE</span>':'');}
 function drawQ(q,t){
   var k=q.k,ph=q.ph;
   if(k==='VF'||k==='OM'){
@@ -222,6 +236,7 @@ function tick(){var e=document.getElementById('tmr');if(!e||!ST||!ST.q)return;va
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-do]');if(!b)return;var d=b.dataset['do'];
   if(d==='reg'){var n=($('#inm').value||'').trim(),a=($('#iap').value||'').trim();if(!n||!a){$('#err').textContent='Escribe nombre y apellido.';return;}idn={nm:n.slice(0,30),ap:a.slice(0,30)};lsSet('s12id',JSON.stringify(idn));editing=false;vk='';presence();draw();setStatus();return;}
+  if(d==='rules'){showRules=!showRules;vk='';draw();return;}
   if(!ST)return;
   if(d==='tm'){send({t:'tm',tm:+b.dataset.t});setTimeout(function(){send({t:'tm',tm:+b.dataset.t});},900);return;}
   if(d==='tk'){myT=b.dataset.c;lsSet('s12tk_'+ROOM,myT);send({t:'tk',col:+myT});vk='';draw();return;}
