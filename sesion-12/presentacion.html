@@ -428,7 +428,7 @@ function onUp(tx){
     if(c.dd&&p.tm!==c.tid)return;
     var hd=c.hide[p.tm]||[];if(hd.indexOf(+m.i)>-1)return;
     if(c.te&&now>c.te+1500)return;
-    c.ans[m.d]={i:+m.i,ts:now};sync();return;
+    c.ans[m.d]={i:+m.i,ts:now};schedSync();return;
   }
   if(m.t==='bet'&&c.ph==='bet'&&p.tm===c.tid){var mx=Math.max(G.scr[c.tid]||0,400);var v=Math.min(+m.v,mx);if(v>0){c.bet=v;c.ph='open';c.dur=c.k==='VF'?25:35;c.te=now+c.dur*1000;sync();}return;}
   if(m.t==='b'&&c.ph==='buzz'&&c.k==='COMP'&&c.failed.indexOf(p.tm)<0){c.ctl={tid:p.tm,dev:m.d,nm:p.nm,ap:p.ap};c.ph='ans';c.dur=20;c.te=now+20000;sound('buzz');sync();return;}
@@ -461,9 +461,17 @@ function stateOut(){
   }
   return {r:ROOM,seq:++seqPub,ts:now,slide:G.slide,teams:teams,asg:asg,turn:turnTid(),board:G.board.map(function(x){return x.st;}),cols:COLN,fin:G.finDone,q:q,rdy:G.played>=8&&!G.finDone};
 }
-function pubState(){
+var lastPub=0,pubT=null;
+function doPub(){
+  lastPub=Date.now();
   var s=JSON.stringify(stateOut());
   cli.forEach(function(k){k.pub(TOP+'/state',s,true);});
+}
+/* limita el ritmo de publicación (los brokers públicos recortan si se les inunda): máx. 1 cada 700 ms, siempre con el estado más reciente */
+function pubState(){
+  var w=700-(Date.now()-lastPub);
+  if(w<=0){clearTimeout(pubT);pubT=null;doPub();}
+  else if(!pubT){pubT=setTimeout(function(){pubT=null;doPub();},w);}
 }
 function schedSync(){save();render();clearTimeout(syncT);syncT=setTimeout(pubState,120);}
 function sync(){save();render();pubState();}
