@@ -152,7 +152,7 @@ function draw(){
     +bd+'<div class="box">'+ST.teams.map(function(x){return '<div class="tl" style="--c:'+x.c+'"><span>'+esc(x.n)+(x.b.s?' 🛡️':'')+(x.b.x?' ✖2':'')+(x.b.h?' 💡':'')+'</span><b>'+money(x.sc)+'</b></div>';}).join('')+'</div>'
     +'<div class="box"><b style="color:var(--yl)">Tu equipo ('+t.m.length+')</b><br>'+t.m.map(esc).join(' · ')+'</div>',true);
 }
-function head(q,t){return '<span class="tm px" id="tmr"></span><span class="tag">'+(q.k==='FINAL'?'RETO FINAL':esc(ST.cols[0]&&q.k?q.k:''))+'</span><span class="tag" style="background:var(--yl)">'+(q.dd&&q.bet?'APUESTA '+money(q.bet):money(q.val))+'</span>'+(q.dd?'<span class="tag" style="background:var(--pnk)">DAILY DOUBLE</span>':'');}
+function head(q,t){return '<span class="tm px" id="tmr"></span><span class="tag">'+(q.k==='FINAL'?'RETO FINAL':q.k==='VIVO'?'RETO EN VIVO':esc(ST.cols[0]&&q.k?q.k:''))+'</span><span class="tag" style="background:var(--yl)">'+(q.dd&&q.bet?'APUESTA '+money(q.bet):money(q.val))+'</span>'+(q.dd?'<span class="tag" style="background:var(--pnk)">DAILY DOUBLE</span>':'');}
 function drawQ(q,t){
   var k=q.k,ph=q.ph;
   if(k==='VF'||k==='OM'){
@@ -181,6 +181,15 @@ function drawQ(q,t){
       if(ph==='ans'&&me){if(vk==='cin'+q.uid)return;set('cin'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><h1>¡Eres tú!</h1><input id="cmp" placeholder="Escribe la respuesta" maxlength="60" autocomplete="off"><button class="go big" data-do="cmp">ENVIAR</button>');tick();var ie=$('#cmp');if(ie)ie.focus();return;}
       set('cw'+q.uid+ph+(ctl?ctl.dev:''),head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="big">'+(ctl?esc(ctl.nm)+' (equipo '+esc((ST.teams.filter(function(x){return x.id===ctl.tid;})[0]||{}).n||'')+')<br>responde…':'')+'</div>'+(ph==='judge'?'<div class="box">Respuesta: <b>'+esc(q.txt)+'</b></div>':''),true);tick();return;}
     if(ph==='rev'){set('cr'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="box">Respuesta: <b style="color:var(--gr)">'+esc(q.accOne||'')+'</b></div>',true);return;}
+  }
+  if(k==='VIVO'){
+    var isT2=q.tid===t.id,tn=(ST.teams.filter(function(x){return x.id===q.tid;})[0]||{}).n||'';
+    if(ph==='perform'){set('vp'+q.uid+(isT2?1:0),head(q,t)+'<div class="q">'+esc(q.text)+'</div>'+(isT2?'<div class="box"><b>¡Les toca a ustedes!</b> Háganlo frente al grupo.</div>':'<div class="box">👀 Observen a '+esc(tn)+'. Pronto calificarás de 1 a 5.</div>'),true);tick();return;}
+    if(ph==='vote'){
+      if(isT2){set('vv'+q.uid+'t',head(q,t)+'<h1>Te están calificando</h1><p class="sub">Mira la pantalla del salón.</p>',true);tick();return;}
+      var sv2=myV[q.uid],dn=q.voted.indexOf(dev)>-1||sv2;
+      set('vv'+q.uid+(sv2||'')+(dn?'d':''),head(q,t)+'<h1>Califica a '+esc(tn)+'</h1><p class="sub">1 = no se entendió · 5 = excelente. Un solo voto.</p>'+[1,2,3,4,5].map(function(n){return '<button class="go c" style="--c:var(--cy)" data-do="sv" data-s="'+n+'" '+(dn?'disabled':'')+'>'+(sv2===n?'✔ ':'')+n+' '+'★'.repeat(n)+'</button>';}).join(''),true);tick();return;}
+    if(ph==='rev'){var r1=(q.res||[])[0]||{};set('vr'+q.uid,head(q,t)+'<h1>Resultado</h1><div class="box">'+esc(tn)+': '+(r1.n?'promedio <b>'+r1.avg+'</b>':'sin votos')+' · <b style="color:var(--yl)">'+(r1.amt>=0?'+':'')+money(r1.amt||0)+'</b></div><p class="sub">Mira la pantalla del salón.</p>',true);return;}
   }
   if(k==='RETO'||k==='FINAL'){
     var scribe=q.scr&&q.scr[t.id],iam=scribe===dev;
@@ -223,12 +232,13 @@ document.addEventListener('click',function(e){
   if(d==='buzz'){send({t:'b',q:q.uid});return;}
   if(d==='cmp'){var v=($('#cmp').value||'').trim();if(!v)return;send({t:'x',q:q.uid,txt:v});pend={t:'x',q:q.uid,txt:v,n:0};return;}
   if(d==='claim'){send({t:'cl',q:q.uid});return;}
+  if(d==='sv'){if(myV[q.uid])return;var sn=+b.dataset.s;myV[q.uid]=sn;send({t:'sv',q:q.uid,s:sn});pend={t:'sv',q:q.uid,s:sn,n:0};vk='';draw();return;}
   if(d==='vote'){if(myV[q.uid])return;myV[q.uid]=b.dataset.k;send({t:'v',q:q.uid,k:b.dataset.k});pend={t:'v',q:q.uid,k:b.dataset.k,n:0};vk='';draw();return;}
 });
 setInterval(function(){
   presence();setStatus();tick();
   if(pend&&ST&&ST.q&&ST.q.uid===pend.q&&pend.n<5){
-    var q=ST.q,ack=(pend.t==='a'&&q.done.indexOf(dev)>-1)||(pend.t==='v'&&q.voted.indexOf(dev)>-1)||(pend.t==='x'&&q.ph!=='ans');
+    var q=ST.q,ack=(pend.t==='a'&&q.done.indexOf(dev)>-1)||((pend.t==='v'||pend.t==='sv')&&q.voted.indexOf(dev)>-1)||(pend.t==='x'&&q.ph!=='ans');
     if(!ack){pend.n++;var o={};for(var kx in pend)if(kx!=='n')o[kx]=pend[kx];send(o);}else pend=null;
   }
 },2000);
