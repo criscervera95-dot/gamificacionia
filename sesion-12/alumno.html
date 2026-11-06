@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jeopardy Arcade · Sesión 12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0820;--pnk:#ff2bd6;--cy:#19f0ff;--yl:#ffe600;--gr:#39ff88;--rd:#ff4d6d;--pu:#8b5cff;--ink:#f3f0ff;--mut:#a79fd6}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(900px 500px at 50% -10%,#2a1a6e,var(--bg) 65%) fixed;color:var(--ink);font-family:'Rajdhani','Trebuchet MS',system-ui,sans-serif;font-weight:600;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.px{font-family:'Press Start 2P',monospace}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:#07051a;border-bottom:3px solid var(--pnk);font-size:16px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#777;margin-right:6px}.dot.ok{background:var(--gr);box-shadow:0 0 8px var(--gr)}.dot.bad{background:var(--rd)}
+#sc{font:12px 'Press Start 2P',monospace;color:var(--yl)}
+main{flex:1;padding:16px 14px 26px;max-width:560px;width:100%;margin:0 auto}
+h1{font:16px/1.5 'Press Start 2P',monospace;color:var(--pnk);text-shadow:0 0 10px var(--pnk);margin-bottom:12px}
+p.sub{font-size:19px;line-height:1.35;color:var(--ink);margin-bottom:12px}
+input,textarea{width:100%;background:#fff;color:#111;border:3px solid var(--cy);border-radius:12px;padding:12px;font:700 20px 'Rajdhani',sans-serif;margin-bottom:10px}
+textarea{min-height:130px;resize:vertical}
+.go{display:block;width:100%;background:#1d1650;color:#fff;border:3px solid var(--yl);border-radius:14px;padding:14px;font:700 22px 'Rajdhani';margin:8px 0;cursor:pointer;box-shadow:0 0 12px rgba(255,230,0,.35)}
+.go:disabled{opacity:.4}
+.go.big{font-size:28px;padding:20px}.go.c{border-color:var(--c);color:var(--c)}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;background:#161047;border:4px solid var(--c);border-radius:14px;padding:14px;font:700 22px/1.15 'Rajdhani';color:#fff;width:100%;margin:8px 0}
+.opt b{font:18px 'Press Start 2P',monospace;color:var(--c)}
+.opt.sel{background:#2c2380;box-shadow:0 0 18px var(--c)}.opt.ok{background:#0b5b2c;border-color:var(--gr)}.opt.bad{background:#5b1022;border-color:var(--rd)}.opt.hid{visibility:hidden;height:0;margin:0;padding:0;border:0}
+.q{font:700 27px/1.2 'Rajdhani';margin:8px 0 12px}
+.tag{display:inline-block;font:11px 'Press Start 2P',monospace;background:var(--cy);color:var(--bg);padding:6px 8px;border-radius:6px;margin:0 6px 8px 0}
+.tm{font:16px 'Press Start 2P',monospace;color:var(--cy);float:right}.tm.low{color:var(--rd)}
+.box{background:#120d36;border:3px solid var(--pu);border-radius:14px;padding:12px;margin:10px 0;font-size:19px}
+.big{font:20px/1.5 'Press Start 2P',monospace;text-align:center;color:var(--yl);margin:20px 0}
+.ring{width:40px;height:40px;border:5px solid #3a3070;border-top-color:var(--cy);border-radius:50%;margin:20px auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.tl{display:flex;justify-content:space-between;border-left:8px solid var(--c);background:#120d36;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:20px}.tl b{color:var(--yl)}
+.board{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0}
+.board div{background:#1a3cff;border:2px solid var(--cy);border-radius:6px;text-align:center;font:10px 'Press Start 2P',monospace;color:var(--yl);padding:14px 0;cursor:pointer}.board div.pl{background:#0e0b28;border-color:#2c2760;color:#2c2760}.board .h{background:#3a1d9e;border-color:var(--pnk);color:#fff;font:700 11px/1.1 Rajdhani;padding:6px 1px;cursor:default}
+footer{padding:8px;text-align:center;color:var(--mut);font-size:13px}
+</style></head><body>
+<header><span><span class="dot" id="dot"></span><span id="st">Conectando…</span></span><span id="sc"></span></header>
+<main id="m"></main>
+<footer>Jeopardy Arcade · solo se guarda tu nombre y apellido</footer>
+<script>
+(function(){
+'use strict';
+function MQ(url,opt){
+  opt=opt||{};
+  var enc=new TextEncoder(),dec=new TextDecoder();
+  var ws=null,buf=new Uint8Array(0),pid=0,pingT=null,rcT=null,subs=[],up=false,closed=false,wait=1500;
+  var cid=opt.cid||('c'+Math.random().toString(36).slice(2,10));
+  function cat(a,b){var r=new Uint8Array(a.length+b.length);r.set(a,0);r.set(b,a.length);return r;}
+  function s2b(s){var b=enc.encode(s),r=new Uint8Array(b.length+2);r[0]=b.length>>8;r[1]=b.length&255;r.set(b,2);return r;}
+  function rl(n){var a=[];do{var d=n%128;n=Math.floor(n/128);if(n>0)d|=128;a.push(d);}while(n>0);return new Uint8Array(a);}
+  function pkt(h,body){var l=rl(body.length),r=new Uint8Array(1+l.length+body.length);r[0]=h;r.set(l,1);r.set(body,1+l.length);return r;}
+  function send(p){try{if(ws&&ws.readyState===1)ws.send(p);}catch(e){}}
+  function emit(s){if(opt.onState)opt.onState(s,api);}
+  function connect(){
+    if(closed)return;
+    var me;
+    try{me=ws=new WebSocket(url,'mqtt');}catch(e){retry();return;}
+    ws.binaryType='arraybuffer';buf=new Uint8Array(0);
+    ws.onopen=function(){send(pkt(0x10,cat(cat(s2b('MQTT'),new Uint8Array([4,2,0,30])),s2b(cid))));};
+    ws.onmessage=function(ev){buf=cat(buf,new Uint8Array(ev.data));parse();};
+    ws.onclose=function(){if(me!==ws)return;var was=up;up=false;clearInterval(pingT);if(was)emit('down');else emit('fail');retry();};
+    ws.onerror=function(){};
+  }
+  function retry(){if(closed)return;clearTimeout(rcT);rcT=setTimeout(connect,wait);wait=Math.min(wait*1.6,10000);}
+  function parse(){
+    while(buf.length>=2){
+      var i=1,m=1,len=0,b;
+      do{if(i>=buf.length)return;b=buf[i++];len+=(b&127)*m;m*=128;}while(b&128);
+      if(buf.length<i+len)return;
+      var h=buf[0],body=buf.subarray(i,i+len);buf=buf.subarray(i+len);
+      var t=h>>4;
+      if(t===2){
+        if(body[1]===0){up=true;wait=1500;subs.forEach(dosub);clearInterval(pingT);pingT=setInterval(function(){send(new Uint8Array([0xC0,0]));},15000);emit('up');}
+        else emit('refused');
+      }else if(t===3){
+        var tl=(body[0]<<8)|body[1],topic=dec.decode(body.subarray(2,2+tl)),o=2+tl;
+        if(((h>>1)&3)>0)o+=2;
+        if(opt.onMsg)opt.onMsg(topic,dec.decode(body.subarray(o)));
+      }
+    }
+  }
+  function dosub(t){pid=(pid%65535)+1;send(pkt(0x82,cat(new Uint8Array([pid>>8,pid&255]),cat(s2b(t),new Uint8Array([0])))));}
+  var api={
+    sub:function(t){if(subs.indexOf(t)<0)subs.push(t);if(up)dosub(t);},
+    pub:function(t,p,retain){if(!up)return false;send(pkt(0x30|(retain?1:0),cat(s2b(t),enc.encode(p))));return true;},
+    close:function(){closed=true;clearInterval(pingT);clearTimeout(rcT);try{ws.close();}catch(e){}},
+    isUp:function(){return up;},url:url
+  };
+  connect();return api;
+}
+
+var P=new URLSearchParams(location.search),ROOM=P.get('r')||'',TOP='gamifia/s12/'+ROOM;
+var BRK=P.get('broker')?[P.get('broker')]:['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081'];
+var COLN=['Costos y precio','Ventas y atención','Proceso de venta','Canales y métricas','Liderazgo y comunicación','Base del proyecto'];
+var CC=['var(--pnk)','var(--cy)','var(--yl)','var(--gr)'];
+var $=function(s){return document.querySelector(s);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function rid(){return Math.random().toString(36).slice(2,9);}
+var dev=lsGet('s12dev')||('d'+rid()+rid());lsSet('s12dev',dev);
+var idn=null;try{idn=JSON.parse(lsGet('s12id')||'null');}catch(e){}
+var ST=null,cli=null,bi=0,got=false,swT=null,lastSeq=0,lastTs=0,off=0,err='',vk='',myA={},myV={},myT=lsGet('s12tk_'+ROOM)||'',pend=null,editing=false;
+function ready(){return idn&&idn.nm&&idn.ap;}
+function money(n){return '$'+n;}
+function send(o){o.r=ROOM;o.d=dev;o.m=rid()+rid();if(cli)cli.pub(TOP+'/up',JSON.stringify(o),false);}
+function presence(){if(ready())send({t:'p',nm:idn.nm,ap:idn.ap});}
+function setStatus(){
+  var up=cli&&cli.isUp(),fresh=Date.now()-lastTs<20000;
+  $('#dot').className='dot '+(up?(fresh?'ok':''):'bad');
+  $('#st').textContent=!up?'Conectando…':(fresh?(idn?idn.nm:'En vivo'):'Esperando a la profesora…');
+  var t=myTeam();$('#sc').textContent=t?money(t.sc):'';
+}
+function myTid(){return ST&&ST.asg?ST.asg[dev]:undefined;}
+function myTeam(){var id=myTid();if(id==null||!ST)return null;return ST.teams.filter(function(t){return t.id===id;})[0]||null;}
+function connect(){
+  if(cli){try{cli.close();}catch(e){}}
+  got=false;
+  cli=MQ(BRK[bi%BRK.length],{cid:'a'+dev+rid().slice(0,3),
+    onMsg:function(tp,tx){if(tp!==TOP+'/state')return;var o;try{o=JSON.parse(tx);}catch(e){return;}if(!o||o.r!==ROOM)return;if(o.seq<lastSeq&&o.seq>3&&lastSeq-o.seq<50)return;lastSeq=o.seq;lastTs=Date.now();off=Date.now()-o.ts;got=true;clearTimeout(swT);ST=o;draw();setStatus();},
+    onState:function(s,api){
+      if(s==='up'){api.sub(TOP+'/state');presence();clearTimeout(swT);swT=setTimeout(function(){if(!got){bi++;connect();}},6000);}
+      if(s==='fail'||s==='refused'){clearTimeout(swT);swT=setTimeout(function(){bi++;connect();},2500);}
+      setStatus();}});
+}
+function tleft(te){return te?Math.max(0,Math.ceil((te+off-Date.now())/1000)):0;}
+function set(vkey,html,force){var m=$('#m');if(vkey===vk&&!force)return false;vk=vkey;m.innerHTML=html;return true;}
+function draw(){
+  var m=$('#m');
+  if(!ROOM){set('noroom','<h1>Falta el código de sala</h1><p class="sub">Escanea de nuevo el QR de la pantalla del salón.</p>');return;}
+  if(!ready()||editing){
+    set('reg','<h1>¿QUIÉN ERES?</h1><p class="sub">Escribe tu nombre y apellido para jugar.</p><input id="inm" placeholder="Nombre" maxlength="30" autocomplete="given-name" value="'+esc(idn&&idn.nm||'')+'"><input id="iap" placeholder="Apellido" maxlength="30" autocomplete="family-name" value="'+esc(idn&&idn.ap||'')+'"><div id="err" style="color:var(--rd);min-height:22px">'+esc(err)+'</div><button class="go big" data-do="reg">▶ ENTRAR</button>');return;}
+  if(!ST){set('conn','<div class="ring"></div><h1>CONECTANDO…</h1><p class="sub">Si tarda, usa datos móviles. La profesora debe tener abierta la presentación.</p>');return;}
+  var t=myTeam();
+  if(!t){
+    set('team'+ST.teams.length+(ST.teams.map(function(x){return x.n+x.m.length;}).join('')),'<h1>ELIGE TU EQUIPO</h1>'+ST.teams.map(function(x){return '<button class="go c" style="--c:'+x.c+'" data-do="tm" data-t="'+x.id+'">'+esc(x.n)+' <small style="color:var(--mut)">('+x.m.length+')</small></button>';}).join(''));return;}
+  var q=ST.q;
+  if(q){drawQ(q,t);return;}
+  if(ST.slide===3){
+    var rk=ST.teams.filter(function(x){return x.m.length||x.sc>0;}).sort(function(a,b){return b.sc-a.sc;});
+    set('pod'+myT+rk.map(function(x){return x.id+':'+x.sc;}).join(),'<h1>PODIO</h1>'+rk.map(function(x,i){return '<div class="tl" style="--c:'+x.c+'"><span>'+(i+1)+'. '+esc(x.n)+'</span><b>'+money(x.sc)+'</b></div>';}).join('')
+      +'<div class="box"><b style="color:var(--yl)">Ticket de salida</b><br>¿Qué columna te costó más? (así sabes qué repasar)</div>'+COLN.map(function(n,i){return '<button class="go'+(myT==String(i+1)?' c" style="--c:var(--gr)':'')+'" data-do="tk" data-c="'+(i+1)+'">'+(myT==String(i+1)?'✔ ':'')+esc(n)+'</button>';}).join(''),true);return;}
+  var turn=ST.turn===t.id&&ST.slide===2;
+  var bd='<div class="board">'+ST.cols.map(function(c,i){return '<div class="h">'+esc(c.split(' ')[0])+'</div>';}).join('');
+  for(var r=0;r<4;r++)for(var c2=0;c2<6;c2++){var i2=r*6+c2;bd+='<div class="'+(ST.board[i2]?'pl':'')+'" '+(turn&&!ST.board[i2]?'data-do="pick" data-i="'+i2+'"':'')+'>'+(ST.board[i2]?'—':'$'+(r+1)*100)+'</div>';}
+  bd+='</div>';
+  var tt=ST.teams.filter(function(x){return x.id===ST.turn;})[0];
+  set('lobby'+(turn?'T':'W')+ST.board.join('')+ST.teams.map(function(x){return x.sc+'/'+x.b.s+x.b.x+x.b.h+x.m.length;}).join()+ST.slide+(ST.rdy?'F':''),
+    '<span class="tag" style="background:'+t.c+'">'+esc(t.n)+'</span>'
+    +(ST.slide<2?'<h1>LISTO PARA JUGAR</h1><p class="sub">La profesora iniciará el tablero en un momento. Tu equipo:</p>':
+      (turn?'<h1>¡ES TU TURNO!</h1><p class="sub">Toca una ficha del tablero para elegirla (también puede elegirla tu equipo en voz alta).</p>':'<h1>TURNO DE '+esc(tt?tt.n.toUpperCase():'—')+'</h1><p class="sub">Prepárate: todos podrán responder desde su celular.</p>'))
+    +bd+'<div class="box">'+ST.teams.map(function(x){return '<div class="tl" style="--c:'+x.c+'"><span>'+esc(x.n)+(x.b.s?' 🛡️':'')+(x.b.x?' ✖2':'')+(x.b.h?' 💡':'')+'</span><b>'+money(x.sc)+'</b></div>';}).join('')+'</div>'
+    +'<div class="box"><b style="color:var(--yl)">Tu equipo ('+t.m.length+')</b><br>'+t.m.map(esc).join(' · ')+'</div>',true);
+}
+function head(q,t){return '<span class="tm px" id="tmr"></span><span class="tag">'+(q.k==='FINAL'?'RETO FINAL':esc(ST.cols[0]&&q.k?q.k:''))+'</span><span class="tag" style="background:var(--yl)">'+(q.dd&&q.bet?'APUESTA '+money(q.bet):money(q.val))+'</span>'+(q.dd?'<span class="tag" style="background:var(--pnk)">DAILY DOUBLE</span>':'');}
+function drawQ(q,t){
+  var k=q.k,ph=q.ph;
+  if(k==='VF'||k==='OM'){
+    var mine=myA[q.uid],isTurn=q.tid===t.id,hid=(q.hide&&q.hide[t.id])||[];
+    if(q.dd&&!isTurn){set('dd'+q.uid+ph,head(q,t)+'<div class="big">DAILY DOUBLE<br>de '+esc((ST.teams.filter(function(x){return x.id===q.tid;})[0]||{}).n||'')+'</div><p class="sub" style="text-align:center">Mira la pantalla.</p>');return;}
+    if(ph==='bet'){
+      if(!isTurn){set('betw'+q.uid,head(q,t)+'<div class="big">Tu rival apuesta…</div>');return;}
+      var mx=q.mx,ops=[100,200,400,mx].filter(function(v,i,a){return v<=mx&&a.indexOf(v)===i;});
+      set('bet'+q.uid,head(q,t)+'<h1>¡DAILY DOUBLE!</h1><p class="sub">Tu equipo tiene '+money(t.sc)+'. ¿Cuánto apuestas? Pierdes lo apostado si fallan.</p>'+ops.map(function(v){return '<button class="go big" data-do="bet" data-v="'+v+'">'+money(v)+(v===mx&&v>400?' · TODO':'')+'</button>';}).join(''));return;}
+    var done=q.done.indexOf(dev)>-1||mine!==undefined;
+    var html=head(q,t)+'<div class="q">'+esc(q.text)+'</div>'+q.opts.map(function(o,i){
+      var cls='opt',pre=k==='OM'?'ABCD'[i]:(i?'F':'V'),hd=hid.indexOf(i)>-1;
+      if(ph==='rev'){if(i===q.cor)cls+=' ok';else if(mine===i)cls+=' bad';}
+      else if(mine===i)cls+=' sel';
+      if(hd&&ph!=='rev')cls+=' hid';
+      return '<button class="'+cls+'" style="--c:'+CC[i]+'" data-do="ans" data-i="'+i+'" '+((done||ph!=='open')?'disabled':'')+'><b>'+pre+'</b>'+esc(o)+'</button>';}).join('');
+    if(ph==='open'&&done)html+='<div class="box">✔ Respuesta enviada. Espera a que la profesora revele.</div>';
+    if(ph==='locked')html+='<div class="box">⏱ Tiempo terminado.</div>';
+    if(ph==='rev'){var rs=(q.res||[]).filter(function(r){return r.tid===t.id;})[0];html+='<div class="box">'+(mine===undefined?'No respondiste.':(mine===q.cor?'<b style="color:var(--gr)">¡ACERTASTE!</b>':'<b style="color:var(--rd)">Fallaste.</b>'))+(rs?'<br>Tu equipo: <b style="color:var(--yl)">'+(rs.amt>=0?'+':'')+money(rs.amt)+'</b>':'')+'</div>';}
+    set('q'+q.uid+ph+(mine===undefined?'-':mine)+(done?'d':'')+hid.join(),html,true);tick();return;}
+  if(k==='COMP'){
+    var ctl=q.ctl;
+    if(ph==='buzz'){set('bz'+q.uid+ph,head(q,t)+'<div class="q">'+esc(q.text)+'</div><button class="go big" style="border-color:var(--pnk);color:var(--pnk);padding:44px" data-do="buzz">🔔 ¡BUZZ!</button><p class="sub" style="text-align:center">El primero en tocar responde por su equipo.</p>',true);tick();return;}
+    if(ph==='ans'||ph==='judge'){
+      var me=ctl&&ctl.dev===dev;
+      if(ph==='ans'&&me){if(vk==='cin'+q.uid)return;set('cin'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><h1>¡ERES TÚ!</h1><input id="cmp" placeholder="Escribe la respuesta" maxlength="60" autocomplete="off"><button class="go big" data-do="cmp">ENVIAR</button>');tick();var ie=$('#cmp');if(ie)ie.focus();return;}
+      set('cw'+q.uid+ph+(ctl?ctl.dev:''),head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="big">'+(ctl?esc(ctl.nm)+' (equipo '+esc((ST.teams.filter(function(x){return x.id===ctl.tid;})[0]||{}).n||'')+')<br>responde…':'')+'</div>'+(ph==='judge'?'<div class="box">Respuesta: <b>'+esc(q.txt)+'</b></div>':''),true);tick();return;}
+    if(ph==='rev'){set('cr'+q.uid,head(q,t)+'<div class="q">'+esc(q.text)+'</div><div class="box">Respuesta: <b style="color:var(--gr)">'+esc(q.accOne||'')+'</b></div>',true);return;}
+  }
+  if(k==='RETO'||k==='FINAL'){
+    var scribe=q.scr&&q.scr[t.id],iam=scribe===dev;
+    if(ph==='write'){
+      var sk=iam?'ws':'wo';
+      if(iam&&vk==='wsi'+q.uid){tick();return;}
+      var h2=head(q,t)+'<div class="q">'+esc(q.text)+'</div>'+(q.steps?q.steps.map(function(s,i){return '<div class="box"><b style="color:var(--yl)">PASO '+(i+1)+'</b> · '+esc(s)+'</div>';}).join(''):'');
+      if(iam){
+        if(k==='FINAL')h2+='<textarea id="w0" placeholder="Paso 1"></textarea><textarea id="w1" placeholder="Paso 2"></textarea>';
+        else h2+='<textarea id="w0" placeholder="Escribe la respuesta de tu equipo"></textarea>';
+        h2+='<div class="box">✍️ Tú escribes por tu equipo. Hablen entre ustedes y dicten.</div>';
+        set('wsi'+q.uid,h2);bindW(q);tick();return;}
+      h2+=scribe?'<div class="box">✍️ Escribe '+esc(nameOf(t,scribe))+' por tu equipo. Ayuden hablando entre ustedes.</div>':'<button class="go big" data-do="claim">✍️ ESCRIBO POR MI EQUIPO</button>';
+      set('wo'+q.uid+(scribe||''),h2,true);tick();return;}
+    if(ph==='vote'||ph==='rev'){
+      var voted=q.voted.indexOf(dev)>-1||myV[q.uid];
+      var h3=head(q,t)+'<h1>'+(ph==='vote'?'VOTA LA MEJOR':'RESULTADOS')+'</h1>'+(ph==='vote'?'<p class="sub">No puedes votar por tu propio equipo. Un solo voto.</p>':'<p class="sub">Mira la pantalla del salón.</p>')+(q.resp||[]).map(function(x){
+        var own=q.keys&&q.keys[x.k]===t.id;
+        return '<div class="box"><b style="color:var(--pnk)">RESPUESTA '+x.k+'</b><br>'+esc(x.txt)+(ph==='vote'?'<button class="go c" style="--c:var(--cy)" data-do="vote" data-k="'+x.k+'" '+((own||voted)?'disabled':'')+'>'+(own?'(tu equipo)':(myV[q.uid]===x.k?'✔ Votaste':'Votar '+x.k))+'</button>':'')+'</div>';}).join('');
+      set('v'+q.uid+ph+(myV[q.uid]||'')+(voted?'d':''),h3,true);tick();return;}
+  }
+  set('x'+q.uid+ph,head(q,t)+'<div class="big">Mira la pantalla</div>',true);
+}
+function nameOf(t,d){return 'un compañero';}
+var wT=null;
+function bindW(q){
+  ['w0','w1'].forEach(function(id,s){var e=document.getElementById(id);if(!e)return;e.addEventListener('input',function(){clearTimeout(wT);wT=setTimeout(function(){send({t:'w',q:q.uid,s:s,txt:e.value});},500);});e.addEventListener('blur',function(){send({t:'w',q:q.uid,s:s,txt:e.value});});});
+}
+function tick(){var e=document.getElementById('tmr');if(!e||!ST||!ST.q)return;var s=tleft(ST.q.te);e.textContent=ST.q.te?(Math.floor(s/60)+':'+('0'+(s%60)).slice(-2)):'';e.className='tm px'+(s<=5&&ST.q.te?' low':'');}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-do]');if(!b)return;var d=b.dataset['do'];
+  if(d==='reg'){var n=($('#inm').value||'').trim(),a=($('#iap').value||'').trim();if(!n||!a){$('#err').textContent='Escribe nombre y apellido.';return;}idn={nm:n.slice(0,30),ap:a.slice(0,30)};lsSet('s12id',JSON.stringify(idn));editing=false;vk='';presence();draw();setStatus();return;}
+  if(!ST)return;
+  if(d==='tm'){send({t:'tm',tm:+b.dataset.t});setTimeout(function(){send({t:'tm',tm:+b.dataset.t});},900);return;}
+  if(d==='tk'){myT=b.dataset.c;lsSet('s12tk_'+ROOM,myT);send({t:'tk',col:+myT});vk='';draw();return;}
+  if(d==='pick'){send({t:'pick',i:+b.dataset.i});return;}
+  var q=ST.q;if(!q)return;
+  if(d==='ans'){var i=+b.dataset.i;if(myA[q.uid]!==undefined)return;myA[q.uid]=i;send({t:'a',q:q.uid,i:i});pend={t:'a',q:q.uid,i:i,n:0};vk='';draw();return;}
+  if(d==='bet'){send({t:'bet',q:q.uid,v:+b.dataset.v});return;}
+  if(d==='buzz'){send({t:'b',q:q.uid});return;}
+  if(d==='cmp'){var v=($('#cmp').value||'').trim();if(!v)return;send({t:'x',q:q.uid,txt:v});pend={t:'x',q:q.uid,txt:v,n:0};return;}
+  if(d==='claim'){send({t:'cl',q:q.uid});return;}
+  if(d==='vote'){if(myV[q.uid])return;myV[q.uid]=b.dataset.k;send({t:'v',q:q.uid,k:b.dataset.k});pend={t:'v',q:q.uid,k:b.dataset.k,n:0};vk='';draw();return;}
+});
+setInterval(function(){
+  presence();setStatus();tick();
+  if(pend&&ST&&ST.q&&ST.q.uid===pend.q&&pend.n<5){
+    var q=ST.q,ack=(pend.t==='a'&&q.done.indexOf(dev)>-1)||(pend.t==='v'&&q.voted.indexOf(dev)>-1)||(pend.t==='x'&&q.ph!=='ans');
+    if(!ack){pend.n++;var o={};for(var kx in pend)if(kx!=='n')o[kx]=pend[kx];send(o);}else pend=null;
+  }
+},2000);
+setInterval(tick,500);
+draw();setStatus();
+if(ROOM)connect();
+})();
+</script></body></html>

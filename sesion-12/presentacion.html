@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sesión 12 · Jeopardy Arcade — Presentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0820;--bg2:#141036;--pnk:#ff2bd6;--cy:#19f0ff;--yl:#ffe600;--gr:#39ff88;--or:#ff8a1f;--pu:#8b5cff;--rd:#ff4d6d;--ink:#f3f0ff;--mut:#a79fd6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'Rajdhani','Trebuchet MS',system-ui,sans-serif;color:var(--ink)}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:radial-gradient(1200px 700px at 50% -10%,#2a1a6e 0%,var(--bg) 60%);overflow:hidden}
+#stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);z-index:50}
+.px{font-family:'Press Start 2P',monospace;letter-spacing:.02em}
+#hud{position:absolute;left:0;top:0;width:1920px;height:64px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#07051a;border-bottom:3px solid var(--pnk);z-index:20}
+#hud .ttl{font:14px 'Press Start 2P',monospace;color:var(--yl);text-shadow:0 0 12px var(--yl)}
+#hud .sp{flex:1}
+.btn{font:700 20px 'Rajdhani',sans-serif;color:var(--ink);background:#1d1650;border:2px solid var(--cy);border-radius:10px;padding:6px 14px;cursor:pointer;box-shadow:0 0 10px rgba(25,240,255,.35)}
+.btn:hover{background:#2a2070}.btn.pk{border-color:var(--pnk);box-shadow:0 0 10px rgba(255,43,214,.45)}.btn.yl{border-color:var(--yl);color:var(--yl);box-shadow:0 0 10px rgba(255,230,0,.35)}.btn.gr{border-color:var(--gr);color:var(--gr)}.btn.rd{border-color:var(--rd);color:var(--rd)}
+.btn.big{font-size:30px;padding:12px 28px}
+#tm{font:20px 'Press Start 2P',monospace;color:var(--cy);min-width:130px;text-align:center}
+#tm.low{color:var(--rd);animation:bl .5s steps(2) infinite}@keyframes bl{50%{opacity:.4}}
+#live{font-size:18px;color:var(--mut)}#live b{color:var(--gr)}#live.off b{color:var(--rd)}
+#slides{position:absolute;left:0;top:64px;width:1920px;height:866px}
+.sl{position:absolute;inset:0;display:none;padding:26px 40px}.sl.on{display:block}
+#foot{position:absolute;left:0;top:930px;width:1920px;height:150px;background:#07051a;border-top:3px solid var(--cy);display:flex;gap:14px;padding:12px 18px;z-index:20;overflow:hidden}
+.tc{flex:1;min-width:0;background:linear-gradient(180deg,#1b1450,#0f0b30);border:3px solid var(--c);border-radius:14px;padding:8px 12px;cursor:pointer;position:relative;box-shadow:0 0 14px color-mix(in srgb,var(--c) 50%,transparent)}
+.tc.turn{box-shadow:0 0 0 4px var(--yl),0 0 26px var(--yl);transform:translateY(-4px)}
+.tc .nm{font:700 24px 'Rajdhani';color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc .sc{font:20px 'Press Start 2P',monospace;color:var(--yl);margin-top:2px}
+.tc .mb{font:600 16px 'Rajdhani';color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc .bn{position:absolute;right:8px;top:6px;font-size:20px}
+/* cover */
+.cov{display:flex;gap:40px;height:100%}
+.cov .l{width:700px}.cov .r{flex:1;display:flex;flex-direction:column}
+.big1{font:46px/1.25 'Press Start 2P',monospace;color:var(--pnk);text-shadow:0 0 18px var(--pnk),4px 4px 0 #3a0a52}
+.big2{font:26px/1.4 'Press Start 2P',monospace;color:var(--cy);margin:14px 0 20px;text-shadow:0 0 12px var(--cy)}
+.qrbox{background:#fff;border-radius:16px;padding:12px;width:300px;height:300px;box-shadow:0 0 30px var(--cy)}
+.qrbox svg{width:100%;height:100%}
+.chip{display:inline-block;font:700 20px 'Rajdhani';background:#1d1650;border:2px solid var(--pu);border-radius:20px;padding:2px 12px;margin:3px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-content:start;overflow:auto;max-height:690px}
+.team{background:#120d36;border:3px solid var(--c);border-radius:14px;padding:10px 12px;min-height:150px}
+.team h3{font:700 26px 'Rajdhani';color:var(--c);display:flex;justify-content:space-between;gap:6px}
+.team h3 span{cursor:pointer}
+.mem{font:600 20px 'Rajdhani';padding:1px 0;color:var(--ink)}.mem i{font-style:normal;color:var(--gr);margin-right:6px}.mem i.off{color:#555}
+/* objective */
+.obj{display:flex;flex-direction:column;gap:22px;justify-content:center;height:100%}
+.obj .vb{font:36px/1.6 'Press Start 2P',monospace;color:var(--yl);text-shadow:0 0 14px var(--yl)}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.rules div{background:#120d36;border:3px solid var(--cy);border-radius:16px;padding:18px;font-size:28px;line-height:1.3}
+.rules b{display:block;font:16px 'Press Start 2P',monospace;color:var(--pnk);margin-bottom:10px}
+/* board */
+#bd{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;height:696px}
+.ch{background:linear-gradient(180deg,#3a1d9e,#241270);border:3px solid var(--pnk);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font:700 25px/1.1 'Rajdhani';padding:6px;color:#fff;text-shadow:0 0 8px var(--pnk)}
+.cl{background:linear-gradient(180deg,#1a3cff,#0a1a8a);border:3px solid var(--cy);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font:34px 'Press Start 2P',monospace;color:var(--yl);text-shadow:0 0 12px var(--yl);position:relative}
+.cl small{font:700 18px 'Rajdhani';color:#bfe9ff;text-shadow:none;margin-top:6px}
+.cl:hover{filter:brightness(1.3);transform:scale(1.03)}.cl.pl{background:#0e0b28;border-color:#2c2760;color:#2c2760;text-shadow:none;cursor:default}.cl.pl small{color:#2c2760}.cl.pl:hover{transform:none;filter:none}
+#fin{margin-top:12px;height:70px;width:100%}
+/* overlay */
+#ov{position:absolute;left:0;top:64px;width:1920px;height:866px;background:#07051a;z-index:30;display:none;padding:22px 50px}
+#ov.on{display:flex;flex-direction:column;gap:14px}
+.oh{display:flex;align-items:center;gap:18px}.oh .tag{font:16px 'Press Start 2P',monospace;color:var(--bg);background:var(--cy);border-radius:8px;padding:8px 12px}.oh .tag.dd{background:var(--yl);animation:bl .6s steps(2) infinite}
+.oh .val{font:30px 'Press Start 2P',monospace;color:var(--yl);margin-left:auto}
+.qt{font:700 52px/1.18 'Rajdhani';color:#fff;min-height:200px;text-shadow:0 0 10px rgba(139,92,255,.7)}
+.qt.sm{font-size:42px}
+.ops{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.op{font:700 34px/1.15 'Rajdhani';background:#161047;border:4px solid var(--c,var(--pu));border-radius:14px;padding:14px 18px;display:flex;gap:14px;align-items:center;min-height:100px}
+.op b{font:26px 'Press Start 2P',monospace;color:var(--c,var(--pu))}
+.op.ok{background:#0b5b2c;border-color:var(--gr);box-shadow:0 0 28px var(--gr)}.op.no{opacity:.35}.op.hid{opacity:.15}
+.st{display:flex;gap:10px;flex-wrap:wrap}.st .pill{font:700 22px 'Rajdhani';border:2px solid var(--c);color:var(--c);border-radius:20px;padding:2px 14px;background:#0f0b30}
+.expl{font:600 28px/1.3 'Rajdhani';color:var(--gr);border-left:6px solid var(--gr);padding-left:14px}
+.ctl{display:flex;gap:12px;margin-top:auto;align-items:center}.ctl .grow{flex:1}
+.resp{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rcard{background:#161047;border:3px solid var(--pu);border-radius:12px;padding:12px 14px;font:600 25px/1.25 'Rajdhani';min-height:110px}.rcard b{color:var(--pnk);font:16px 'Press Start 2P',monospace;display:block;margin-bottom:6px}.rcard.w{border-color:var(--gr);box-shadow:0 0 22px var(--gr)}
+.buzz{font:36px 'Press Start 2P',monospace;color:var(--yl);text-shadow:0 0 14px var(--yl);text-align:center;margin:30px 0}
+.ans{font:700 56px 'Rajdhani';color:var(--cy);text-align:center;border:4px dashed var(--cy);border-radius:16px;padding:18px}
+/* drawer */
+#dr{position:absolute;right:0;top:64px;width:760px;height:866px;background:#0b0826;border-left:4px solid var(--pnk);z-index:40;padding:16px;overflow:auto;display:none}
+#dr.on{display:block}
+#dr h2{font:16px 'Press Start 2P',monospace;color:var(--yl);margin-bottom:12px}
+.rt{border:3px solid var(--c);border-radius:12px;padding:8px 12px;margin-bottom:10px;background:#120d36}
+.rt h4{font:700 26px 'Rajdhani';color:var(--c);display:flex;justify-content:space-between}
+.rp{display:flex;align-items:center;gap:8px;font:600 21px 'Rajdhani';padding:2px 0;border-top:1px solid #2a2460}
+.rp .on{color:var(--gr)}.rp .off{color:#666}.rp select{margin-left:auto;background:#1d1650;color:#fff;border:1px solid var(--cy);border-radius:6px;font:600 16px 'Rajdhani'}.rp span.x{cursor:pointer;color:var(--rd)}
+#menu{position:absolute;left:20px;top:70px;background:#0b0826;border:3px solid var(--cy);border-radius:12px;z-index:60;display:none;padding:8px}
+#menu div{padding:8px 16px;font:700 24px 'Rajdhani';cursor:pointer}#menu div:hover{background:#241a70}
+#toast{position:absolute;left:50%;top:800px;transform:translateX(-50%);font:18px/1.5 'Press Start 2P',monospace;color:var(--bg);background:var(--yl);border-radius:12px;padding:16px 26px;z-index:70;display:none;box-shadow:0 0 30px var(--yl);max-width:1500px;text-align:center}
+/* podium */
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:30px;height:560px;margin-top:10px}
+.pb{width:320px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.pb .bar{width:100%;border:4px solid var(--c);background:linear-gradient(180deg,var(--c),#120d36);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font:50px 'Press Start 2P',monospace;color:#fff;text-shadow:0 0 14px #000}
+.pb .nm{font:700 36px 'Rajdhani';color:var(--c);text-align:center;margin-bottom:6px}.pb .sc{font:22px 'Press Start 2P',monospace;color:var(--yl);margin-bottom:6px}.pb .mb{font:600 20px 'Rajdhani';color:var(--mut);text-align:center;max-width:320px}
+canvas#cf{position:absolute;inset:0;z-index:45;pointer-events:none}
+</style></head><body>
+<div id="stage">
+ <div id="hud"><span class="ttl">S12 · JEOPARDY ARCADE</span>
+  <button class="btn" id="bMenu">☰ Ir a</button><button class="btn pk" id="bTeams">👥 Equipos</button><button class="btn" id="bBoard">🎲 Orden</button>
+  <span class="sp"></span><span id="tm" class="px"></span><span class="sp"></span>
+  <span id="live" class="off">📡 <b>sin servidor</b></span><button class="btn gr" id="bXls">📥 Excel</button><button class="btn" id="bFs">⛶</button><button class="btn rd" id="bReset">↺ Nueva partida</button></div>
+ <div id="menu"></div>
+ <div id="slides"></div>
+ <div id="ov"></div><div id="dr"></div><div id="toast"></div>
+ <div id="foot"></div>
+ <canvas id="cf" width="1920" height="1080"></canvas>
+</div>
+<script>
+
+(function(){
+'use strict';
+function MQ(url,opt){
+  opt=opt||{};
+  var enc=new TextEncoder(),dec=new TextDecoder();
+  var ws=null,buf=new Uint8Array(0),pid=0,pingT=null,rcT=null,subs=[],up=false,closed=false,wait=1500;
+  var cid=opt.cid||('c'+Math.random().toString(36).slice(2,10));
+  function cat(a,b){var r=new Uint8Array(a.length+b.length);r.set(a,0);r.set(b,a.length);return r;}
+  function s2b(s){var b=enc.encode(s),r=new Uint8Array(b.length+2);r[0]=b.length>>8;r[1]=b.length&255;r.set(b,2);return r;}
+  function rl(n){var a=[];do{var d=n%128;n=Math.floor(n/128);if(n>0)d|=128;a.push(d);}while(n>0);return new Uint8Array(a);}
+  function pkt(h,body){var l=rl(body.length),r=new Uint8Array(1+l.length+body.length);r[0]=h;r.set(l,1);r.set(body,1+l.length);return r;}
+  function send(p){try{if(ws&&ws.readyState===1)ws.send(p);}catch(e){}}
+  function emit(s){if(opt.onState)opt.onState(s,api);}
+  function connect(){
+    if(closed)return;
+    var me;
+    try{me=ws=new WebSocket(url,'mqtt');}catch(e){retry();return;}
+    ws.binaryType='arraybuffer';buf=new Uint8Array(0);
+    ws.onopen=function(){send(pkt(0x10,cat(cat(s2b('MQTT'),new Uint8Array([4,2,0,30])),s2b(cid))));};
+    ws.onmessage=function(ev){buf=cat(buf,new Uint8Array(ev.data));parse();};
+    ws.onclose=function(){if(me!==ws)return;var was=up;up=false;clearInterval(pingT);if(was)emit('down');else emit('fail');retry();};
+    ws.onerror=function(){};
+  }
+  function retry(){if(closed)return;clearTimeout(rcT);rcT=setTimeout(connect,wait);wait=Math.min(wait*1.6,10000);}
+  function parse(){
+    while(buf.length>=2){
+      var i=1,m=1,len=0,b;
+      do{if(i>=buf.length)return;b=buf[i++];len+=(b&127)*m;m*=128;}while(b&128);
+      if(buf.length<i+len)return;
+      var h=buf[0],body=buf.subarray(i,i+len);buf=buf.subarray(i+len);
+      var t=h>>4;
+      if(t===2){
+        if(body[1]===0){up=true;wait=1500;subs.forEach(dosub);clearInterval(pingT);pingT=setInterval(function(){send(new Uint8Array([0xC0,0]));},15000);emit('up');}
+        else emit('refused');
+      }else if(t===3){
+        var tl=(body[0]<<8)|body[1],topic=dec.decode(body.subarray(2,2+tl)),o=2+tl;
+        if(((h>>1)&3)>0)o+=2;
+        if(opt.onMsg)opt.onMsg(topic,dec.decode(body.subarray(o)));
+      }
+    }
+  }
+  function dosub(t){pid=(pid%65535)+1;send(pkt(0x82,cat(new Uint8Array([pid>>8,pid&255]),cat(s2b(t),new Uint8Array([0])))));}
+  var api={
+    sub:function(t){if(subs.indexOf(t)<0)subs.push(t);if(up)dosub(t);},
+    pub:function(t,p,retain){if(!up)return false;send(pkt(0x30|(retain?1:0),cat(s2b(t),enc.encode(p))));return true;},
+    close:function(){closed=true;clearInterval(pingT);clearTimeout(rcT);try{ws.close();}catch(e){}},
+    isUp:function(){return up;},url:url
+  };
+  connect();return api;
+}
+
+var BANK=[{"h": "A", "c": 1, "t": "VF", "q": "Si las ventas de una cafetería bajan a la mitad en un mes, la renta del local también baja a la mitad.", "o": null, "x": "Falso. La renta es un costo fijo: se paga igual venda mucho o poco.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 1, "t": "OM", "q": "Una tienda de velas tiene un costo unitario de ${CU} y quiere un margen de {M} % sobre el precio. Con Precio = CU ÷ (1 − % margen), ¿qué precio debe cobrar?", "o": null, "x": "Margen sobre el precio: CU ÷ (1 − margen). Error típico: sumar el % al costo.", "p": "precio_margen", "ok": null, "rub": null}, {"h": "A", "c": 1, "t": "OM", "q": "¿Cuál de estos costos es variable en una pastelería?", "o": ["La harina y las cajas que se usan por cada pastel", "La renta mensual del local de la pastelería", "El sueldo mensual fijo del repostero contratado", "El pago mensual del internet y del sistema de caja"], "x": "Variable = cambia en proporción a las unidades producidas o vendidas.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 1, "t": "COMP", "q": "El punto de equilibrio en unidades se calcula dividiendo los costos ______ entre el margen de contribución.", "o": ["fijos"], "x": "PE = CF ÷ MC, con MC = P − CVu.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 1, "t": "RETO", "q": "RETO $: Un negocio vende a ${P}, con costo variable de ${CV} por unidad y costos fijos de ${CF} al mes. Escriban su punto de equilibrio y UNA acción si no lo alcanzan.", "o": null, "x": "", "p": "reto_pe", "ok": null, "rub": "Cálculo correcto PE = CF ÷ (P − CV) + una acción coherente (subir precio, bajar costo, vender más)."}, {"h": "A", "c": 2, "t": "VF", "q": "Un descuento tipo 2x1 es un ejemplo de valor emocional.", "o": null, "x": "Falso. Es valor monetario: el cliente siente que lo que paga es justo u oportuno.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 2, "t": "OM", "q": "Una cafetería escribe una nota a mano en cada vaso. ¿Qué tipo de valor genera principalmente?", "o": ["Emocional: crea vínculo y sentido de pertenencia", "Monetario: hace que el precio parezca más justo", "De usabilidad: vuelve el producto más práctico", "Relacional: da respaldo mediante reseñas públicas"], "x": "La nota crea vínculo y recuerdo: valor emocional.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 2, "t": "OM", "q": "Un cliente dice «Es muy caro». Según validar-reencuadrar-responder, ¿qué conviene hacer primero?", "o": ["Reconocer su preocupación y mostrar el valor que recibe", "Ofrecer un descuento enseguida para no perder la venta", "Explicar cuánto te costó producirlo para que lo entienda", "Insistir en que la calidad no se negocia y cerrar el tema"], "x": "No defiendas el precio: justifica el valor. Bajar el precio en el primer minuto es el error.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 2, "t": "COMP", "q": "En la fórmula «[Característica], lo que significa que ______», se completa con el beneficio para el cliente.", "o": ["beneficio", "lo que el cliente gana"], "x": "Característica = lo que tiene; beneficio = lo que el cliente gana.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 2, "t": "RETO", "q": "RETO $: Reescriban con la fórmula «[Característica], lo que significa que [beneficio]» esta característica: «{CAR}».", "o": null, "x": "", "p": "reto_car", "ok": null, "rub": "Usa la fórmula y el beneficio responde a «¿y eso a mí de qué me sirve?»."}, {"h": "A", "c": 3, "t": "VF", "q": "Un prospecto y un lead son lo mismo.", "o": null, "x": "Falso. Un lead ya respondió, mostró interés y puede pagar o decidir; un prospecto solo podría necesitarte.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 3, "t": "OM", "q": "¿Cuál es el orden correcto de las cuatro preguntas SPIN?", "o": ["Situación, Problema, Implicación, Necesidad de solución", "Problema, Situación, Necesidad de solución, Implicación", "Situación, Implicación, Problema, Necesidad de solución", "Necesidad de solución, Problema, Situación, Implicación"], "x": "SPIN va siempre en orden y ninguna pregunta menciona el producto.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 3, "t": "OM", "q": "Un cliente institucional pide cotización formal y debe consultarlo con su comité. ¿Qué enfoque conviene?", "o": ["Consultiva para diagnosticar y propuesta escrita al comité", "AIDA con un mensaje corto por redes sociales", "Cierre directo en la primera llamada con descuento", "SPIN únicamente por un mensaje de WhatsApp"], "x": "Cliente institucional con varios decisores: consultiva + propuesta escrita.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 3, "t": "COMP", "q": "En SPIN, la pregunta que amplifica las consecuencias de no resolver el problema es la de ______.", "o": ["implicación"], "x": "Implicación: «¿Cómo afecta eso a sus tiempos de entrega o ventas?».", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 3, "t": "COMP", "q": "La conversión por etapa se calcula así: etapa siguiente ÷ etapa ______ × 100.", "o": ["anterior"], "x": "Conversión por etapa = etapa siguiente ÷ etapa anterior × 100.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 3, "t": "RETO", "q": "RETO $: Redacten UNA pregunta de Implicación (SPIN) para un cliente que {CL}. No pueden mencionar su producto.", "o": null, "x": "", "p": "reto_spin", "ok": null, "rub": "Pregunta que amplifica consecuencias del problema, sin mencionar el producto."}, {"h": "A", "c": 4, "t": "VF", "q": "Si un negocio no vende, la solución siempre es conseguir más seguidores.", "o": null, "x": "Mito. Primero ubica en qué etapa del embudo se cae: puede ser mensaje, precio o atención.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 4, "t": "OM", "q": "Un negocio vende cargadores estándar y quiere tráfico y logística listos desde el primer día. ¿Qué canal conviene para arrancar?", "o": ["Marketplace, aunque cobre una comisión por venta", "E-commerce propio, donde él atrae todo el tráfico", "Redes con venta directa, apoyadas solo en la imagen", "WhatsApp Business, con venta uno a uno sin inversión"], "x": "Producto físico estandarizado: marketplace (tráfico y logística listos; pagas comisión).", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 4, "t": "OM", "q": "En una semana, {V} personas ven una publicación y {S} compran. ¿Cuál es la tasa de conversión? (ventas ÷ visitas) × 100", "o": null, "x": "Conversión = ventas ÷ visitas × 100. Distractores: ventas ÷ mensajes, ventas/visitas sin ×100.", "p": "conversion", "ok": null, "rub": null}, {"h": "A", "c": 4, "t": "COMP", "q": "Las etapas del embudo digital son alcance, interés, conversión y ______.", "o": ["recompra"], "x": "Alcance → Interés → Conversión → Recompra.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 4, "t": "RETO", "q": "RETO $: Un negocio {NEG}. Elijan UN canal (marketplace, e-commerce propio, redes o WhatsApp) y justifíquenlo con UNO de los 4 criterios de elección.", "o": null, "x": "", "p": "reto_canal", "ok": null, "rub": "Canal coherente + criterio (cliente, producto, recursos o ticket y margen)."}, {"h": "A", "c": 5, "t": "VF", "q": "Un colaborador M4 (alta capacidad y alta disposición) necesita instrucciones paso a paso y supervisión cercana.", "o": null, "x": "Falso. M4 pide autonomía (delegar) y seguimiento a resultados.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 5, "t": "OM", "q": "Una integrante nueva no sabe hacer la tarea, pero está muy motivada (M2). ¿Qué estilo conviene?", "o": ["Persuadir: explicar el porqué, dirigir y motivar", "Delegar: darle autonomía y revisar solo resultados", "Participar: decidir junto con ella cada paso", "Dirigir con instrucciones y supervisión, sin motivar"], "x": "M2 = baja capacidad, alta disposición → S2 persuadir (tarea alta, relación alta).", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 5, "t": "OM", "q": "El modelo SBI para dar feedback consiste en describir…", "o": ["Situación, Comportamiento e Impacto", "Sentimiento, Beneficio e Intención", "Solución, Brecha e Indicador", "Situación, Beneficio e Instrucción"], "x": "SBI: Situación + Comportamiento + Impacto.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 5, "t": "COMP", "q": "El estilo de comunicación que evita el conflicto a cualquier costo se llama ______.", "o": ["pasivo"], "x": "Pasivo evita el conflicto; agresivo impone; asertivo construye equipos.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 5, "t": "RETO", "q": "RETO $: Redacten un feedback SBI (una frase por letra) para este caso: «{SBI}».", "o": null, "x": "", "p": "reto_sbi", "ok": null, "rub": "S concreta, B observable (sin juicios) e I con efecto real en el equipo."}, {"h": "A", "c": 6, "t": "VF", "q": "El Buyer Persona se construye únicamente con datos demográficos.", "o": null, "x": "Falso. Tiene tres capas: demografía, psicografía y conducta.", "p": null, "ok": false, "rub": null}, {"h": "A", "c": 6, "t": "OM", "q": "En el Value Proposition Canvas, ¿qué pertenece al perfil del cliente?", "o": ["Jobs, pains y gains", "Pain relievers y gain creators", "Productos y servicios de la empresa", "Canales de venta y fuentes de ingreso"], "x": "Perfil del cliente: jobs, pains, gains. Mapa de valor: productos, pain relievers, gain creators.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 6, "t": "OM", "q": "¿Cómo conviene cerrar un pitch comercial basado en storytelling de venta?", "o": ["Con un llamado a la acción concreto", "Con un agradecimiento y preguntas abiertas", "Con un resumen de los costos de producción", "Con una disculpa por el tiempo utilizado"], "x": "El storytelling captura, engancha y cierra con llamado a la acción concreto.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 6, "t": "COMP", "q": "En el Value Proposition Canvas, el perfil del cliente describe sus tareas (jobs), sus dolores (pains) y sus ______ (gains).", "o": ["ganancias", "beneficios esperados"], "x": "Gains = ganancias o beneficios que el cliente espera.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 6, "t": "RETO", "q": "RETO $: Escriban en UNA frase la propuesta de valor de un proyecto de «{PROY}»: para quién, qué problema resuelve y qué gana el cliente.", "o": null, "x": "", "p": "reto_valor", "ok": null, "rub": "Incluye cliente, problema y beneficio; sin generalidades."}, {"h": "A", "c": 1, "t": "VF", "q": "El costo unitario sirve para saber en cuánto mínimo debes vender y tomar decisiones de precio.", "o": null, "x": "Verdadero: permite calcular ganancia, rentabilidad y decisiones de pricing.", "p": null, "ok": true, "rub": null}, {"h": "A", "c": 3, "t": "COMP", "q": "En la venta consultiva, el vendedor primero ______ las necesidades del cliente y solo después propone.", "o": ["diagnostica", "pregunta", "entiende"], "x": "Consultiva: pregunta primero, recomienda después.", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 0, "t": "FINAL", "q": "una cafetería de especialidad", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 0, "t": "FINAL", "q": "una marca de playeras yucatecas", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 0, "t": "FINAL", "q": "un servicio de mudanzas para estudiantes", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "A", "c": 0, "t": "FINAL", "q": "una app de tutorías para preparatoria", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 1, "t": "VF", "q": "Si un despacho jurídico atiende menos clientes un mes, el alquiler de su oficina baja en proporción.", "o": null, "x": "Falso. El alquiler es un costo fijo.", "p": null, "ok": false, "rub": null}, {"h": "B", "c": 1, "t": "OM", "q": "Una editorial de cuadernos tiene un costo unitario de ${CU} y quiere un margen de {M} % sobre el precio. Con Precio = CU ÷ (1 − % margen), ¿qué precio debe cobrar?", "o": null, "x": "Margen sobre el precio, no sobre el costo.", "p": "precio_margen", "ok": null, "rub": null}, {"h": "B", "c": 1, "t": "OM", "q": "¿Cuál de estos costos es fijo en una consultoría de comercio exterior?", "o": ["El sueldo mensual de las analistas contratadas", "Los envíos de documentos que se hacen por cliente", "Las comisiones pagadas por cada contrato cerrado", "El papel y la impresión usados en cada informe"], "x": "Fijo = se paga igual venda mucho o poco (sueldos mensuales).", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 1, "t": "COMP", "q": "El margen de contribución se calcula restando al precio el costo ______ unitario.", "o": ["variable"], "x": "MC = P − CVu.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 1, "t": "RETO", "q": "RETO $: Un negocio vende a ${P}, con costo variable de ${CV} por unidad y costos fijos de ${CF} al mes. Escriban su punto de equilibrio y UNA acción si no lo alcanzan.", "o": null, "x": "", "p": "reto_pe", "ok": null, "rub": "Cálculo correcto PE = CF ÷ (P − CV) + una acción coherente."}, {"h": "B", "c": 2, "t": "VF", "q": "Las reseñas de cinco estrellas generan principalmente valor de usabilidad.", "o": null, "x": "Falso. Generan valor relacional: confianza, seguridad y respaldo.", "p": null, "ok": false, "rub": null}, {"h": "B", "c": 2, "t": "OM", "q": "Una tienda ofrece entrega a domicilio sin costo. ¿Qué tipo de valor genera principalmente?", "o": ["De usabilidad: solución práctica y conveniente", "Emocional: vínculo, recuerdo o pertenencia", "Monetario: el precio se percibe justo u oportuno", "Relacional: confianza por respaldo de terceros"], "x": "Entrega a domicilio = conveniencia: valor de usabilidad.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 2, "t": "OM", "q": "Una empresa tiene una falla y aún no tiene la solución completa. Según el protocolo de crisis, ¿qué debe hacer?", "o": ["Comunicar qué ocurre y dar un tiempo estimado", "Esperar a tener la solución completa para avisar", "Evitar el tema hasta que los clientes pregunten", "Culpar al proveedor para proteger la reputación"], "x": "El silencio se interpreta como negligencia; comunica aunque no tengas la solución.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 2, "t": "COMP", "q": "El ______ al cliente es el acompañamiento constante antes, durante y después de la compra; el servicio resuelve un problema concreto.", "o": ["atención"], "x": "Atención = cómo lo hacemos; servicio = qué hacemos.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 2, "t": "RETO", "q": "RETO $: Un cliente dice «{OBJ}». Escriban una respuesta de 2 frases aplicando validar-reencuadrar-responder.", "o": null, "x": "", "p": "reto_obj", "ok": null, "rub": "Valida la preocupación, reencuadra y responde sin atacar ni regalar precio."}, {"h": "B", "c": 3, "t": "VF", "q": "La etapa de seguimiento suele ser la más subestimada del proceso de venta.", "o": null, "x": "Verdadero: muchos leads nunca reciben un segundo contacto.", "p": null, "ok": true, "rub": null}, {"h": "B", "c": 3, "t": "OM", "q": "¿Cuál de estas preguntas es de tipo Problema en SPIN?", "o": ["«¿Qué dificultades han tenido para hacerlo así?»", "«¿Cómo manejan hoy este proceso en su oficina?»", "«¿Cómo afecta eso a sus tiempos de entrega?»", "«¿Qué significaría para el equipo resolverlo?»"], "x": "Problema explora dificultades y puntos de dolor.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 3, "t": "OM", "q": "Un cliente emocional y rápido decide por impulso al ver una imagen. ¿Qué combinación conviene?", "o": ["AIDA con un mensaje corto por redes sociales", "Consultiva con propuesta escrita para su comité", "SPIN en una reunión formal de varias sesiones", "Cotización formal enviada por correo con adjunto"], "x": "Consumidor final de decisión rápida: AIDA + redes.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 3, "t": "COMP", "q": "AIDA significa atención, interés, deseo y ______.", "o": ["acción"], "x": "AIDA estructura un mensaje; SPIN estructura una conversación.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 3, "t": "COMP", "q": "Cerrar la venta consiste en ______ la venta de forma explícita.", "o": ["pedir"], "x": "Ninguna técnica de cierre consiste en esperar a que el cliente la pida.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 3, "t": "RETO", "q": "RETO $: Escriban un cierre «por alternativa» para ofrecer {OFR} a un cliente que ya mostró señales de estar listo.", "o": null, "x": "", "p": "reto_cierre", "ok": null, "rub": "Ofrece dos opciones concretas y ambas implican comprar."}, {"h": "B", "c": 4, "t": "VF", "q": "En el embudo digital, la conversión mide cuántas personas que llegan terminan comprando.", "o": null, "x": "Conversión = ventas ÷ visitas × 100.", "p": null, "ok": true, "rub": null}, {"h": "B", "c": 4, "t": "OM", "q": "Un servicio a la medida, de ticket alto y vendido por una sola persona. ¿Qué canal encaja mejor?", "o": ["WhatsApp Business, con venta uno a uno", "Marketplace con comisión por venta", "E-commerce propio con catálogo estándar", "Redes con venta directa y pauta pagada"], "x": "Servicio a la medida, ticket alto y una persona: canal conversacional.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 4, "t": "OM", "q": "Se obtuvieron ${ING} de ingresos con {S} ventas. ¿Cuál es el ticket promedio? (ingresos ÷ ventas)", "o": null, "x": "Ticket promedio = ingresos ÷ número de ventas.", "p": "ticket", "ok": null, "rub": null}, {"h": "B", "c": 4, "t": "COMP", "q": "Un producto de ticket bajo con comisión alta puede quedar sin utilidad: el criterio que lo descarta es ______ y margen.", "o": ["ticket"], "x": "Ticket y margen: $20 de margen − $20 de comisión = $0.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 4, "t": "RETO", "q": "RETO $: Un negocio {NEG}. Elijan UN canal y justifíquenlo con UNO de los 4 criterios de elección.", "o": null, "x": "", "p": "reto_canal", "ok": null, "rub": "Canal coherente + criterio claro."}, {"h": "B", "c": 5, "t": "VF", "q": "En el liderazgo situacional, un colaborador M1 pide un estilo de delegar.", "o": null, "x": "Falso. M1 (baja capacidad, baja disposición) pide dirigir.", "p": null, "ok": false, "rub": null}, {"h": "B", "c": 5, "t": "OM", "q": "Un colaborador sabe hacer la tarea pero duda y se desmotiva (M3). ¿Qué estilo conviene?", "o": ["Participar: apoyarlo y decidir junto con él", "Dirigir: dar instrucciones y supervisión cercana", "Persuadir: explicar el porqué de cada paso", "Delegar: darle autonomía y no intervenir"], "x": "M3 = alta capacidad, baja disposición → S3 participar.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 5, "t": "OM", "q": "Según el liderazgo situacional, la pregunta clave para diagnosticar es:", "o": ["¿Lo hizo mal por no saber o por no querer?", "¿Cuánto tiempo lleva en el equipo?", "¿Quién tiene más experiencia que los demás?", "¿Qué estilo prefiere usar el líder?"], "x": "Madurez = capacidad + disposición.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 5, "t": "COMP", "q": "El estilo de comunicación que impone sin escuchar ni respetar se llama ______.", "o": ["agresivo"], "x": "Pasivo evita; agresivo impone; asertivo equilibra.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 5, "t": "RETO", "q": "RETO $: Redacten un feedback SBI (una frase por letra) para este caso: «{SBI}».", "o": null, "x": "", "p": "reto_sbi", "ok": null, "rub": "S concreta, B observable e I con efecto real."}, {"h": "B", "c": 6, "t": "VF", "q": "El Value Proposition Canvas incluye un mapa de valor con productos, pain relievers y gain creators.", "o": null, "x": "Verdadero: es la parte de la propuesta frente al perfil del cliente.", "p": null, "ok": true, "rub": null}, {"h": "B", "c": 6, "t": "OM", "q": "¿Qué tres capas componen un Buyer Persona?", "o": ["Demografía, psicografía y conducta", "Producto, precio y promoción", "Jobs, pains y gains", "Alcance, interés y conversión"], "x": "Las tres capas del Buyer Persona.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 6, "t": "OM", "q": "En el pitch comercial, ¿qué ayuda a que el panel sienta el problema como real?", "o": ["Presentarlo con datos y una historia concreta", "Explicarlo solo con definiciones técnicas", "Evitarlo y hablar directamente del precio", "Mostrar únicamente la identidad visual"], "x": "Storytelling + datos: captura y engancha.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 6, "t": "COMP", "q": "Un equipo que acuerda su cultura de trabajo la plasma en un ______ firmado por todos sus integrantes.", "o": ["manifiesto"], "x": "S5: Manifiesto del equipo.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 6, "t": "RETO", "q": "RETO $: Escriban en UNA frase la propuesta de valor de un proyecto de «{PROY}»: para quién, qué problema resuelve y qué gana el cliente.", "o": null, "x": "", "p": "reto_valor", "ok": null, "rub": "Cliente, problema y beneficio claros."}, {"h": "B", "c": 1, "t": "VF", "q": "Antes del punto de equilibrio un negocio pierde dinero; después, cada unidad extra genera utilidad.", "o": null, "x": "Verdadero.", "p": null, "ok": true, "rub": null}, {"h": "B", "c": 4, "t": "COMP", "q": "Las tres métricas clave son alcance, tasa de conversión y ______ promedio.", "o": ["ticket"], "x": "Ticket promedio = ingresos ÷ ventas.", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 0, "t": "FINAL", "q": "una clínica de fisioterapia a domicilio", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 0, "t": "FINAL", "q": "una marca de gorras con diseños de Mérida", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 0, "t": "FINAL", "q": "un despacho que ofrece asesoría a emprendedores", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}, {"h": "B", "c": 0, "t": "FINAL", "q": "una tienda en línea de café de Chiapas", "o": null, "x": "Reto por equipos", "p": null, "ok": null, "rub": null}];
+var VFALT={"Si las ventas de una cafetería bajan a la mitad en un mes, la renta del local también baja a la mitad.": {"q": "Si las ventas de una cafetería bajan a la mitad en un mes, la renta del local se paga igual.", "ok": true, "x": "Verdadero. La renta es un costo fijo."}, "El costo unitario sirve para saber en cuánto mínimo debes vender y tomar decisiones de precio.": {"q": "El costo unitario no sirve para decidir el precio; es solo un dato contable.", "ok": false, "x": "Falso. El costo unitario permite saber en cuánto mínimo vender y tomar decisiones de pricing."}, "Un descuento tipo 2x1 es un ejemplo de valor emocional.": {"q": "Un descuento tipo 2x1 es un ejemplo de valor monetario.", "ok": true, "x": "Verdadero. El cliente percibe que lo que paga es justo u oportuno."}, "Un prospecto y un lead son lo mismo.": {"q": "Un lead es un prospecto que ya respondió, mostró interés y puede pagar o decidir.", "ok": true, "x": "Verdadero. No todo contacto es un lead."}, "Si un negocio no vende, la solución siempre es conseguir más seguidores.": {"q": "Si un negocio no vende, primero conviene ubicar en qué etapa del embudo se cae.", "ok": true, "x": "Verdadero. Puede fallar el mensaje, el precio o la atención, no solo el alcance."}, "Un colaborador M4 (alta capacidad y alta disposición) necesita instrucciones paso a paso y supervisión cercana.": {"q": "Un colaborador M4 (alta capacidad y alta disposición) necesita autonomía y seguimiento a resultados.", "ok": true, "x": "Verdadero. M4 pide el estilo de delegar."}, "El Buyer Persona se construye únicamente con datos demográficos.": {"q": "El Buyer Persona tiene tres capas: demografía, psicografía y conducta.", "ok": true, "x": "Verdadero."}, "Si un despacho jurídico atiende menos clientes un mes, el alquiler de su oficina baja en proporción.": {"q": "Si un despacho jurídico atiende menos clientes un mes, el alquiler de su oficina se paga igual.", "ok": true, "x": "Verdadero. El alquiler es un costo fijo."}, "Antes del punto de equilibrio un negocio pierde dinero; después, cada unidad extra genera utilidad.": {"q": "Después del punto de equilibrio un negocio sigue perdiendo dinero con cada unidad adicional.", "ok": false, "x": "Falso. Después del punto de equilibrio cada unidad extra genera utilidad."}, "Las reseñas de cinco estrellas generan principalmente valor de usabilidad.": {"q": "Las reseñas de cinco estrellas generan principalmente valor relacional.", "ok": true, "x": "Verdadero. Dan confianza, seguridad y respaldo."}, "La etapa de seguimiento suele ser la más subestimada del proceso de venta.": {"q": "El seguimiento es la etapa del proceso de venta que más atención recibe: casi todos los leads tienen un segundo contacto.", "ok": false, "x": "Falso. Es la más subestimada: muchos leads nunca reciben un segundo contacto."}, "En el embudo digital, la conversión mide cuántas personas que llegan terminan comprando.": {"q": "En el embudo digital, la conversión mide cuántas personas ven la publicación.", "ok": false, "x": "Falso. Eso es el alcance; la conversión mide cuántos de los que llegan compran."}, "En el liderazgo situacional, un colaborador M1 pide un estilo de delegar.": {"q": "En el liderazgo situacional, un colaborador M1 pide un estilo de dirigir.", "ok": true, "x": "Verdadero. M1 tiene baja capacidad y baja disposición."}, "El Value Proposition Canvas incluye un mapa de valor con productos, pain relievers y gain creators.": {"q": "El mapa de valor del Value Proposition Canvas incluye jobs, pains y gains del cliente.", "ok": false, "x": "Falso. Jobs, pains y gains son el perfil del cliente."}};
+var ROOMS={'51326':'j184187','51633':'j55f241'};
+var QRS={'51326':"<svg viewBox=\"0 0 39 39\" class=\"segno\"><path fill=\"#fff\" d=\"M0 0h39v39h-39z\"/><path class=\"qrline\" stroke=\"#0a0820\" d=\"M1 1.5h7m1 0h1m5 0h2m4 0h3m1 0h2m2 0h1m1 0h7m-37 1h1m5 0h1m1 0h2m1 0h4m3 0h3m1 0h1m5 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m4 0h3m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h4m1 0h4m1 0h5m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m1 0h10m6 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m2 0h1m2 0h2m3 0h2m2 0h1m1 0h1m4 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-28 1h1m3 0h1m1 0h1m7 0h1m1 0h1m1 0h1m-28 1h1m2 0h6m4 0h6m4 0h2m2 0h3m2 0h1m1 0h3m-35 1h1m1 0h2m2 0h3m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m3 0h3m1 0h2m1 0h2m-35 1h2m3 0h1m1 0h2m2 0h3m7 0h3m2 0h1m1 0h3m2 0h1m1 0h1m-37 1h1m2 0h1m4 0h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m3 0h2m3 0h6m-36 1h1m2 0h1m1 0h1m1 0h5m3 0h1m1 0h1m1 0h1m3 0h1m5 0h2m1 0h1m2 0h1m-37 1h4m3 0h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h1m1 0h3m2 0h2m-34 1h2m1 0h1m2 0h1m1 0h1m2 0h1m1 0h4m1 0h2m1 0h2m1 0h1m2 0h1m2 0h1m1 0h5m-34 1h2m4 0h5m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m1 0h4m-35 1h5m1 0h2m2 0h4m2 0h1m3 0h6m2 0h1m3 0h3m-37 1h1m3 0h2m1 0h1m1 0h1m4 0h1m1 0h1m2 0h1m7 0h1m1 0h1m-26 1h4m2 0h1m4 0h2m2 0h2m2 0h1m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m-36 1h2m1 0h2m1 0h1m2 0h4m6 0h1m1 0h1m2 0h4m2 0h3m2 0h1m-36 1h1m1 0h2m1 0h2m2 0h3m1 0h4m1 0h1m3 0h2m1 0h1m1 0h6m-31 1h1m4 0h2m1 0h1m3 0h1m2 0h2m2 0h2m1 0h3m4 0h1m1 0h1m-35 1h3m1 0h1m1 0h1m1 0h1m2 0h2m2 0h3m3 0h3m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m-36 1h1m2 0h1m2 0h3m3 0h2m1 0h3m1 0h1m1 0h2m2 0h3m1 0h5m-34 1h7m1 0h2m2 0h1m2 0h1m1 0h2m4 0h1m2 0h2m1 0h2m3 0h2m-37 1h3m1 0h2m3 0h1m1 0h4m6 0h1m1 0h1m1 0h5m2 0h3m-35 1h2m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h1m7 0h2m-37 1h1m2 0h3m2 0h3m2 0h3m3 0h1m8 0h3m2 0h2m-35 1h1m3 0h3m2 0h2m1 0h1m1 0h2m3 0h1m2 0h5m1 0h9m-29 1h2m5 0h1m1 0h5m2 0h1m1 0h1m1 0h1m3 0h1m1 0h2m-36 1h7m1 0h1m1 0h2m1 0h3m1 0h5m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m-37 1h1m5 0h1m1 0h4m4 0h1m2 0h2m1 0h1m2 0h1m1 0h2m3 0h1m2 0h2m-37 1h1m1 0h3m1 0h1m1 0h2m2 0h2m3 0h2m1 0h1m5 0h7m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h2m2 0h2m1 0h2m1 0h3m1 0h2m2 0h1m1 0h2m-37 1h1m1 0h3m1 0h1m2 0h1m3 0h3m1 0h2m1 0h5m1 0h2m4 0h3m1 0h1m-37 1h1m5 0h1m4 0h2m1 0h1m1 0h2m2 0h1m1 0h2m2 0h1m2 0h2m1 0h5m-37 1h7m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1m5 0h1m1 0h1m2 0h1m1 0h1m2 0h1\"/></svg>",'51633':"<svg viewBox=\"0 0 39 39\" class=\"segno\"><path fill=\"#fff\" d=\"M0 0h39v39h-39z\"/><path class=\"qrline\" stroke=\"#0a0820\" d=\"M1 1.5h7m3 0h3m2 0h2m3 0h3m1 0h2m2 0h1m1 0h7m-37 1h1m5 0h1m1 0h2m1 0h2m5 0h1m3 0h1m2 0h2m1 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h2m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h5m1 0h1m1 0h2m1 0h5m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h2m1 0h3m2 0h1m4 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m3 0h3m3 0h1m4 0h2m7 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h1m2 0h3m3 0h2m2 0h1m2 0h2m-28 1h1m5 0h1m1 0h1m3 0h1m2 0h1m1 0h3m2 0h4m1 0h1m1 0h2m2 0h3m-35 1h1m2 0h2m2 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h3m3 0h3m1 0h2m1 0h2m-35 1h3m1 0h3m1 0h1m2 0h2m3 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h3m1 0h3m-37 1h1m2 0h3m1 0h1m1 0h1m3 0h1m1 0h2m3 0h1m2 0h1m2 0h4m1 0h3m2 0h1m-36 1h2m1 0h1m1 0h7m3 0h1m1 0h1m1 0h1m3 0h1m5 0h2m1 0h1m2 0h1m-37 1h1m2 0h1m4 0h1m1 0h3m1 0h3m1 0h2m1 0h1m1 0h1m2 0h4m1 0h1m1 0h1m-34 1h2m1 0h2m1 0h4m1 0h1m2 0h2m5 0h1m2 0h2m1 0h2m1 0h4m1 0h2m-37 1h1m2 0h3m5 0h5m3 0h2m1 0h1m3 0h1m2 0h1m1 0h1m1 0h4m-37 1h1m3 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-37 1h1m1 0h1m5 0h2m1 0h2m1 0h1m2 0h3m2 0h2m3 0h2m5 0h2m-33 1h4m3 0h1m4 0h2m2 0h2m2 0h1m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m-35 1h1m1 0h2m1 0h1m2 0h1m3 0h1m4 0h1m2 0h1m4 0h2m4 0h1m2 0h1m-35 1h2m2 0h1m5 0h4m1 0h1m4 0h5m2 0h2m1 0h3m-32 1h2m3 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m4 0h1m1 0h1m-34 1h1m3 0h2m2 0h2m1 0h1m1 0h4m2 0h3m2 0h9m1 0h2m-36 1h1m5 0h2m1 0h2m2 0h1m3 0h1m1 0h1m5 0h2m1 0h5m1 0h1m-36 1h1m1 0h1m2 0h3m1 0h2m1 0h1m3 0h1m1 0h2m4 0h1m2 0h2m1 0h2m3 0h2m-37 1h1m2 0h3m1 0h1m1 0h1m1 0h2m1 0h1m4 0h3m1 0h1m3 0h3m1 0h1m1 0h2m-35 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h5m2 0h2m5 0h2m2 0h1m2 0h3m-37 1h1m3 0h2m1 0h1m1 0h2m1 0h3m1 0h1m2 0h1m8 0h3m2 0h2m-35 1h1m3 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h2m2 0h7m1 0h1m-29 1h4m3 0h2m1 0h7m1 0h1m1 0h1m3 0h1m-33 1h7m2 0h1m1 0h1m2 0h2m2 0h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m-37 1h1m5 0h1m2 0h3m4 0h1m1 0h1m3 0h1m3 0h3m3 0h1m2 0h2m-37 1h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h5m1 0h1m2 0h8m1 0h1m-35 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h4m2 0h2m1 0h2m1 0h3m1 0h2m2 0h1m1 0h2m-37 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m2 0h1m1 0h1m3 0h4m-37 1h1m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m3 0h1m5 0h1m1 0h1m1 0h1m1 0h2m2 0h1m-37 1h7m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1m5 0h1m1 0h1m2 0h1m1 0h1m2 0h1\"/></svg>"};
+var COLN=['Costos y precio','Ventas y atención','Proceso de venta','Canales y métricas','Liderazgo y comunicación','Base del proyecto'];
+var TYN=['V / F','OPCIÓN MÚLTIPLE','COMPLETAR','RETO + BENEFICIO'];
+var VALS=[100,200,300,400];
+var TCOL=['#ff2bd6','#19f0ff','#ffe600','#39ff88','#ff8a1f','#8b5cff','#ff4d6d','#4da3ff'];
+var BEN={s:'🛡️ Escudo',x:'✖2 Doble',h:'💡 Pista',t:'🔁 Robo'};
+var $=function(s,r){return (r||document).querySelector(s);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+var P=new URLSearchParams(location.search);
+var GRP=P.get('g')||lsGet('s12g')||'51326'; if(!ROOMS[GRP])GRP='51326'; lsSet('s12g',GRP);
+var ROOM=P.get('room')||ROOMS[GRP], TOP='gamifia/s12/'+ROOM, KEY='s12_'+ROOM;
+var BASE=(P.get('base')||'https://criscervera95-dot.github.io/gamificacionia/sesion-12/alumno.html');
+/* ---------- aleatoriedad ---------- */
+function hash(s){var h=1779033703^s.length;for(var i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuf(a,r){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pick(a,r){return a[Math.floor(r()*a.length)];}
+function rid(){return Math.random().toString(36).slice(2,9);}
+/* ---------- generadores paramétricos ---------- */
+var POOLS={
+ CAR:{A:['Batería de 20 horas','Envase de vidrio reutilizable','Entrega en 24 horas','Impermeable al 100 %','Garantía de 2 años','App con recordatorios'],B:['Suscripción mensual cancelable','Empaque compostable','Asesoría incluida por WhatsApp','Material 100 % algodón','Tamaño de bolsillo','Atención las 24 horas']},
+ CL:{A:['reparte comida a domicilio con retrasos frecuentes','vende ropa en redes y pierde pedidos entre mensajes','organiza eventos y tarda días en cotizar','tiene una cafetería con filas largas en la mañana'],B:['ofrece asesoría legal y tarda semanas en dar seguimiento','coordina envíos internacionales con papeleo disperso','administra un coworking con reservaciones en papel','da clases particulares y pierde alumnos por horarios']},
+ NEG:{A:['vende pasteles personalizados para fiestas con pedidos de $400 a $900','vende cargadores estándar y quiere tráfico y logística listos','da fisioterapia a domicilio con una agenda a la medida','vende playeras baratas y un marketplace cobra 25 % de comisión'],B:['da asesoría fiscal a la medida a freelancers','vende libretas estándar con envíos a todo el país','vende postres muy visuales con fotos atractivas','vende gorras de $80 y un marketplace cobra 25 %']},
+ SBI:{A:['Un integrante entregó su parte 3 horas tarde la noche antes de presentar','Una compañera interrumpe constantemente a los demás en las reuniones','Un integrante no respondió los mensajes del equipo durante dos días'],B:['Un compañero criticó en público el trabajo de otra persona del equipo','Una integrante llegó 20 minutos tarde a tres reuniones seguidas','Un integrante cambió el diseño sin avisar antes de la entrega']},
+ PROY:{A:['tutorías de matemáticas para preparatoria','repostería sin gluten','reparación de bicicletas a domicilio','ropa deportiva yucateca'],B:['orientación de trámites para emprendedores','viajes de intercambio para estudiantes','café de especialidad en suscripción','clases de inglés para negocios']},
+ OBJ:{A:['Necesito pensarlo','Ya tenemos otro proveedor'],B:['No es el momento','Es muy caro']},
+ OFR:{A:['un paquete de 2 o de 4 sesiones','la talla M o la talla L'],B:['entrega el jueves o el viernes','el plan mensual o el anual']}
+};
+function fm(n){var s=(Math.round(n*100)/100).toString();return s;}
+function money(n){return '$'+fm(n);}
+function numOpts(cor,ds,fmt){var set=[cor];ds.forEach(function(d){if(set.indexOf(d)<0&&d>0)set.push(d);});var k=1;while(set.length<4){var c=cor+k*Math.max(1,Math.round(cor*0.1));if(set.indexOf(c)<0)set.push(c);k++;}return set.slice(0,4).map(fmt);}
+function gen(item,r,gr){
+  var g=gr==='51326'?'A':'B',p=item.p,o={};
+  if(p==='precio_margen'){
+    var cus=g==='A'?[30,45,60,75,90,120]:[36,48,72,84,96,108],ms=g==='A'?[20,25,40]:[25,30,40],combos=[];
+    cus.forEach(function(c){ms.forEach(function(m){var v=c/(1-m/100);if(Math.abs(v-Math.round(v))<1e-9)combos.push([c,m]);});});
+    var cm=pick(combos,r),CU=cm[0],M=cm[1],cor=CU/(1-M/100);
+    return {text:item.q.replace('{CU}',CU).replace('{M}',M),o:numOpts(cor,[Math.round(CU*(1+M/100)*100)/100,Math.round(CU*M)/100*1,Math.round(CU/(M/100))],money),x:'Precio = '+CU+' ÷ (1 − '+M/100+') = '+money(cor)+'. Distractores: margen sobre el costo, multiplicar por el %, dividir entre el %.'};
+  }
+  if(p==='conversion'){
+    var Vs=g==='A'?[1000,2000,2500,4000]:[1500,3000,5000,8000],Ss=g==='A'?[10,20,25,40,50]:[15,30,60,75,80],V,S,pc,t=0;
+    do{V=pick(Vs,r);S=pick(Ss,r);pc=S/V*100;t++;}while((pc>8||pc<0.3)&&t<30);
+    pc=Math.round(pc*100)/100;
+    return {text:item.q.replace('{V}',V.toLocaleString('en-US')).replace('{S}',S),o:numOpts(pc,[Math.round(pc*10*100)/100,Math.round(pc/10*1000)/1000,Math.round(S/(V-S)*10000)/100],function(n){return fm(n)+' %';}),x:'Conversión = '+S+' ÷ '+V+' × 100 = '+fm(pc)+' %.'};
+  }
+  if(p==='ticket'){
+    var tk=pick(g==='A'?[150,200,250,300]:[120,180,240,350],r),S2=pick(g==='A'?[8,10,12,16]:[9,12,15,20],r),ING=tk*S2;
+    return {text:item.q.replace('{ING}',ING.toLocaleString('en-US')).replace('{S}',S2),o:numOpts(tk,[ING-S2,tk/2,tk*2],money),x:'Ticket promedio = '+ING+' ÷ '+S2+' = '+money(tk)+'.'};
+  }
+  if(p==='reto_pe'){
+    var mc=pick([10,15,20,25],r),Pp=pick([40,50,60,80],r),un=pick([200,300,400,500],r);
+    return {text:item.q.replace('{P}',Pp).replace('{CV}',Pp-mc).replace('{CF}',(mc*un).toLocaleString('en-US')),ref:'PE = '+(mc*un)+' ÷ '+mc+' = '+un+' unidades.'};
+  }
+  var map={reto_car:['CAR','CAR'],reto_spin:['CL','CL'],reto_canal:['NEG','NEG'],reto_sbi:['SBI','SBI'],reto_valor:['PROY','PROY'],reto_obj:['OBJ','OBJ'],reto_cierre:['OFR','OFR']};
+  if(map[p]){var pl=POOLS[map[p][0]][g],v=pick(pl,r);return {text:item.q.replace('{'+map[p][1]+'}',v)};}
+  return {text:item.q};
+}
+function inst(item,r,gr){
+  var o={k:item.t,c:item.c,x:item.x||'',src:item.q};
+  if(item.t==='VF'){
+    var alt=VFALT[item.q],useAlt=alt&&r()<0.5;
+    var truth=useAlt?alt.ok:item.ok;
+    o.text=useAlt?alt.q:item.q;o.opts=['VERDADERO','FALSO'];o.cor=truth?0:1;o.x=useAlt?alt.x:item.x;return o;
+  }
+  if(item.t==='OM'){
+    var opts,x=item.x;
+    if(item.p){var gg=gen(item,r,gr);o.text=gg.text;opts=gg.o;x=gg.x||x;}else{o.text=item.q;opts=item.o.slice();}
+    var cor=opts[0],sh=shuf(opts,r);o.opts=sh;o.cor=sh.indexOf(cor);o.x=x;return o;
+  }
+  if(item.t==='COMP'){o.text=item.q;o.acc=item.o;o.x=item.x;return o;}
+  if(item.t==='RETO'){var gg2=gen(item,r,gr);o.text=gg2.text;o.rub=item.rub||'';o.ref=gg2.ref||'';return o;}
+  return o;
+}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9ñ ]/g,' ').replace(/\s+/g,' ').trim();}
+function matchAns(txt,acc){var t=norm(txt);if(!t)return false;return acc.some(function(a){var n=norm(a);return t===n||(n.length>=4&&(t.indexOf(n)>-1))||(t.length>=4&&n.indexOf(t)>-1);});}
+/* ---------- estado ---------- */
+var G=null;
+function newTeams(){return [1,2,3,4,5,6,7,8].map(function(i){return {id:i,n:'Equipo '+i,c:TCOL[i-1]};}).slice(0,8);}
+function buildBoard(seed){
+  var r=mul(hash(seed)),grp=GRP==='51326'?'A':'B',cells=[],reserve=[];
+  var pool=BANK.filter(function(b){return b.h===grp;});
+  var types=['VF','OM','COMP','RETO'],chosen={};
+  types.forEach(function(ty,ri){
+    for(var c=1;c<=6;c++){
+      var it=shuf(pool.filter(function(b){return b.c===c&&b.t===ty;}),r);
+      var q=inst(it[0],r,GRP);q.c=c;
+      cells[ri*6+c-1]={c:c,r:ri,q:q,st:0,dd:false};
+      for(var k=1;k<it.length;k++){var rq=inst(it[k],r,GRP);rq.c=c;reserve.push(rq);}
+    }
+  });
+  var cand=[];cells.forEach(function(ce,i){if(ce.r<2)cand.push(i);});
+  shuf(cand,r).slice(0,2).forEach(function(i){cells[i].dd=true;});
+  var fins=shuf(pool.filter(function(b){return b.t==='FINAL';}),r);
+  var fin={neg:fins[0].q,steps:null};
+  var CU=pick([40,50,60,80],r),M=pick([25,30,40],r);
+  var steps=shuf([
+    {t:'Precio: costo unitario $'+CU+' y margen de '+M+' % sobre el precio. ¿Qué precio cobran? (Precio = CU ÷ (1 − margen))',ref:'Precio = '+CU+' ÷ '+(1-M/100).toFixed(2)+' = '+money(CU/(1-M/100))},
+    {t:'Canal y métrica: elijan UN canal digital y UNA métrica (alcance, conversión o ticket promedio) para vigilar su desempeño.',ref:'Canal coherente con cliente/producto + métrica bien definida.'},
+    {t:'Escriban UNA pregunta SPIN de implicación para su cliente (sin mencionar el producto).',ref:'Pregunta que amplifica las consecuencias del problema.'},
+    {t:'Un colaborador M2 (no sabe, pero quiere): ¿qué estilo usan y cómo lo aplican en una frase?',ref:'Persuadir: explicar el porqué, dirigir y motivar.'}],r).slice(0,2);
+  fin.steps=steps;
+  return {cells:cells,reserve:reserve,fin:fin,order:shuf(newTeams().map(function(t){return t.id;}),r)};
+}
+function fresh(){
+  var seed=GRP+'-'+rid()+Date.now().toString(36),b=buildBoard(seed);
+  return {v:1,g:GRP,seed:seed,teams:newTeams().slice(0,6),people:{},board:b.cells,reserve:b.reserve,fin:b.fin,order:b.order,turn:0,scr:{},ben:{},cur:null,slide:0,detail:[],launched:0,tickets:{},played:0,finDone:false,seq:0};
+}
+function load(){try{var s=lsGet(KEY);if(s){var o=JSON.parse(s);if(o&&o.v===1)return o;}}catch(e){}return fresh();}
+function save(){lsSet(KEY,JSON.stringify(G));}
+G=load();
+/* ---------- utilidades de juego ---------- */
+function team(id){return G.teams.filter(function(t){return t.id===id;})[0];}
+function members(tid){var a=[];for(var d in G.people){if(G.people[d].tm===tid)a.push(G.people[d]);}a.sort(function(x,y){return (x.t0||0)-(y.t0||0);});return a;}
+function online(p){return Date.now()-(p.ls||0)<25000;}
+function shortName(p){return p.nm+' '+(p.ap||'').charAt(0)+'.';}
+function turnTid(){var o=G.order.filter(function(i){return team(i)&&members(i).length;});if(!o.length)o=G.order.filter(function(i){return team(i);});if(!o.length)return null;return o[G.turn%o.length];}
+function ben(t){return G.ben[t]||(G.ben[t]={s:0,x:0,h:0});}
+function toast(h,ms){var t=$('#toast');t.innerHTML=h;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){t.style.display='none';},ms||3800);}
+function award(tid,amt,why,cur){
+  var b=ben(tid),sc=G.scr[tid]||0,note='';
+  if(amt>0&&b.x>0){amt*=2;b.x--;note=' (✖2)';}
+  if(amt<0&&b.s>0){amt=0;b.s--;note=' (🛡️ escudo)';}
+  G.scr[tid]=Math.max(0,sc+amt);
+  return {amt:amt,note:note};
+}
+function giveBen(tid){
+  var t=['s','x','h','t'][Math.floor(Math.random()*4)],b=ben(tid),nm=team(tid)?team(tid).n:'';
+  if(t==='t'){
+    var rivals=G.teams.filter(function(x){return x.id!==tid;}).sort(function(a,b2){return (G.scr[b2.id]||0)-(G.scr[a.id]||0);});
+    var rv=rivals[0];
+    if(rv){var rb=ben(rv.id);if(rb.s>0){rb.s--;toast('🔁 ROBO de '+esc(nm)+' bloqueado por 🛡️ de '+esc(rv.n));return 'Robo bloqueado';}
+      var m=Math.min(200,G.scr[rv.id]||0);G.scr[rv.id]=(G.scr[rv.id]||0)-m;G.scr[tid]=(G.scr[tid]||0)+m;toast('🔁 '+esc(nm)+' le roba '+money(m)+' a '+esc(rv.n));return 'Robo $'+m+' a '+rv.n;}
+    return 'Robo';
+  }
+  b[t]++;toast('🎁 '+esc(nm)+' gana '+BEN[t]);return BEN[t];
+}
+function logd(row){G.detail.push(row);}
+function cellOf(){return G.cur?G.board[G.cur.idx]:null;}
+/* ---------- flujo de preguntas ---------- */
+function openCell(idx){
+  if(G.cur||G.board[idx].st)return;
+  var ce=G.board[idx],q=ce.q,tid=turnTid(),val=VALS[ce.r];
+  var cur={uid:'q'+(++G.seq),idx:idx,k:q.k,c:ce.c,r:ce.r,val:val,tid:tid,dd:ce.dd,text:q.text,opts:q.opts||null,cor:q.cor,x:q.x,acc:q.acc||null,rub:q.rub||'',ref:q.ref||'',ans:{},hide:{},resp:{},scribe:{},vote:{},failed:[],bet:0,ph:'open',te:0,dur:30,res:null,txt:'',ctl:null};
+  if(q.k==='VF'||q.k==='OM'){
+    if(ce.dd){cur.ph='bet';cur.dur=20;cur.te=Date.now()+20000;}
+    else{cur.dur=q.k==='VF'?25:35;cur.te=Date.now()+cur.dur*1000;}
+    if(q.k==='OM'){G.teams.forEach(function(t){var b=ben(t.id);if(b.h>0&&(!ce.dd||t.id===tid)){var w=[];q.opts.forEach(function(o,i){if(i!==q.cor)w.push(i);});cur.hide[t.id]=w.sort(function(){return Math.random()-.5;}).slice(0,2);b.h--;}});}
+  }else if(q.k==='COMP'){cur.ph='buzz';cur.dur=20;cur.te=Date.now()+20000;}
+  else if(q.k==='RETO'){cur.ph='write';cur.dur=100;cur.te=Date.now()+100000;}
+  G.cur=cur;sync();
+}
+function setPh(ph,dur){G.cur.ph=ph;G.cur.te=dur?Date.now()+dur*1000:0;G.cur.dur=dur||0;sync();}
+function nTeamMembers(tid){var n=0;members(tid).forEach(function(p){if(online(p)||(G.cur&&G.cur.ans&&G.cur.ans[p.dev]))n++;});return Math.max(n,1);}
+function revealChoice(){
+  var c=G.cur;if(!c||c.ph==='rev')return;
+  var res=[];
+  G.teams.forEach(function(t){
+    if(c.dd&&t.id!==c.tid)return;
+    if(!members(t.id).length)return;
+    var arr=members(t.id),ok=0,tot=0;
+    arr.forEach(function(p){var a=c.ans[p.dev];if(a){tot++;if(a.i===c.cor)ok++;}});
+    var den=Math.max(nTeamMembers(t.id),tot,1),ratio=ok/den,amt;
+    if(c.dd){amt=ratio>=0.5?c.bet:-c.bet;}
+    else amt=Math.round(c.val*ratio/10)*10;
+    var r=award(t.id,amt,'',c);
+    res.push({tid:t.id,amt:r.amt,note:r.note,ok:ok,tot:tot,den:den});
+    arr.forEach(function(p){var a=c.ans[p.dev];if(a){var share=c.dd?0:Math.round(c.val/den);logd({q:(c.c)+'.'+(c.r+1),col:COLN[c.c-1],ty:c.k,dev:p.dev,nm:p.nm,ap:p.ap,tm:t.n,resp:a.i===undefined?'':c.opts[a.i],ok:a.i===c.cor?1:0,amt:a.i===c.cor?share:0});}});
+  });
+  c.res=res;c.ph='rev';c.te=0;G.launched++;
+  sound(res.some(function(r){return r.amt>0;})?'win':'bad');
+  sync();
+}
+function finishQ(){
+  var c=G.cur;if(!c)return;
+  G.board[c.idx].st=1;G.played++;G.cur=null;G.turn++;
+  sync();
+}
+function swapQ(){
+  var c=G.cur;if(!c||c.ph==='rev'||c.k==='FINAL')return;
+  var ty=c.k,i=-1;
+  for(var k=0;k<G.reserve.length;k++){if(G.reserve[k].k===ty&&G.reserve[k].c===c.c){i=k;break;}}
+  if(i<0)for(var k2=0;k2<G.reserve.length;k2++){if(G.reserve[k2].k===ty){i=k2;break;}}
+  if(i<0){toast('No quedan preguntas de reserva de este tipo');return;}
+  var q=G.reserve.splice(i,1)[0];q.c=c.c;
+  G.board[c.idx].q=q;G.cur=null;sync();openCell(c.idx);
+}
+/* buzzer / completar */
+function judge(ok){
+  var c=G.cur;if(!c||!c.ctl)return;
+  var tid=c.ctl.tid;
+  if(ok){var r=award(tid,c.val,'',c);c.res=[{tid:tid,amt:r.amt,note:r.note}];c.ph='rev';G.launched++;logd({q:c.c+'.'+(c.r+1),col:COLN[c.c-1],ty:'COMP',dev:c.ctl.dev,nm:c.ctl.nm,ap:c.ctl.ap,tm:team(tid).n,resp:c.txt,ok:1,amt:c.val});sound('win');}
+  else{var r2=award(tid,-Math.round(c.val/20)*10,'',c);c.failed.push(tid);logd({q:c.c+'.'+(c.r+1),col:COLN[c.c-1],ty:'COMP',dev:c.ctl.dev,nm:c.ctl.nm,ap:c.ctl.ap,tm:team(tid).n,resp:c.txt,ok:0,amt:r2.amt});sound('bad');
+    toast('✘ '+esc(team(tid).n)+' falla '+(r2.amt?money(r2.amt):'(sin pérdida)'));
+    c.ctl=null;c.txt='';if(c.failed.length>=G.teams.length){c.res=[];c.ph='rev';G.launched++;}else{c.ph='buzz';c.dur=15;c.te=Date.now()+15000;}}
+  sync();
+}
+/* retos */
+function toVote(){
+  var c=G.cur;if(!c)return;
+  var tids=Object.keys(c.resp).filter(function(t){return norm(c.resp[t]).length>1;});
+  if(tids.length<2){
+    c.res=[];if(tids.length===1){var t0=+tids[0];var r=award(t0,c.val,'',c);c.res.push({tid:t0,amt:r.amt,note:r.note,rank:1,votes:0,ben:giveBen(t0)});}
+    c.ph='rev';G.launched++;sync();return;
+  }
+  var ks=shuf(tids,Math.random);c.keys={};c.klist=[];ks.forEach(function(t,i){var k=String.fromCharCode(65+i);c.keys[k]=+t;c.klist.push({k:k,txt:c.resp[t]});});
+  c.vote={};c.ph='vote';c.dur=c.k==='FINAL'?50:30;c.te=Date.now()+c.dur*1000;sync();
+}
+function revealVote(){
+  var c=G.cur;if(!c||c.ph!=='vote')return;
+  var tally={};c.klist.forEach(function(x){tally[x.k]=0;});
+  for(var d in c.vote){tally[c.vote[d].k]=(tally[c.vote[d].k]||0)+1;}
+  var rank=c.klist.map(function(x){return {k:x.k,tid:c.keys[x.k],v:tally[x.k]};}).sort(function(a,b){return b.v-a.v;});
+  c.res=[];
+  rank.forEach(function(rk,i){
+    var top=rank[0].v,first=rk.v===top&&top>0,amt;
+    if(c.k==='FINAL'){amt=first?1000:(i===1||rk.v===rank[1].v)&&rk.v>0?600:(rk.v>0?300:0);}
+    else{amt=first?c.val:(rk.v>0?Math.round(c.val/2/10)*10:0);}
+    var r=award(rk.tid,amt,'',c),b='';
+    if(first&&c.k!=='FINAL')b=giveBen(rk.tid);
+    c.res.push({tid:rk.tid,amt:r.amt,note:r.note,rank:i+1,votes:rk.v,k:rk.k,ben:b,first:first});
+    logd({q:c.k==='FINAL'?'FINAL':c.c+'.'+(c.r+1),col:c.k==='FINAL'?'Reto por equipos':COLN[c.c-1],ty:c.k,dev:(c.scribe[rk.tid]||''),nm:(G.people[c.scribe[rk.tid]]||{}).nm||'',ap:(G.people[c.scribe[rk.tid]]||{}).ap||'',tm:team(rk.tid).n,resp:(c.resp[rk.tid]||'').slice(0,300),ok:first?1:0,amt:r.amt});
+  });
+  for(var d2 in c.vote){var p=G.people[d2];if(p)logd({q:c.k==='FINAL'?'FINAL':c.c+'.'+(c.r+1),col:'Voto',ty:'VOTO',dev:d2,nm:p.nm,ap:p.ap,tm:(team(p.tm)||{}).n||'',resp:c.vote[d2].k,ok:'',amt:0});}
+  c.ph='rev';c.te=0;G.launched++;sound('win');if(c.k==='FINAL')G.finDone=true;sync();
+}
+function openFinal(){
+  if(G.cur||G.finDone)return;
+  var cur={uid:'q'+(++G.seq),idx:-1,k:'FINAL',c:0,r:0,val:1000,tid:null,dd:false,text:'RETO POR EQUIPOS · '+G.fin.neg.toUpperCase(),neg:G.fin.neg,steps:G.fin.steps.map(function(s){return s.t;}),refs:G.fin.steps.map(function(s){return s.ref;}),ans:{},hide:{},resp:{},scribe:{},vote:{},failed:[],bet:0,ph:'write',te:Date.now()+300000,dur:300,res:null,txt:'',ctl:null,parts:{}};
+  G.cur=cur;sync();
+}
+function closeFinal(){G.cur=null;G.finDone=true;G.slide=3;sync();setTimeout(confetti,300);}
+/* ---------- mensajes de celulares ---------- */
+var seen={};
+function onUp(tx){
+  var m;try{m=JSON.parse(tx);}catch(e){return;}
+  if(!m||m.r!==ROOM||!m.d)return;
+  if(m.m){if(seen[m.m])return;seen[m.m]=1;}
+  var now=Date.now(),p=G.people[m.d],c=G.cur;
+  if(m.t==='p'){
+    var nm=String(m.nm||'').slice(0,30),ap=String(m.ap||'').slice(0,30);if(!nm||!ap)return;
+    if(!p){p=G.people[m.d]={dev:m.d,nm:nm,ap:ap,tm:null,t0:now,ls:now};}
+    else{p.nm=nm;p.ap=ap;p.ls=now;}
+    schedSync();return;
+  }
+  if(!p)return;p.ls=now;
+  if(m.t==='tm'){if(team(+m.tm)){p.tm=+m.tm;sync();}return;}
+  if(m.t==='tk'){G.tickets[m.d]=+m.col;schedSync();return;}
+  if(m.t==='pick'){if(!c&&G.slide===2&&p.tm!=null&&p.tm===turnTid()&&G.board[+m.i]&&!G.board[+m.i].st)openCell(+m.i);return;}
+  if(!c||m.q!==c.uid||p.tm==null)return;
+  if(m.t==='a'&&c.ph==='open'&&!c.ans[m.d]&&(c.k==='VF'||c.k==='OM')){
+    if(c.dd&&p.tm!==c.tid)return;
+    var hd=c.hide[p.tm]||[];if(hd.indexOf(+m.i)>-1)return;
+    if(c.te&&now>c.te+1500)return;
+    c.ans[m.d]={i:+m.i,ts:now};sync();return;
+  }
+  if(m.t==='bet'&&c.ph==='bet'&&p.tm===c.tid){var mx=Math.max(G.scr[c.tid]||0,400);var v=Math.min(+m.v,mx);if(v>0){c.bet=v;c.ph='open';c.dur=c.k==='VF'?25:35;c.te=now+c.dur*1000;sync();}return;}
+  if(m.t==='b'&&c.ph==='buzz'&&c.k==='COMP'&&c.failed.indexOf(p.tm)<0){c.ctl={tid:p.tm,dev:m.d,nm:p.nm,ap:p.ap};c.ph='ans';c.dur=20;c.te=now+20000;sound('buzz');sync();return;}
+  if(m.t==='x'&&c.ph==='ans'&&c.ctl&&c.ctl.dev===m.d){c.txt=String(m.txt||'').slice(0,120);c.ph='judge';c.te=0;sync();return;}
+  if(m.t==='cl'&&(c.ph==='write')&&(c.k==='RETO'||c.k==='FINAL')){if(!c.scribe[p.tm]){c.scribe[p.tm]=m.d;sync();}return;}
+  if(m.t==='w'&&c.ph==='write'&&c.scribe[p.tm]===m.d){
+    if(c.k==='FINAL'){c.parts[p.tm]=c.parts[p.tm]||['',''];c.parts[p.tm][+m.s?1:0]=String(m.txt||'').slice(0,260);c.resp[p.tm]=c.parts[p.tm].map(function(t,i){return (i+1)+') '+t;}).join('  ');}
+    else c.resp[p.tm]=String(m.txt||'').slice(0,260);
+    schedSync();return;}
+  if(m.t==='v'&&c.ph==='vote'&&c.keys&&c.keys[m.k]!=null&&c.keys[m.k]!==p.tm&&!c.vote[m.d]){c.vote[m.d]={k:m.k};sync();return;}
+}
+/* ---------- red ---------- */
+var BRK=P.get('broker')?[P.get('broker')]:['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081'];
+var cli=[];
+
+/* publicar estado */
+var seqPub=0,syncT=null;
+function stateOut(){
+  var now=Date.now(),c=G.cur;
+  var teams=G.teams.map(function(t){var b=ben(t.id);return {id:t.id,n:t.n,c:t.c,sc:G.scr[t.id]||0,b:b,m:members(t.id).map(shortName)};});
+  var asg={};for(var d in G.people){if(G.people[d].tm!=null)asg[d]=G.people[d].tm;}
+  var q=null;
+  if(c){
+    q={uid:c.uid,k:c.k,text:c.text,opts:c.opts,val:c.val,dd:c.dd,ph:c.ph,te:c.te,tid:c.tid,hide:c.hide,ctl:c.ctl?{tid:c.ctl.tid,dev:c.ctl.dev,nm:c.ctl.nm}:null,bet:c.bet,mx:c.tid?Math.max(G.scr[c.tid]||0,400):0,
+       scr:c.scribe,resp:(c.ph==='vote'||c.ph==='rev')?c.klist||[]:null,steps:c.steps||null,neg:c.neg||null,txt:c.ph==='judge'||c.ph==='rev'?c.txt:'',
+       done:Object.keys(c.ans),voted:Object.keys(c.vote||{}),keys:c.ph==='vote'?c.keys:null};
+    if(c.ph==='rev'){q.cor=c.cor;q.res=c.res;q.accOne=c.acc?c.acc[0]:null;}
+    if(c.ph==='vote'||c.ph==='rev')q.keys=c.keys;
+  }
+  return {r:ROOM,seq:++seqPub,ts:now,slide:G.slide,teams:teams,asg:asg,turn:turnTid(),board:G.board.map(function(x){return x.st;}),cols:COLN,fin:G.finDone,q:q,rdy:G.played>=8&&!G.finDone};
+}
+function pubState(){
+  var s=JSON.stringify(stateOut());
+  cli.forEach(function(k){k.pub(TOP+'/state',s,true);});
+}
+function schedSync(){save();render();clearTimeout(syncT);syncT=setTimeout(pubState,120);}
+function sync(){save();render();pubState();}
+function connect(){
+  BRK.forEach(function(u){
+    var k=MQ(u,{cid:'h'+rid(),onMsg:function(tp,tx){if(tp===TOP+'/up')onUp(tx);},onState:function(s,api){if(s==='up'){api.sub(TOP+'/up');pubState();}liveUi();}});
+    cli.push(k);
+  });
+}
+function liveUi(){
+  var n=cli.filter(function(k){return k.isUp();}).length,l=$('#live');
+  l.className=n?'':'off';
+  var on=Object.keys(G.people).filter(function(d){return online(G.people[d]);}).length;
+  l.innerHTML='📡 <b>'+(n?n+' servidor'+(n>1?'es':''):'sin servidor')+'</b> · '+on+' en línea · sala <span style="color:var(--yl)">'+esc(ROOM)+'</span>';
+}
+/* ---------- sonidos / confeti ---------- */
+var AC=null;
+function sound(t){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var seq=t==='win'?[523,659,784,1047]:t==='bad'?[300,220]:t==='buzz'?[880,880]:[440];var tt=AC.currentTime;seq.forEach(function(f,i){var o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(AC.destination);o.start(tt+i*.11);o.stop(tt+i*.11+.1);});}catch(e){}}
+var cfp=[],cfr=0;
+function confetti(){var cv=$('#cf'),cx=cv.getContext('2d');cfp=[];for(var i=0;i<220;i++)cfp.push({x:Math.random()*1920,y:-Math.random()*600,vx:(Math.random()-.5)*5,vy:3+Math.random()*6,s:8+Math.random()*10,c:TCOL[i%TCOL.length],r:Math.random()*6});
+  cancelAnimationFrame(cfr);(function f(){cx.clearRect(0,0,1920,1080);cfp.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.r+=.2;cx.fillStyle=p.c;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();});cfp=cfp.filter(function(p){return p.y<1100;});if(cfp.length)cfr=requestAnimationFrame(f);else cx.clearRect(0,0,1920,1080);})();sound('win');}
+/* ---------- render ---------- */
+var drawer=false;
+function memHTML(t){var arr=members(t.id);return arr.length?arr.map(function(p){return '<div class="mem"><i class="'+(online(p)?'':'off')+'">●</i>'+esc(p.nm+' '+p.ap)+'</div>';}).join(''):'<div class="mem" style="color:var(--mut)">— sin integrantes —</div>';}
+function activeTeams(){var a=G.teams.filter(function(t){return members(t.id).length||(G.scr[t.id]||0)>0;});return a.length?a:G.teams.slice();}
+function unassigned(){return Object.keys(G.people).map(function(d){return G.people[d];}).filter(function(p){return p.tm==null||!team(p.tm);});}
+function render(){
+  var sl=$('#slides');
+  var h=['','',''];
+  /* 0 portada */
+  var un=unassigned();
+  var s0='<div class="cov"><div class="l"><div class="big1">JEOPARDY<br>ARCADE</div><div class="big2">Repaso · Sesión 12</div>'
+   +'<div style="display:flex;gap:24px;align-items:center"><div class="qrbox">'+QRS[GRP]+'</div><div style="font-size:26px;line-height:1.35"><b style="color:var(--yl)">1.</b> Escanea el QR<br><b style="color:var(--yl)">2.</b> Nombre y apellido<br><b style="color:var(--yl)">3.</b> Elige tu equipo</div></div>'
+   +'<div style="margin-top:20px;font-size:24px;color:var(--mut)">NRC <b style="color:var(--yl)">'+GRP+'</b> · <span class="chip" data-g="51326" style="cursor:pointer;'+(GRP==='51326'?'border-color:var(--yl)':'')+'">51326 Negocios</span><span class="chip" data-g="51633" style="cursor:pointer;'+(GRP==='51633'?'border-color:var(--yl)':'')+'">51633 Derecho y RRII</span></div>'
+   +'<div style="margin-top:12px;font-size:20px;color:var(--mut)">Semilla de preguntas: <b style="color:var(--cy)">'+esc(G.seed)+'</b></div></div>'
+   +'<div class="r"><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><span class="px" style="font-size:16px;color:var(--cy)">EQUIPOS E INTEGRANTES</span><span class="sp" style="flex:1"></span><button class="btn pk" data-a="addteam">＋ Equipo</button><button class="btn" data-a="auto">🎲 Repartir sin equipo</button><button class="btn yl" data-a="next">▶ Continuar</button></div>'
+   +'<div class="grid">'+G.teams.map(function(t){return '<div class="team" style="--c:'+t.c+'"><h3><b>'+esc(t.n)+'</b><span><span data-a="ren" data-t="'+t.id+'" title="Renombrar">✏️</span> <span data-a="del" data-t="'+t.id+'" title="Eliminar">🗑️</span></span></h3><div style="font:600 17px Rajdhani;color:var(--mut)">'+members(t.id).length+' integrante(s)</div>'+memHTML(t)+'</div>';}).join('')+'</div>'
+   +(un.length?'<div style="margin-top:12px"><span class="px" style="font-size:13px;color:var(--or)">SIN EQUIPO ('+un.length+')</span><div>'+un.map(function(p){return '<span class="chip">'+esc(p.nm+' '+p.ap)+'</span>';}).join('')+'</div></div>':'')+'</div></div>';
+  /* 1 objetivo */
+  var s1='<div class="obj"><div class="px" style="font-size:18px;color:var(--cy)">OBJETIVO DE LA CLASE</div><div class="vb">Aplicarás tus conocimientos de costos, ventas, canales, liderazgo y proyecto al responder preguntas y retos en equipo desde tu celular.</div>'
+   +'<div class="rules"><div><b>1 · RESPONDE</b>Cada quien en su celular, una sola vez. Tu equipo gana según cuántos aciertan.</div><div><b>2 · BUZZ</b>Completar: el primer celular que toque responde por su equipo.</div><div><b>3 · RETOS</b>Los retos dan 🛡️ ✖2 💡 🔁. El reto final decide el podio.</div></div>'
+   +'<div style="font-size:24px;color:var(--mut)">Puntos en $: V/F $100 · Opción múltiple $200 · Completar $300 · Reto $400 · Daily Double: apuesta tu dinero.</div><div><button class="btn big yl" data-a="next">▶ Al tablero</button></div></div>';
+  /* 2 tablero */
+  var s2='<div id="bd">'+COLN.map(function(n){return '<div class="ch">'+esc(n)+'</div>';}).join('');
+  for(var r=0;r<4;r++)for(var c=0;c<6;c++){var i=r*6+c,ce=G.board[i],pl=ce.st;s2+='<div class="cl'+(pl?' pl':'')+'" data-a="pick" data-i="'+i+'">'+(pl?'—':'$'+VALS[r])+'<small>'+(pl?'':TYN[r])+'</small></div>';}
+  s2+='</div><button class="btn pk big" id="fin" data-a="final"'+(G.finDone?' disabled':'')+'>🏁 RETO POR EQUIPOS · $1000'+(G.played>=8?'':'  (se habilita tras 8 fichas)')+'</button>';
+  /* 3 podio */
+  var rk=activeTeams().sort(function(a,b){return (G.scr[b.id]||0)-(G.scr[a.id]||0);}),pos=[1,0,2];
+  var s3='<div class="px" style="font-size:22px;color:var(--yl);text-align:center">PODIO DEL DÍA</div><div class="pod">'+pos.map(function(i,k){var t=rk[i];if(!t)return '';var hh=[420,300,220][i];return '<div class="pb" style="--c:'+t.c+'"><div class="nm">'+esc(t.n)+'</div><div class="sc">'+money(G.scr[t.id]||0)+'</div><div class="mb">'+members(t.id).map(shortName).join(' · ')+'</div><div class="bar" style="height:'+hh+'px">'+(i+1)+'</div></div>';}).join('')+'</div>'
+   +'<div style="text-align:center;margin-top:10px;font-size:24px;color:var(--mut)">'+rk.slice(3).map(function(t,i){return (i+4)+'. '+esc(t.n)+' '+money(G.scr[t.id]||0);}).join(' · ')+'</div>'
+   +'<div style="text-align:center;margin-top:10px">'+ticketHTML()+'</div><div style="text-align:center;margin-top:12px"><button class="btn gr big" data-a="xls">📥 Descargar Excel</button> <button class="btn pk big" data-a="conf">🎉 Confeti</button></div>';
+  sl.innerHTML=[s0,s1,s2,s3].map(function(s,i){return '<div class="sl'+(G.slide===i?' on':'')+'">'+s+'</div>';}).join('');
+  /* pie */
+  var tt=turnTid();
+  $('#foot').innerHTML=(G.slide===0?G.teams:activeTeams()).map(function(t){var b=ben(t.id),bs=(b.s?'🛡️':'')+(b.x?'✖2':'')+(b.h?'💡':'');return '<div class="tc'+(t.id===tt&&G.slide===2?' turn':'')+'" style="--c:'+t.c+'" data-a="drawer"><span class="bn">'+bs+'</span><div class="nm">'+esc(t.n)+(t.id===tt&&G.slide===2?' ◀':'')+'</div><div class="sc">'+money(G.scr[t.id]||0)+'</div><div class="mb">'+members(t.id).map(shortName).join(', ')+'</div></div>';}).join('');
+  renderOv();renderDr();liveUi();
+}
+function ticketHTML(){
+  var n=[0,0,0,0,0,0],tot=0;for(var d in G.tickets){n[G.tickets[d]-1]++;tot++;}
+  if(!tot)return '<span style="color:var(--mut);font-size:22px">Ticket de salida en celulares: ¿qué columna te costó más?</span>';
+  return '<span style="font-size:22px;color:var(--cy)">Columna más difícil (ticket): '+n.map(function(v,i){return COLN[i]+' <b style="color:var(--yl)">'+v+'</b>';}).join(' · ')+'</span>';
+}
+function timerTxt(){
+  var c=G.cur,t=$('#tm');
+  if(!c||!c.te){t.textContent='';t.className='px';return;}
+  var s=Math.max(0,Math.ceil((c.te-Date.now())/1000));
+  t.textContent=Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);t.className='px'+(s<=5?' low':'');
+}
+function pills(c){
+  return G.teams.map(function(t){
+    var arr=members(t.id),n=arr.filter(function(p){return c.ans[p.dev];}).length,den=Math.max(nTeamMembers(t.id),n);
+    if(c.dd&&t.id!==c.tid)return '';
+    if(!arr.length)return '';
+    return '<span class="pill" style="--c:'+t.c+'">'+esc(t.n)+' '+(n>=den&&n>0?'✔ ':'')+n+'/'+den+'</span>';}).join('');
+}
+function renderOv(){
+  var ov=$('#ov'),c=G.cur;
+  if(!c){ov.className='';ov.innerHTML='';return;}
+  ov.className='on';
+  var tm=c.tid?team(c.tid):null,h='';
+  var colName=c.k==='FINAL'?'RETO POR EQUIPOS':COLN[c.c-1];
+  h+='<div class="oh"><span class="tag">'+esc(colName)+'</span>'+(c.k!=='FINAL'?'<span class="tag" style="background:var(--pnk)">'+TYN[c.r]+'</span>':'')+(c.dd?'<span class="tag dd">DAILY DOUBLE</span>':'')+(tm&&c.k!=='FINAL'?'<span style="font:700 28px Rajdhani;color:'+tm.c+'">Turno: '+esc(tm.n)+'</span>':'')+'<span class="val">'+(c.dd&&c.bet?'APUESTA '+money(c.bet):money(c.val))+'</span></div>';
+  if(c.k==='VF'||c.k==='OM'){
+    h+='<div class="qt'+(c.text.length>150?' sm':'')+'">'+esc(c.text)+'</div>';
+    if(c.ph==='bet'){h+='<div class="buzz">'+esc(tm?tm.n:'')+' ELIGE SU APUESTA EN EL CELULAR</div><div class="ctl"><button class="btn" data-a="bet" data-v="100">Apostar $100</button><button class="btn" data-a="bet" data-v="'+Math.max(G.scr[c.tid]||0,400)+'">Apostar '+money(Math.max(G.scr[c.tid]||0,400))+'</button></div>';}
+    else{
+      var cols=['var(--pnk)','var(--cy)','var(--yl)','var(--gr)'];
+      h+='<div class="ops">'+c.opts.map(function(o,i){var cls='op';if(c.ph==='rev')cls+=(i===c.cor?' ok':' no');return '<div class="'+cls+'" style="--c:'+cols[i]+'"><b>'+(c.k==='OM'?'ABCD'[i]:(i?'F':'V'))+'</b>'+esc(o)+'</div>';}).join('')+'</div>';
+      h+='<div class="st">'+pills(c)+'</div>';
+      if(c.ph==='rev')h+='<div class="expl">'+esc(c.x)+'</div><div class="st">'+(c.res||[]).map(function(r){var t=team(r.tid);return '<span class="pill" style="--c:'+t.c+'">'+esc(t.n)+' '+(r.amt>=0?'+':'')+money(r.amt)+r.note+' ('+r.ok+'/'+r.den+')</span>';}).join('')+'</div>';
+    }
+    h+='<div class="ctl"><span class="grow"></span>'+((c.ph==='open'||c.ph==='locked')?'<button class="btn yl big" data-a="reveal">⏵ REVELAR</button>':'')+(c.ph==='rev'?'<button class="btn gr big" data-a="close">✔ Continuar</button>':'<button class="btn" data-a="swap">🔄 Cambiar pregunta</button>')+'</div>';
+  }else if(c.k==='COMP'){
+    h+='<div class="qt">'+esc(c.text)+'</div>';
+    if(c.ph==='buzz')h+='<div class="buzz">¡BUZZ! EL PRIMER CELULAR QUE TOQUE RESPONDE</div><div class="st">'+c.failed.map(function(t){return '<span class="pill" style="--c:'+team(t).c+'">'+esc(team(t).n)+' ✘</span>';}).join('')+'</div>';
+    if(c.ph==='ans')h+='<div class="buzz" style="color:'+team(c.ctl.tid).c+'">'+esc(team(c.ctl.tid).n)+' · '+esc(c.ctl.nm)+' está escribiendo…</div>';
+    if(c.ph==='judge'){var m=matchAns(c.txt,c.acc);h+='<div class="ans">'+esc(c.txt||'(vacío)')+'</div><div class="st"><span class="pill" style="--c:'+team(c.ctl.tid).c+'">'+esc(team(c.ctl.tid).n)+' · '+esc(c.ctl.nm)+'</span><span class="pill" style="--c:'+(m?'#39ff88':'#ff4d6d')+'">'+(m?'Coincide con la clave':'No coincide con la clave')+'</span></div><div class="ctl"><button class="btn gr big" data-a="ok">✔ Correcto</button><button class="btn rd big" data-a="no">✘ Incorrecto</button></div>';}
+    if(c.ph==='rev'){h+='<div class="ans">'+esc(c.acc[0])+'</div><div class="expl">'+esc(c.x)+'</div><div class="st">'+(c.res||[]).map(function(r){var t=team(r.tid);return '<span class="pill" style="--c:'+t.c+'">'+esc(t.n)+' +'+money(r.amt)+r.note+'</span>';}).join('')+'</div>';}
+    h+='<div class="ctl"><span class="grow"></span>'+(c.ph==='rev'?'<button class="btn gr big" data-a="close">✔ Continuar</button>':'<button class="btn" data-a="shown">Mostrar respuesta</button><button class="btn" data-a="swap">🔄 Cambiar pregunta</button>')+'</div>';
+  }else{
+    var fin=c.k==='FINAL';
+    h+='<div class="qt sm">'+esc(c.text)+'</div>';
+    if(fin)h+='<div style="font:600 30px/1.3 Rajdhani">'+c.steps.map(function(s,i){return '<div style="margin:4px 0"><b style="color:var(--yl)">PASO '+(i+1)+'</b> · '+esc(s)+'</div>';}).join('')+'</div>';
+    if(c.ph==='write'){h+='<div class="st">'+G.teams.map(function(t){var sc=c.scribe[t.id],p=sc&&G.people[sc],n=c.resp[t.id]?c.resp[t.id].length:0;return '<span class="pill" style="--c:'+t.c+'">'+esc(t.n)+': '+(p?esc(p.nm)+' escribe · '+n+' car.':'sin escriba')+'</span>';}).join('')+'</div>';
+      h+='<div style="font:600 24px Rajdhani;color:var(--mut)">Criterio: '+esc(fin?'Pasos correctos, claros y aplicables al negocio.':c.rub)+(c.ref?' · Ref.: '+esc(c.ref):'')+'</div>';}
+    if(c.ph==='vote'||c.ph==='rev'){h+='<div class="resp">'+(c.klist||[]).map(function(x){var rs=(c.res||[]).filter(function(r){return r.k===x.k;})[0];var t=rs&&team(rs.tid);return '<div class="rcard'+(rs&&rs.first?' w':'')+'"><b>RESPUESTA '+x.k+(rs?' · '+esc(t.n)+' · '+rs.votes+' voto(s) · +'+money(rs.amt)+(rs.ben?' · '+esc(rs.ben):''):'')+'</b>'+esc(x.txt)+'</div>';}).join('')+'</div>';
+      if(c.ph==='vote'){var nv=Object.keys(c.vote).length;h+='<div class="st"><span class="pill" style="--c:#19f0ff">Votos recibidos: '+nv+'</span></div>';}}
+    if(c.ph==='rev'&&c.res&&!c.res.length)h+='<div class="expl">Sin respuestas suficientes para votar.</div>';
+    h+='<div class="ctl"><span class="grow"></span>'+(c.ph==='write'?'<button class="btn yl big" data-a="tovote">⏵ Pasar a votación</button>':'')+(c.ph==='vote'?'<button class="btn yl big" data-a="revvote">⏵ REVELAR</button>':'')+(c.ph==='rev'?'<button class="btn gr big" data-a="'+(fin?'closefin':'close')+'">'+(fin?'🏆 Ir al podio':'✔ Continuar')+'</button>':'<button class="btn" data-a="swap"'+(fin?' style="display:none"':'')+'>🔄 Cambiar pregunta</button>')+'</div>';
+  }
+  ov.innerHTML=h;
+}
+function renderDr(){
+  var d=$('#dr');d.className=drawer?'on':'';if(!drawer)return;
+  var h='<h2>👥 EQUIPOS E INTEGRANTES</h2>';
+  G.teams.forEach(function(t){
+    h+='<div class="rt" style="--c:'+t.c+'"><h4><span>'+esc(t.n)+' · '+money(G.scr[t.id]||0)+'</span><span style="font-size:18px;color:var(--mut)">'+members(t.id).length+'</span></h4>'
+     +members(t.id).map(function(p){var a=G.cur&&G.cur.ans&&G.cur.ans[p.dev];return '<div class="rp"><span class="'+(online(p)?'on':'off')+'">●</span>'+esc(p.nm+' '+p.ap)+(a?' ✔':'')+'<select data-a="mv" data-d="'+p.dev+'">'+G.teams.map(function(x){return '<option value="'+x.id+'"'+(x.id===p.tm?' selected':'')+'>'+esc(x.n)+'</option>';}).join('')+'</select><span class="x" data-a="rm" data-d="'+p.dev+'">✕</span></div>';}).join('')+'</div>';
+  });
+  var un=unassigned();
+  if(un.length)h+='<div class="rt" style="--c:#ff8a1f"><h4><span>Sin equipo</span><span>'+un.length+'</span></h4>'+un.map(function(p){return '<div class="rp"><span class="'+(online(p)?'on':'off')+'">●</span>'+esc(p.nm+' '+p.ap)+'<select data-a="mv" data-d="'+p.dev+'"><option value="">Asignar…</option>'+G.teams.map(function(x){return '<option value="'+x.id+'">'+esc(x.n)+'</option>';}).join('')+'</select><span class="x" data-a="rm" data-d="'+p.dev+'">✕</span></div>';}).join('')+'</div>';
+  d.innerHTML=h;
+}
+
+/* ---------- Excel (xlsx mínimo, ZIP sin compresión) ---------- */
+var CT=null;
+function crc32(b){if(!CT){CT=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CT[n]=c>>>0;}}var c2=0xFFFFFFFF;for(var i=0;i<b.length;i++)c2=CT[(c2^b[i])&255]^(c2>>>8);return (c2^0xFFFFFFFF)>>>0;}
+function zipStore(files){
+  var enc=new TextEncoder(),loc=[],cen=[],off=0;
+  files.forEach(function(f){
+    var nm=enc.encode(f.n),d=typeof f.d==='string'?enc.encode(f.d):f.d,crc=crc32(d);
+    var lh=new Uint8Array(30+nm.length),v=new DataView(lh.buffer);
+    v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint16(8,0,true);v.setUint16(10,0,true);v.setUint16(12,0x21,true);v.setUint32(14,crc,true);v.setUint32(18,d.length,true);v.setUint32(22,d.length,true);v.setUint16(26,nm.length,true);v.setUint16(28,0,true);lh.set(nm,30);
+    var ch=new Uint8Array(46+nm.length),w=new DataView(ch.buffer);
+    w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);w.setUint16(8,0x0800,true);w.setUint16(10,0,true);w.setUint16(12,0,true);w.setUint16(14,0x21,true);w.setUint32(16,crc,true);w.setUint32(20,d.length,true);w.setUint32(24,d.length,true);w.setUint16(28,nm.length,true);w.setUint32(42,off,true);ch.set(nm,46);
+    loc.push(lh,d);cen.push(ch);off+=lh.length+d.length;
+  });
+  var cs=cen.reduce(function(a,b){return a+b.length;},0),eo=new Uint8Array(22),e=new DataView(eo.buffer);
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob(loc.concat(cen,[eo]),{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function colL(i){var s='';i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
+function xe(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'');}
+function sheetXml(rows){
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+   +rows.map(function(r,ri){return '<row r="'+(ri+1)+'">'+r.map(function(v,ci){var ref=colL(ci)+(ri+1);if(typeof v==='number'&&isFinite(v))return '<c r="'+ref+'"><v>'+v+'</v></c>';return '<c r="'+ref+'" t="inlineStr"><is><t>'+xe(v==null?'':v)+'</t></is></c>';}).join('')+'</row>';}).join('')+'</sheetData></worksheet>';
+}
+function exportXlsx(){
+  var per=[['Nombre','Apellido','Equipo','Acciones (respuestas, buzz, retos, votos)','Aciertos','$ aportados al equipo','% de participación','Columna más difícil (ticket)']];
+  var agg={};
+  G.detail.forEach(function(r){var a=agg[r.dev]||(agg[r.dev]={n:0,ok:0,amt:0});a.n++;if(r.ok===1)a.ok++;a.amt+=(r.amt||0);});
+  Object.keys(G.people).map(function(d){return G.people[d];}).sort(function(a,b){return (a.tm||99)-(b.tm||99)||a.nm.localeCompare(b.nm);}).forEach(function(p){
+    var a=agg[p.dev]||{n:0,ok:0,amt:0},t=team(p.tm),tk=G.tickets[p.dev];
+    per.push([p.nm,p.ap,t?t.n:'(sin equipo)',a.n,a.ok,a.amt,G.launched?Math.min(100,Math.round(a.n/G.launched*100)):0,tk?COLN[tk-1]:'']);
+  });
+  var rk=G.teams.slice().sort(function(a,b){return (G.scr[b.id]||0)-(G.scr[a.id]||0);});
+  var eq=[['Equipo','Integrantes','$ finales','Posición']];
+  rk.forEach(function(t,i){eq.push([t.n,members(t.id).length,G.scr[t.id]||0,i+1]);});
+  var det=[['Pregunta','Columna','Tipo','Nombre','Apellido','Equipo','Respuesta','Correcta (1/0)','$ aportados']];
+  G.detail.forEach(function(r){det.push([r.q,r.col,r.ty,r.nm,r.ap,r.tm,r.resp,r.ok,r.amt||0]);});
+  det.push([]);det.push(['Semilla de preguntas',G.seed,'NRC',GRP]);
+  var names=['Por persona','Por equipo','Detalle'],sh=[per,eq,det];
+  var files=[
+   {n:'[Content_Types].xml',d:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+sh.map(function(_,i){return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';}).join('')+'</Types>'},
+   {n:'_rels/.rels',d:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+   {n:'xl/workbook.xml',d:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+names.map(function(n,i){return '<sheet name="'+n+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>';}).join('')+'</sheets></workbook>'},
+   {n:'xl/_rels/workbook.xml.rels',d:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+names.map(function(_,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>';}).join('')+'</Relationships>'}
+  ];
+  sh.forEach(function(s,i){files.push({n:'xl/worksheets/sheet'+(i+1)+'.xml',d:sheetXml(s)});});
+  var blob=zipStore(files),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Sesion12_Jeopardy_NRC'+GRP+'.xlsx';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);
+  toast('📥 Excel descargado');
+}
+window.__s12=function(){return G;};window.__build=buildBoard;
+/* ---------- eventos ---------- */
+function goto(i){G.slide=i;if(i===3)setTimeout(confetti,300);sync();}
+document.addEventListener('click',function(e){
+  var g=e.target.closest('[data-g]');if(g){if(g.dataset.g!==GRP){lsSet('s12g',g.dataset.g);location.search='?g='+g.dataset.g;}return;}
+  var el=e.target.closest('[data-a]');
+  var m=$('#menu');if(!e.target.closest('#bMenu')&&!e.target.closest('#menu'))m.style.display='none';
+  if(!el)return;
+  var a=el.dataset.a;
+  if(a==='mv'||a==='rm')return;
+  if(a==='next'){goto(Math.min(3,G.slide+1));return;}
+  if(a==='addteam'){if(G.teams.length>=8){toast('Máximo 8 equipos');return;}var used=G.teams.map(function(t){return t.id;}),id=1;while(used.indexOf(id)>-1)id++;G.teams.push({id:id,n:'Equipo '+id,c:TCOL[id-1]});G.order.push(id);G.order=G.order.filter(function(v,i,s){return s.indexOf(v)===i;});sync();return;}
+  if(a==='ren'){var t=team(+el.dataset.t),n=prompt('Nombre del equipo',t.n);if(n&&n.trim()){t.n=n.trim().slice(0,22);sync();}return;}
+  if(a==='del'){var t2=team(+el.dataset.t);if(G.teams.length<=2){toast('Mínimo 2 equipos');return;}if(confirm('¿Eliminar '+t2.n+'? Sus integrantes quedarán sin equipo.')){G.teams=G.teams.filter(function(x){return x.id!==t2.id;});for(var d in G.people)if(G.people[d].tm===t2.id)G.people[d].tm=null;sync();}return;}
+  if(a==='auto'){var un=unassigned();shuf(un,Math.random).forEach(function(p){var best=G.teams.slice().sort(function(x,y){return members(x.id).length-members(y.id).length;})[0];p.tm=best.id;});sync();return;}
+  if(a==='pick'){if(G.slide!==2||G.cur)return;openCell(+el.dataset.i);return;}
+  if(a==='drawer'){drawer=!drawer;renderDr();return;}
+  if(a==='reveal'){revealChoice();return;}
+  if(a==='close'){finishQ();return;}
+  if(a==='swap'){swapQ();return;}
+  if(a==='bet'){var c=G.cur;if(c&&c.ph==='bet'){c.bet=+el.dataset.v;c.ph='open';c.dur=c.k==='VF'?25:35;c.te=Date.now()+c.dur*1000;sync();}return;}
+  if(a==='ok'){judge(true);return;}
+  if(a==='no'){judge(false);return;}
+  if(a==='shown'){var cc=G.cur;if(cc){cc.res=[];cc.ph='rev';G.launched++;sync();}return;}
+  if(a==='tovote'){toVote();return;}
+  if(a==='revvote'){revealVote();return;}
+  if(a==='final'){if(G.played<8&&!confirm('Aún no se juegan 8 fichas. ¿Iniciar el reto final de todos modos?'))return;openFinal();return;}
+  if(a==='closefin'){closeFinal();return;}
+  if(a==='xls'){exportXlsx();return;}
+  if(a==='conf'){confetti();return;}
+});
+document.addEventListener('change',function(e){
+  var el=e.target.closest('[data-a="mv"]');if(!el)return;
+  var p=G.people[el.dataset.d];if(p){p.tm=el.value===''?null:+el.value;sync();}
+});
+document.addEventListener('click',function(e){
+  var x=e.target.closest('[data-a="rm"]');if(!x)return;
+  if(confirm('¿Quitar a esta persona?')){delete G.people[x.dataset.d];sync();}
+});
+$('#bMenu').onclick=function(e){e.stopPropagation();var m=$('#menu');m.innerHTML=['Portada · equipos','Objetivo','Tablero de juego','Podio'].map(function(n,i){return '<div data-go="'+i+'">'+(i+1)+' · '+n+'</div>';}).join('');m.style.display=m.style.display==='block'?'none':'block';};
+$('#menu').onclick=function(e){var d=e.target.closest('[data-go]');if(d){goto(+d.dataset.go);$('#menu').style.display='none';}};
+$('#bTeams').onclick=function(){drawer=!drawer;renderDr();};
+$('#bBoard').onclick=function(){var tt=turnTid();toast('Orden de turnos: '+G.order.filter(team).map(function(i){return esc(team(i).n);}).join(' → ')+'<br>Turno actual: '+esc(tt?team(tt).n:'-'),5000);};
+$('#bXls').onclick=exportXlsx;
+$('#bFs').onclick=function(){var d=document.documentElement;try{if(document.fullscreenElement)document.exitFullscreen();else d.requestFullscreen();}catch(e){}};
+$('#bReset').onclick=function(){if(!confirm('Nueva partida: se borran puntos, tablero y respuestas (los equipos y alumnos registrados se conservan). Descarga el Excel antes. ¿Continuar?'))return;var o=G;G=fresh();G.teams=o.teams;G.people=o.people;sync();};
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight'&&!G.cur)goto(Math.min(3,G.slide+1));
+  if(e.key==='ArrowLeft'&&!G.cur)goto(Math.max(0,G.slide-1));
+  if((e.key===' '||e.key==='Enter')&&G.cur&&(G.cur.ph==='open'||G.cur.ph==='locked')&&(G.cur.k==='VF'||G.cur.k==='OM')){e.preventDefault();revealChoice();}
+});
+/* ---------- escala y reloj ---------- */
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';st.style.left=((innerWidth-1920*s)/2)+'px';st.style.top=((innerHeight-1080*s)/2)+'px';}
+addEventListener('resize',fit);fit();
+setInterval(function(){
+  timerTxt();
+  var c=G.cur;
+  if(c&&c.te&&Date.now()>c.te+300){
+    if(c.ph==='open'){c.ph='locked';c.te=0;sync();}
+    else if(c.ph==='bet'){c.bet=100;c.ph='open';c.dur=c.k==='VF'?25:35;c.te=Date.now()+c.dur*1000;sync();}
+    else if(c.ph==='buzz'){c.ph='buzz';c.te=0;sync();}
+    else if(c.ph==='ans'){c.ph='judge';c.txt='';c.te=0;sync();}
+    else if(c.ph==='write'){c.te=0;sync();}
+    else if(c.ph==='vote'){c.te=0;sync();}
+  }
+},250);
+setInterval(function(){var a=document.activeElement;if(a&&a.tagName==='SELECT')return;pubState();save();render();},3000);
+render();connect();
+})();
+</script></body></html>
