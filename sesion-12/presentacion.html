@@ -520,11 +520,11 @@ function render(){
    +(un.length?'<div style="margin-top:12px"><span class="px" style="font-size:13px;color:var(--or)">SIN EQUIPO ('+un.length+')</span><div>'+un.map(function(p){return '<span class="chip">'+esc(p.nm+' '+p.ap)+'</span>';}).join('')+'</div></div>':'')+'</div></div>';
   /* 1 objetivo */
   var s1='<div class="obj"><div class="kk">OBJETIVO DE LA CLASE</div><div class="vb">Aplicarás tus conocimientos de costos, ventas, canales, liderazgo y proyecto al responder preguntas y retos en equipo desde tu celular.</div>'
-   +'<div class="rules">'+[['1 · TURNOS','Los equipos eligen ficha en orden: Equipo 1, 2, 3… Todos juegan con su celular.'],['2 · FICHAS SORPRESA','Detrás de cada $ hay preguntas, retos de repaso y retos de pura diversión. Nadie sabe cuál toca.'],['3 · PUNTOS','Ganas $ según el % de tu equipo que acierta. Algunas fichas premian al más rápido, y fallar puede costar.'],['4 · RETOS Y VOTACIÓN','En los retos, el equipo escribe o actúa y los demás equipos califican o votan en anónimo. Nadie está obligado a lo que le incomode: puede participar de otra forma.'],['5 · DAILY DOUBLE','2 fichas ocultas. Solo juega el equipo en turno y apuesta su dinero.'],['6 · RETO FINAL $1000','Tras 8 fichas. Votación entre equipos: $1000, $600 y $300.']].map(function(x){return '<div><b>'+x[0]+'</b>'+x[1]+'</div>';}).join('')+'</div>'
-   +'<div style="font:600 24px/1.3 Rajdhani;color:var(--mut)"><b style="color:var(--ac)">Beneficios:</b> 🛡️ Escudo anula una pérdida · ✖2 duplica tu siguiente premio · 💡 Pista quita 2 opciones · 🔁 Robo quita hasta $200 al líder.</div><div><button class="btn big yl" data-a="next">▶ Al tablero</button></div></div>';
+   +'<div class="rules" style="grid-template-columns:1fr"><div><b>📖 INSTRUCTIVO EN TU CELULAR</b>Abre el botón «📖 Reglas» de tu celular: ahí está cómo se juega. Cada ficha esconde una sorpresa: preguntas, retos de repaso y retos de pura diversión.</div></div>'
+   +'<div><button class="btn big yl" data-a="next">▶ Al tablero</button></div></div>';
   /* 2 tablero */
   var s2='<div id="bd">'+COLN.map(function(n){return '<div class="ch">'+esc(n)+'</div>';}).join('');
-  for(var r=0;r<4;r++)for(var c=0;c<6;c++){var i=r*6+c,ce=G.board[i],pl=ce.st;s2+='<div class="cl'+(pl?' pl':'')+'" data-a="pick" data-i="'+i+'">'+(pl?'—':'$'+VALS[r])+'<small>'+(pl?'':TYN[r])+'</small></div>';}
+  for(var r=0;r<4;r++)for(var c=0;c<6;c++){var i=r*6+c,ce=G.board[i],pl=ce.st;s2+='<div class="cl'+(pl?' pl':'')+'" data-a="pick" data-i="'+i+'">'+(pl?'—':'$'+VALS[r])+'</div>';}
   s2+='</div><button class="btn pk big" id="fin" data-a="final"'+(G.finDone?' disabled':'')+'>🏁 RETO POR EQUIPOS · $1000'+(G.played>=8?'':'  (se habilita tras 8 fichas)')+'</button>';
   /* 3 podio */
   var rk=activeTeams().sort(function(a,b){return (G.scr[b.id]||0)-(G.scr[a.id]||0);}),pos=[1,0,2];
