@@ -267,9 +267,9 @@ function buildBoard(seed){
 }
 function fresh(){
   var seed=GRP+'-'+rid()+Date.now().toString(36),b=buildBoard(seed);
-  return {v:1,g:GRP,seed:seed,teams:newTeams().slice(0,8),people:{},board:b.cells,reserve:b.reserve,fin:b.fin,order:b.order,turn:0,scr:{},ben:{},cur:null,slide:0,detail:[],launched:0,tickets:{},played:0,finDone:false,seq:0};
+  return {v:1,ep:rid()+rid(),g:GRP,seed:seed,teams:newTeams().slice(0,8),people:{},board:b.cells,reserve:b.reserve,fin:b.fin,order:b.order,turn:0,scr:{},ben:{},cur:null,slide:0,detail:[],launched:0,tickets:{},played:0,finDone:false,seq:0};
 }
-function load(){try{var s=lsGet(KEY);if(s){var o=JSON.parse(s);if(o&&o.v===1)return o;}}catch(e){}return fresh();}
+function load(){try{var s=lsGet(KEY);if(s){var o=JSON.parse(s);if(o&&o.v===1){if(!o.ep)o.ep=rid()+rid();return o;}}}catch(e){}return fresh();}
 function save(){lsSet(KEY,JSON.stringify(G));}
 G=load();
 /* ---------- utilidades de juego ---------- */
@@ -411,13 +411,14 @@ var seen={};
 function onUp(tx){
   var m;try{m=JSON.parse(tx);}catch(e){return;}
   if(!m||m.r!==ROOM||!m.d)return;
+  if(m.e!==G.ep)return;
   if(m.m){if(seen[m.m])return;seen[m.m]=1;}
   var now=Date.now(),p=G.people[m.d],c=G.cur;
   if(m.t==='p'){
     var nm=String(m.nm||'').slice(0,30),ap=String(m.ap||'').slice(0,30);if(!nm||!ap)return;
-    if(!p){p=G.people[m.d]={dev:m.d,nm:nm,ap:ap,tm:null,t0:now,ls:now};}
-    else{p.nm=nm;p.ap=ap;p.ls=now;}
-    schedSync();return;
+    if(!p){p=G.people[m.d]={dev:m.d,nm:nm,ap:ap,tm:null,t0:now,ls:now};schedSync();}
+    else{var ch=p.nm!==nm||p.ap!==ap||!online(p);p.nm=nm;p.ap=ap;p.ls=now;if(ch)schedSync();}
+    return;
   }
   if(!p)return;p.ls=now;
   if(m.t==='tm'){if(team(+m.tm)){p.tm=+m.tm;sync();}return;}
@@ -459,7 +460,7 @@ function stateOut(){
     if(c.ph==='rev'){q.cor=c.cor;q.res=c.res;q.accOne=c.acc?c.acc[0]:null;}
     if(c.ph==='vote'||c.ph==='rev')q.keys=c.keys;
   }
-  return {r:ROOM,seq:++seqPub,ts:now,slide:G.slide,teams:teams,asg:asg,turn:turnTid(),board:G.board.map(function(x){return x.st;}),cols:COLN,fin:G.finDone,q:q,rdy:G.played>=8&&!G.finDone};
+  return {r:ROOM,ep:G.ep,seq:++seqPub,ts:now,slide:G.slide,teams:teams,asg:asg,turn:turnTid(),board:G.board.map(function(x){return x.st;}),cols:COLN,fin:G.finDone,q:q,rdy:G.played>=8&&!G.finDone};
 }
 var lastPub=0,pubT=null;
 function doPub(){
@@ -473,7 +474,8 @@ function pubState(){
   if(w<=0){clearTimeout(pubT);pubT=null;doPub();}
   else if(!pubT){pubT=setTimeout(function(){pubT=null;doPub();},w);}
 }
-function schedSync(){save();render();clearTimeout(syncT);syncT=setTimeout(pubState,120);}
+var rT=null;function schedRender(){if(rT)return;rT=setTimeout(function(){rT=null;if(ptrDown){schedRender();return;}save();render();},300);}
+function schedSync(){schedRender();clearTimeout(syncT);syncT=setTimeout(pubState,150);}
 function sync(){save();render();pubState();}
 function connect(){
   BRK.forEach(function(u){
@@ -498,6 +500,8 @@ var drawer=false;
 function memHTML(t){var arr=members(t.id);return arr.length?arr.map(function(p){return '<div class="mem"><i class="'+(online(p)?'':'off')+'">●</i>'+esc(p.nm+' '+p.ap)+'</div>';}).join(''):'<div class="mem" style="color:var(--mut)">— sin integrantes —</div>';}
 function activeTeams(){var a=G.teams.filter(function(t){return members(t.id).length||(G.scr[t.id]||0)>0;});return a.length?a:G.teams.slice();}
 function unassigned(){return Object.keys(G.people).map(function(d){return G.people[d];}).filter(function(p){return p.tm==null||!team(p.tm);});}
+function setH(el,h){if(el.__h===h)return;el.__h=h;el.innerHTML=h;}
+var ptrDown=false;document.addEventListener('pointerdown',function(){ptrDown=true;},true);document.addEventListener('pointerup',function(){ptrDown=false;},true);document.addEventListener('pointercancel',function(){ptrDown=false;},true);
 function render(){
   var sl=$('#slides');
   var h=['','',''];
@@ -523,10 +527,10 @@ function render(){
   var s3='<div class="px" style="font-size:22px;color:var(--yl);text-align:center">PODIO DEL DÍA</div><div class="pod">'+pos.map(function(i,k){var t=rk[i];if(!t)return '';var hh=[420,300,220][i];return '<div class="pb" style="--c:'+t.c+'"><div class="nm">'+esc(t.n)+'</div><div class="sc">'+money(G.scr[t.id]||0)+'</div><div class="mb">'+members(t.id).map(shortName).join(' · ')+'</div><div class="bar" style="height:'+hh+'px">'+(i+1)+'</div></div>';}).join('')+'</div>'
    +'<div style="text-align:center;margin-top:10px;font-size:24px;color:var(--mut)">'+rk.slice(3).map(function(t,i){return (i+4)+'. '+esc(t.n)+' '+money(G.scr[t.id]||0);}).join(' · ')+'</div>'
    +'<div style="text-align:center;margin-top:10px">'+ticketHTML()+'</div><div style="text-align:center;margin-top:12px"><button class="btn gr big" data-a="xls">📥 Descargar Excel</button> <button class="btn pk big" data-a="conf">🎉 Confeti</button></div>';
-  sl.innerHTML=[s0,s1,s2,s3].map(function(s,i){return '<div class="sl'+(G.slide===i?' on':'')+'">'+s+'</div>';}).join('');
+  setH(sl,[s0,s1,s2,s3].map(function(s,i){return '<div class="sl'+(G.slide===i?' on':'')+'">'+s+'</div>';}).join(''));
   /* pie */
   var tt=turnTid();
-  var FT=(G.slide===0?G.teams:activeTeams());$('#foot').innerHTML=FT.map(function(t){var b=ben(t.id),bs=(b.s?'🛡️':'')+(b.x?'✖2':'')+(b.h?'💡':'');return '<div class="tc'+(FT.length>6?' cm':'')+(t.id===tt&&G.slide===2?' turn':'')+'" style="--c:'+t.c+'" data-a="drawer"><span class="bn">'+bs+'</span><div class="nm">'+esc(t.n)+(t.id===tt&&G.slide===2?' ◀':'')+'</div><div class="sc">'+money(G.scr[t.id]||0)+'</div><div class="mb">'+members(t.id).map(shortName).join(', ')+'</div></div>';}).join('');
+  var FT=(G.slide===0?G.teams:activeTeams());setH($('#foot'),FT.map(function(t){var b=ben(t.id),bs=(b.s?'🛡️':'')+(b.x?'✖2':'')+(b.h?'💡':'');return '<div class="tc'+(FT.length>6?' cm':'')+(t.id===tt&&G.slide===2?' turn':'')+'" style="--c:'+t.c+'" data-a="drawer"><span class="bn">'+bs+'</span><div class="nm">'+esc(t.n)+(t.id===tt&&G.slide===2?' ◀':'')+'</div><div class="sc">'+money(G.scr[t.id]||0)+'</div><div class="mb">'+members(t.id).map(shortName).join(', ')+'</div></div>';}).join(''));
   renderOv();renderDr();liveUi();
 }
 function ticketHTML(){
@@ -549,7 +553,7 @@ function pills(c){
 }
 function renderOv(){
   var ov=$('#ov'),c=G.cur;
-  if(!c){ov.className='';ov.innerHTML='';return;}
+  if(!c){ov.className='';setH(ov,'');return;}
   ov.className='on';
   var tm=c.tid?team(c.tid):null,h='';
   var colName=c.k==='FINAL'?'RETO POR EQUIPOS':COLN[c.c-1];
@@ -588,7 +592,7 @@ function renderOv(){
     if(c.ph==='rev'&&c.res&&!c.res.length)h+='<div class="expl">Sin respuestas suficientes para votar.</div>';
     h+='<div class="ctl"><span class="grow"></span>'+(c.ph==='write'?'<button class="btn yl big" data-a="tovote">⏵ Pasar a votación</button>':'')+(c.ph==='vote'?'<button class="btn yl big" data-a="revvote">⏵ REVELAR</button>':'')+(c.ph==='rev'?'<button class="btn gr big" data-a="'+(fin?'closefin':'close')+'">'+(fin?'🏆 Ir al podio':'✔ Continuar')+'</button>':'<button class="btn" data-a="swap"'+(fin?' style="display:none"':'')+'>🔄 Cambiar pregunta</button>')+'</div>';
   }
-  ov.innerHTML=h;
+  setH(ov,h);
 }
 function renderDr(){
   var d=$('#dr');d.className=drawer?'on':'';if(!drawer)return;
@@ -599,7 +603,7 @@ function renderDr(){
   });
   var un=unassigned();
   if(un.length)h+='<div class="rt" style="--c:var(--or)"><h4><span>Sin equipo</span><span>'+un.length+'</span></h4>'+un.map(function(p){return '<div class="rp"><span class="'+(online(p)?'on':'off')+'">●</span>'+esc(p.nm+' '+p.ap)+'<select data-a="mv" data-d="'+p.dev+'"><option value="">Asignar…</option>'+G.teams.map(function(x){return '<option value="'+x.id+'">'+esc(x.n)+'</option>';}).join('')+'</select><span class="x" data-a="rm" data-d="'+p.dev+'">✕</span></div>';}).join('')+'</div>';
-  d.innerHTML=h;
+  setH(d,h);
 }
 
 /* ---------- Excel (xlsx mínimo, ZIP sin compresión) ---------- */
@@ -695,7 +699,7 @@ $('#bTeams').onclick=function(){drawer=!drawer;renderDr();};
 $('#bBoard').onclick=function(){var tt=turnTid();toast('Orden de turnos: '+G.teams.map(function(t){return t.id;}).sort(function(a,b){return a-b;}).filter(function(i){return members(i).length;}).map(function(i){return esc(team(i).n);}).join(' → ')+' · Turno actual: '+esc(tt?team(tt).n:'-'),5000);};
 $('#bXls').onclick=exportXlsx;
 $('#bFs').onclick=function(){var d=document.documentElement;try{if(document.fullscreenElement)document.exitFullscreen();else d.requestFullscreen();}catch(e){}};
-$('#bReset').onclick=function(){if(!confirm('Nueva partida: se borran puntos, tablero y respuestas (los equipos y alumnos registrados se conservan). Descarga el Excel antes. ¿Continuar?'))return;var o=G;G=fresh();G.teams=o.teams;G.people=o.people;sync();};
+$('#bReset').onclick=function(){if(!confirm('Nueva partida: se borra TODO (puntos, tablero, equipos y alumnos registrados). Los alumnos deberán volver a escribir su nombre y elegir equipo. Descarga el Excel antes. ¿Continuar?'))return;seen={};G=fresh();G.slide=0;drawer=false;sync();};
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='ArrowRight'&&!G.cur)goto(Math.min(3,G.slide+1));

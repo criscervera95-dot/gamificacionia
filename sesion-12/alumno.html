@@ -99,11 +99,11 @@ function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function rid(){return Math.random().toString(36).slice(2,9);}
 var dev=lsGet('s12dev')||('d'+rid()+rid());lsSet('s12dev',dev);
-var idn=null;try{idn=JSON.parse(lsGet('s12id')||'null');}catch(e){}
+var ep=lsGet('s12ep_'+ROOM)||'';var pc=0;var idn=null;try{idn=JSON.parse(lsGet('s12id')||'null');}catch(e){}
 var ST=null,cli=null,bi=0,got=false,swT=null,lastSeq=0,lastTs=0,off=0,err='',vk='',myA={},myV={},myT=lsGet('s12tk_'+ROOM)||'',pend=null,editing=false;
 function ready(){return idn&&idn.nm&&idn.ap;}
 function money(n){return '$'+n;}
-function send(o){o.r=ROOM;o.d=dev;o.m=rid()+rid();if(cli)cli.pub(TOP+'/up',JSON.stringify(o),false);}
+function send(o){o.r=ROOM;o.e=ep;o.d=dev;o.m=rid()+rid();if(cli)cli.pub(TOP+'/up',JSON.stringify(o),false);}
 function presence(){if(ready())send({t:'p',nm:idn.nm,ap:idn.ap});}
 function setStatus(){
   var up=cli&&cli.isUp(),fresh=Date.now()-lastTs<20000;
@@ -117,7 +117,7 @@ function connect(){
   if(cli){try{cli.close();}catch(e){}}
   got=false;
   cli=MQ(BRK[bi%BRK.length],{cid:'a'+dev+rid().slice(0,3),
-    onMsg:function(tp,tx){if(tp!==TOP+'/state')return;var o;try{o=JSON.parse(tx);}catch(e){return;}if(!o||o.r!==ROOM)return;if(o.seq<lastSeq&&o.seq>3&&lastSeq-o.seq<50)return;lastSeq=o.seq;lastTs=Date.now();off=Date.now()-o.ts;got=true;clearTimeout(swT);ST=o;draw();setStatus();},
+    onMsg:function(tp,tx){if(tp!==TOP+'/state')return;var o;try{o=JSON.parse(tx);}catch(e){return;}if(!o||o.r!==ROOM)return;if(o.seq<lastSeq&&o.seq>3&&lastSeq-o.seq<50)return;lastSeq=o.seq;lastTs=Date.now();off=Date.now()-o.ts;var epc=false;got=true;clearTimeout(swT);if(o.ep&&o.ep!==ep){epc=true;if(idn){idn=null;lsSet('s12id','');myT='';lsSet('s12tk_'+ROOM,'');myA={};myV={};pend=null;editing=false;}ep=o.ep;lsSet('s12ep_'+ROOM,ep);vk='';}ST=o;draw();setStatus();if(epc)presence();},
     onState:function(s,api){
       if(s==='up'){api.sub(TOP+'/state');presence();clearTimeout(swT);swT=setTimeout(function(){if(!got){bi++;connect();}},6000);}
       if(s==='fail'||s==='refused'){clearTimeout(swT);swT=setTimeout(function(){bi++;connect();},2500);}
@@ -236,7 +236,7 @@ document.addEventListener('click',function(e){
   if(d==='vote'){if(myV[q.uid])return;myV[q.uid]=b.dataset.k;send({t:'v',q:q.uid,k:b.dataset.k});pend={t:'v',q:q.uid,k:b.dataset.k,n:0};vk='';draw();return;}
 });
 setInterval(function(){
-  presence();setStatus();tick();
+  if(++pc%5===0)presence();setStatus();tick();
   if(pend&&ST&&ST.q&&ST.q.uid===pend.q&&pend.n<5){
     var q=ST.q,ack=(pend.t==='a'&&q.done.indexOf(dev)>-1)||((pend.t==='v'||pend.t==='sv')&&q.voted.indexOf(dev)>-1)||(pend.t==='x'&&q.ph!=='ans');
     if(!ack){pend.n++;var o={};for(var kx in pend)if(kx!=='n')o[kx]=pend[kx];send(o);}else pend=null;
