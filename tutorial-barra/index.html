@@ -184,7 +184,7 @@ a{color:var(--fram);font-weight:700}
 /* ── Tableta del POS ── */
 var NAV={
   barra:[['barra','barra','Barra'],['inventario','inventario','Inventario'],['checador','clock','Checador']],
-  caja:[['venta','venta','Venta'],['ordenes','ordenes','Órdenes'],['caja','caja','Caja'],['corte','corte','Corte'],['admin','admin','Admin']]
+  caja:[['venta','venta','Venta'],['ordenes','ordenes','Órdenes'],['caja','caja','Caja'],['corte','corte','Corte']]
 };
 /* Mismos íconos de línea que el POS real. */
 function ico(n){return '<svg class="icon"><use href="#i-'+n+'"/></svg>'}
@@ -225,21 +225,6 @@ function cartasOrden(){
   ];
 }
 function marcar(s,id,i,v){var c=s.cards.filter(function(x){return x.id===id})[0];c.pz[i].h=v}
-
-/* ── Admin › Barra fría ── */
-function pAdmin(s){
-  var h='<h3>Panel Admin</h3><div class="cards">'+[['ac-buzon','buzon','Buzón de avisos','Salidas · descuentos'],['ac-catalogo','tag','Catálogo','Productos · categorías'],['ac-personal','users','Personal','Colaboradores · asistencia'],['ac-config','ajustes','Configuración','Mesas · impresora'],['ac-barra','barra','Barra fría','Quién la usa · impresión · categorías']].map(function(c){return '<button class="card" data-t="'+c[0]+'"><span class="card-ic">'+ico(c[1])+'</span><b>'+c[2]+'</b><small>'+c[3]+'</small></button>'}).join('')+'</div>';
-  return marco('caja','admin',h,{velo:s.modal?vBarraAdmin(s):''});
-}
-function op(t,on,txt,radio){return '<button class="op'+(on?' on':'')+'" data-t="'+t+'"><span class="cb'+(radio?' rd':'')+'">'+(on?'✓':'')+'</span>'+txt+'</button>'}
-function vBarraAdmin(s){
-  return '<div class="modal"><h4>Barra fría</h4>'+
-    '<div class="sec">Pantallas conectadas</div><p class="ayuda">'+(s.ana?'Ninguna pantalla abierta ahora. Mientras tanto, la caja imprime.':'Ninguna pantalla abierta ahora.')+'</p>'+
-    '<div class="sec">Quién usa la pantalla de barra</div><div class="dos">'+op('per-ana',s.ana,'Ana')+op('per-luis',false,'Luis')+op('per-maria',false,'María')+op('per-sofi',false,'Sofía')+'</div>'+
-    '<div class="sec">Cómo llega la comanda</div>'+op('modo-imprimir',s.modo==='imprimir','Solo impresa (como antes)',1)+op('modo-pantalla',s.modo==='pantalla','Solo en la pantalla de barra',1)+op('modo-ambos',s.modo==='ambos','En pantalla y también impresa',1)+
-    '<div class="sec">Qué categorías van a la barra fría</div><div class="dos">'+op('cat-1',true,'Frappés de leche')+op('cat-2',true,'Frappés frutales')+op('cat-3',true,'Malteadas')+op('cat-4',true,'Smoothies')+'</div>'+
-    '<button class="btn prim ancho" data-t="guardar">Guardar cambios</button></div>';
-}
 
 /* ── Órdenes por folio ── */
 function teclado(){return '<div class="teclado">'+[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(function(d){return d===''?'<span></span>':'<button data-t="k-'+d+'">'+d+'</button>'}).join('')+'</div>'}
@@ -282,22 +267,15 @@ var LECCIONES=[
   {txt:'Estás contando el almacén en Inventario. Sonó la tableta y abajo apareció «1 en barra fría». Tócalo.',p:function(){return pInventario({pill:1,num:1})},t:'pill'},
   {txt:'Volviste a la barra. Prepara el frappé de mazapán y tócalo.',p:function(s){return pBarra(s)},t:'pz-d-0',al:function(s){marcar(s,'d',0,true)}},
   {fin:true,txt:'¡Muy bien!',p:function(){return pFinal('Fuera de la barra',['Importante: mientras estás en otra sección, la caja imprime en papel las comandas nuevas, para que ningún pedido se pierda.','Las que ya estaban en la pantalla te siguen avisando con sonido, con el número en el menú y con el botón de abajo.','Regresa a Barra en cuanto termines.'])}}]},
- {id:'admin',grupo:'admin',ic:'🔑',n:'Dar acceso a distancia',d:'Para el admin: quién usa la barra',ini:function(){return {modo:'imprimir'}},pasos:[
-  {txt:'Eres el admin y quieres que Ana atienda la barra. Toca «Admin».',p:function(){return pVenta()},t:'sb-admin'},
-  {txt:'Toca la tarjeta «Barra fría».',p:function(s){return pAdmin(s)},t:'ac-barra',al:function(s){s.modal=true}},
-  {txt:'En «Quién usa la pantalla de barra», toca a Ana. Se guarda al momento y le llega a su tableta, aunque estés lejos.',p:function(s){return pAdmin(s)},t:'per-ana',al:function(s){s.ana=true}},
-  {txt:'Ahora elige cómo llega la comanda. Toca «Solo en la pantalla de barra».',p:function(s){return pAdmin(s)},t:'modo-pantalla',al:function(s){s.modo='pantalla'}},
-  {txt:'Toca «Guardar cambios».',p:function(s){return pAdmin(s)},t:'guardar'},
-  {fin:true,txt:'¡Listo! Ana ya puede usar la barra.',p:function(){return pFinal('Acceso dado',['El acceso va con la persona, no con la tableta: Ana entra con su usuario en cualquier equipo.','Para quitarlo, toca otra vez su nombre. También se da o se quita en Personal, Colaboradores.','En la misma ventana eliges qué categorías van a la barra fría, los minutos de los colores y el sonido.','Antes de dejarlo solo en pantalla, prueba un día con «En pantalla y también impresa» y compara.'])}}]},
- {id:'folio',grupo:'caja',ic:'🧾',n:'Buscar un ticket viejo',d:'Para la caja: reclamos por folio',ini:function(){return {}},pasos:[
+ {id:'folio',grupo:'caja',ic:'🧾',n:'Buscar un ticket viejo',d:'Reclamos por número de folio',ini:function(){return {}},pasos:[
   {txt:'Un cliente regresa con su ticket del martes para hacer un reclamo. Toca «Órdenes».',p:function(){return pVenta()},t:'sb-ordenes'},
   {txt:'Su ticket dice folio 819. Toca el cuadro «Número de folio».',p:function(s){return pOrdenes(s)},t:'folio',al:function(s){s.tec=true}},
   {txt:'Escribe 819: toca 8, luego 1, luego 9.',p:function(s){return pOrdenes(s)},teclado:'819',al:function(s){s.tec=false}},
   {txt:'Toca «Buscar».',p:function(s){return pOrdenes(s)},t:'buscar',al:function(s){s.encontrada=true}},
   {txt:'Apareció la venta del martes, con lo que llevó y quién la cobró. Toca «Reimprimir».',p:function(s){return pOrdenes(s)},t:'reimprimir'},
-  {fin:true,txt:'¡Ticket encontrado!',p:function(){return pFinal('Búsqueda por folio',['También puedes elegir una fecha para ver todas las ventas de ese día.','Las ventas de otros días se consultan y reimprimen; anular solo se puede el mismo día.','Si el ticket trae un folio con P, por ejemplo P-AB12CD, escríbelo tal cual.','Si eres cajera, ves solo tus ventas. La encargada de cajas y el admin ven todas.'])}}]}
+  {fin:true,txt:'¡Ticket encontrado!',p:function(){return pFinal('Búsqueda por folio',['También puedes elegir una fecha para ver todas las ventas de ese día.','Las ventas de otros días se consultan y reimprimen; anular solo se puede el mismo día.','Si el ticket trae un folio con P, por ejemplo P-AB12CD, escríbelo tal cual.','Si eres cajera, ves solo tus ventas. La encargada de cajas ve las de todos.'])}}]}
 ];
-var GRUPOS={barra:'🥤 Para quien atiende la barra',admin:'🔑 Para el admin',caja:'🧾 Para la caja'};
+var GRUPOS={barra:'🥤 Para quien atiende la barra',caja:'🧾 Para la caja'};
 
 /* ── Motor (el mismo de la práctica del inventario y de pedidos) ── */
 var hechos={};try{hechos=JSON.parse(localStorage.getItem('dr_tut_barra_hechos')||'{}')||{}}catch(e){}
