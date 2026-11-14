@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practica la barra fría</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Misma práctica que la del inventario y la de pedidos de la app: arriba una
+   instrucción a la vez, en medio la tableta del POS y el botón que toca tocar
+   brilla. */
+:root{
+  --bg:#FCF2EB;--paper:#FFFFFF;--ink:#5A3E3E;--muted:#8A6F6A;--rosa:#E8A0B4;--fram:#BF2959;--menta:#7EB7C3;
+  --caramelo:#F3D0AE;--line:rgba(90,62,62,.14);--soft:rgba(243,208,174,.38);--side:#5A3E3E;--sidetx:rgba(243,208,174,.75);
+  --ok:#2e7d32;--okbg:rgba(46,125,50,.1);--ambar:#e0a100;--ambarbg:#fff9e6;--rojo:#c0392b;--rojobg:#fdecea;
+  --display:"Fredoka","Nunito",system-ui,sans-serif;--body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.14);
+  --ambar:#f0c040;--ambarbg:rgba(240,192,64,.12);--rojo:#ff7b6b;--rojobg:rgba(255,123,107,.12);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#231A1A;--paper:#2F2424;--ink:#F6E6DC;--muted:#C9AFA6;--rosa:#E8A0B4;--fram:#F06C95;--menta:#8CC6D2;--caramelo:#6B4E3A;
+  --line:rgba(246,230,220,.16);--soft:rgba(243,208,174,.12);--side:#160F0F;--sidetx:rgba(243,208,174,.7);--ok:#7BCB80;--okbg:rgba(123,203,128,.14);
+  --ambar:#f0c040;--ambarbg:rgba(240,192,64,.12);--rojo:#ff7b6b;--rojobg:rgba(255,123,107,.12);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-block:22px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(1.8rem,5vw,2.5rem)}
+button{font-family:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--menta);outline-offset:2px}
+.sub{color:var(--muted);max-width:60ch}
+a{color:var(--fram);font-weight:700}
+
+/* Menú de lecciones */
+.grupo{font-family:var(--display);font-size:1.15rem;margin-top:6px}
+.lecciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lec{display:flex;align-items:center;gap:14px;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;min-height:86px}
+.lec:hover{border-color:var(--rosa)}
+.lec .n{font-family:var(--display);font-size:2rem;line-height:1;flex-shrink:0;width:48px;text-align:center}
+.lec b{display:block;font-family:var(--display);font-weight:600;font-size:1.15rem}
+.lec small{color:var(--muted);font-size:.88rem}
+.lec .chk{margin-left:auto;font-size:1.5rem;color:var(--ok);flex-shrink:0}
+.barra-prog{display:flex;align-items:center;gap:10px;font-weight:700}
+.barra-prog .pista{flex:1;height:12px;background:var(--soft);border-radius:999px;overflow:hidden}
+.barra-prog .lleno{height:100%;background:var(--fram);border-radius:999px;transition:width .4s}
+.camino{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:12px 14px;font-weight:800}
+.camino span{background:var(--soft);border-radius:999px;padding:6px 12px}
+.camino i{font-style:normal;color:var(--muted)}
+
+/* Práctica */
+.instr{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border:3px solid var(--fram);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.instr .num{font-family:var(--display);background:var(--fram);color:#fff;border-radius:12px;padding:4px 10px;font-weight:600;flex-shrink:0}
+.instr p{margin:0;font-size:1.2rem;font-weight:700;flex:1;min-width:0}
+.instr .oir{flex-shrink:0;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 10px;font-weight:800;cursor:pointer}
+.msg{min-height:1.6em;font-weight:800;text-align:center;font-size:1.05rem}
+.msg.mal{color:var(--fram)}.msg.bien{color:var(--ok)}
+.controles{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ctl{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:1rem}
+.ctl.prim{background:var(--fram);border-color:var(--fram);color:#fff}
+
+/* Tableta de práctica (imita el POS) */
+.tablet{background:var(--side);border-radius:26px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.pos{display:flex;background:var(--bg);border-radius:18px;overflow:hidden;min-height:470px;position:relative}
+.lado{background:var(--side);display:flex;flex-direction:column;gap:6px;padding:8px 6px;flex-shrink:0}
+.sb{width:62px;border:none;background:none;color:var(--sidetx);border-radius:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;position:relative}
+.sb .ic{font-size:1.3rem}
+.sb.on{background:var(--fram);color:#fff}
+.sb .num-sb{position:absolute;top:2px;right:4px;background:#e74c3c;color:#fff;border-radius:9px;min-width:17px;font-size:.6rem;line-height:17px;text-align:center}
+.area{flex:1;min-width:0;padding:12px;display:flex;flex-direction:column;gap:10px;position:relative}
+.tope{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tope .logo{font-family:var(--display);font-weight:600}
+.btn{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+.btn.prim{background:var(--fram);border-color:var(--fram);color:#fff}
+.btn.ancho{width:100%;padding:12px}
+
+/* Pantalla de barra */
+.b-cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.b-cab h3{font-size:1.15rem}
+.b-est{font-size:.8rem;font-weight:700;border:none;background:none;padding:2px 4px;border-radius:8px;cursor:pointer}
+.ok{color:var(--ok)}
+.b-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-items:start}
+.bc{background:var(--paper);border:2px solid var(--rosa);border-radius:14px;padding:10px}
+.bc.ambar{border-color:var(--ambar);background:var(--ambarbg)}
+.bc.rojo{border-color:var(--rojo);background:var(--rojobg)}
+.bc.canc{border-color:var(--rojo);border-style:dashed;background:var(--rojobg)}
+.bc.lista{opacity:.5;filter:grayscale(.8);border-color:var(--line)}
+.bc-top{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.bc-tit{font-weight:800}
+.bc.canc .bc-tit{color:var(--rojo)}
+.bc-min{font-size:.72rem;font-weight:800;white-space:nowrap}
+.bc-sub{font-size:.8rem;font-weight:700}
+.bc-nota{font-size:.78rem;margin-top:4px;padding:3px 8px;background:var(--bg);border-radius:6px}
+.bc-pz{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pz{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:var(--bg);border:1.5px solid var(--rosa);border-radius:10px;padding:8px;cursor:pointer;min-height:46px}
+.pz.hecho{background:var(--okbg);border-color:var(--ok)}
+.pz.hecho .pn{text-decoration:line-through;opacity:.7}
+.pz.tach{border-color:var(--rojo);background:var(--paper)}
+.pz.tach .pn{text-decoration:line-through;color:var(--rojo)}
+.pzc{flex-shrink:0;width:24px;height:24px;border-radius:7px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--paper)}
+.pz.hecho .pzc{background:var(--ok);border-color:var(--ok);color:#fff}
+.pz.tach .pzc{border-color:var(--rojo);color:var(--rojo)}
+.pn{font-weight:800;font-size:.88rem}
+.cnt{font-size:.66rem;background:var(--ink);color:var(--bg);border-radius:999px;padding:0 6px;margin-left:4px;display:inline-block;text-decoration:none}
+.pd{display:block;font-size:.74rem;color:var(--muted)}
+.bc-pie{font-size:.7rem;color:var(--muted);text-align:right;margin-top:6px}
+.vacio{color:var(--muted);text-align:center;padding:40px 10px}
+.pill{position:absolute;left:12px;bottom:12px;background:var(--side);color:var(--caramelo);border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:3}
+.inv{display:flex;flex-direction:column;gap:8px}
+.inv-f{display:flex;justify-content:space-between;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700;font-size:.88rem}
+.inv-f span:last-child{color:var(--muted)}
+
+/* Admin */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:12px;text-align:left;cursor:pointer;min-height:90px}
+.card b{display:block;font-family:var(--display);font-weight:600}
+.card small{color:var(--muted);font-size:.74rem}
+.velo{position:absolute;inset:0;background:rgba(30,20,20,.45);display:flex;align-items:flex-start;justify-content:center;padding:14px;overflow:auto;z-index:4}
+.modal{background:var(--paper);border-radius:16px;padding:14px;width:100%;max-width:470px;display:flex;flex-direction:column;gap:8px;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.modal .sec{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.op{display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-weight:700;font-size:.85rem;cursor:pointer;text-align:left;width:100%}
+.op .cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.op .rd{border-radius:50%}
+.op.on .cb{background:var(--fram);border-color:var(--fram);color:#fff}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ayuda{font-size:.74rem;color:var(--muted);margin:0}
+
+/* Órdenes */
+.filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:.76rem;font-weight:800}
+.caja{background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:800;min-height:42px;min-width:120px;text-align:left;cursor:pointer}
+.teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:240px}
+.teclado button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:8px;font-size:1.1rem;font-weight:800;cursor:pointer}
+.venta-f{display:flex;justify-content:space-between;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;align-items:center}
+.venta-f b{display:block}
+.venta-f small{color:var(--muted);font-size:.78rem}
+.mini{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:6px 10px;font-weight:800;font-size:.8rem;cursor:pointer}
+
+/* Final */
+.exito{background:var(--paper);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px}
+.exito .grande{font-size:3.2rem;line-height:1}
+.exito ul{text-align:left;margin:0;padding-left:20px;max-width:56ch;color:var(--ink)}
+.exito li{margin:4px 0}
+
+/* Lo que hay que tocar */
+.brilla{position:relative;z-index:2;animation:pulso 1.3s ease-in-out infinite;border-color:var(--fram)!important}
+.brilla::after{content:"👆";position:absolute;right:-6px;bottom:-22px;font-size:1.7rem;animation:mano 1.3s ease-in-out infinite;pointer-events:none}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(191,41,89,.55)}50%{box-shadow:0 0 0 9px rgba(191,41,89,0)}}
+@keyframes mano{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.sacude{animation:sacude .35s}
+@keyframes sacude{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.brilla,.brilla::after,.sacude{animation:none}.brilla{box-shadow:0 0 0 4px rgba(191,41,89,.5)}}
+@media (max-width:640px){.lecciones{grid-template-columns:1fr}.sb{width:46px;font-size:.5rem}.instr{flex-wrap:wrap}.instr p{font-size:1.05rem;flex-basis:calc(100% - 60px)}.instr .oir{margin-left:auto}.area{padding:8px}.pos{min-height:560px}.b-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="app"></div>
+  <p class="sub" style="font-size:.85rem">Esta práctica no cambia nada en el POS real. Los nombres y las órdenes son de ejemplo. ¿Buscas otra? <a href="../tutorial-pedidos-app/">Practica los pedidos de la app</a> · <a href="../tutorial-inventario/">Practica el inventario</a>.</p>
+</div>
+
+<script>
+/* ── Tableta del POS ── */
+var NAV={
+  barra:[['barra','🧊','Barra'],['inventario','📦','Inventario'],['checador','🕒','Checador']],
+  caja:[['venta','🛒','Venta'],['ordenes','🧾','Órdenes'],['caja','💰','Caja'],['corte','📊','Corte'],['admin','⚙️','Admin']]
+};
+function marco(nav,sel,contenido,o){
+  o=o||{};
+  return '<div class="tablet"><div class="pos"><nav class="lado">'+NAV[nav].map(function(x){
+      return '<button class="sb'+(x[0]===sel?' on':'')+'" data-t="sb-'+x[0]+'"><span class="ic">'+x[1]+'</span>'+x[2]+(o.num&&x[0]==='barra'?'<span class="num-sb">'+o.num+'</span>':'')+'</button>'}).join('')+
+    '</nav><div class="area"><div class="tope"><span class="logo">🍦 Dulce Ruta</span></div>'+contenido+(o.pill?'<button class="pill" data-t="pill">🧊 '+o.pill+' en barra fría</button>':'')+(o.velo?'<div class="velo">'+o.velo+'</div>':'')+'</div></div></div>';
+}
+/* Tarjetas: {id,tit,sub:[],nota,min,canc,pz:[{n,d,k,t,h(hecho),x(tachada)}]} */
+function completa(c){return c.pz.every(function(p){return p.h||p.x})}
+function tarjeta(c){
+  var lista=completa(c),cls='bc'+(lista?' lista':'')+(c.canc?' canc':'')+(!lista&&!c.canc&&c.min>=10?' rojo':(!lista&&!c.canc&&c.min>=5?' ambar':''));
+  var hechas=c.pz.filter(function(p){return p.h&&!p.x}).length,total=c.pz.filter(function(p){return !p.x}).length;
+  var pie=c.canc?(lista?'Enterado':'Toca para confirmar que lo viste'):(lista?'Si marcaste algo por error, tócalo para desmarcarlo.':(hechas+' de '+total+' listas'));
+  return '<div class="'+cls+'"><div class="bc-top"><span class="bc-tit">'+(c.canc?'CANCELACIÓN · NO PREPARAR':c.tit)+'</span><span class="bc-min">'+(lista?'Lista · se quita en 5 min':(c.min<1?'Recién llegó':c.min+' min'))+'</span></div>'+
+    (c.canc?'<div class="bc-sub">'+c.tit+'</div>':'')+(c.sub||[]).map(function(s){return '<div class="bc-sub">'+s+'</div>'}).join('')+
+    (c.nota?'<div class="bc-nota">Nota: '+c.nota+'</div>':'')+
+    '<div class="bc-pz">'+c.pz.map(function(p,i){
+      return '<button class="pz'+(p.h?' hecho':'')+(p.x?' tach':'')+'" data-t="pz-'+c.id+'-'+i+'"><span class="pzc">'+(p.x?'✕':(p.h?'✓':''))+'</span><span><span class="pn">'+p.n+(p.t>1?' <span class="cnt">'+p.k+' de '+p.t+'</span>':'')+'</span>'+(p.d?'<span class="pd">'+p.d+'</span>':'')+(p.x?'<span class="pd">Cancelado: no preparar</span>':'')+'</span></button>'}).join('')+
+    '</div><div class="bc-pie">'+pie+'</div></div>';
+}
+function pBarra(s,o){
+  var act=s.cards.filter(function(c){return !completa(c)}),lis=s.cards.filter(completa);
+  var h='<div class="b-cab"><h3>🧊 Barra fría</h3><button class="b-est" data-t="conectada"><span class="ok">● Conectada</span> · '+act.length+' por preparar</button></div>';
+  h+=s.cards.length?'<div class="b-grid">'+act.concat(lis).map(tarjeta).join('')+'</div>':'<div class="vacio">No hay comandas pendientes.</div>';
+  return marco('barra','barra',h,o);
+}
+function pInventario(o){
+  var h='<h3>📦 Inventario · conteo</h3><div class="inv">'+[['Leche entera','12 L'],['Base láctea para frappé','4 bolsas'],['Vaso 16 oz','260'],['Galleta Oreo','3 paquetes']].map(function(f){return '<div class="inv-f"><span>'+f[0]+'</span><span>'+f[1]+'</span></div>'}).join('')+'</div>';
+  return marco('barra','inventario',h,o);
+}
+function pz(n,k,t,d){return {n:n,k:k||1,t:t||1,d:d||''}}
+function cartasOrden(){
+  return [
+    {id:'a',tit:'ORDEN #0820 · Parte 1 de 2',sub:['ANA · PARA LLEVAR'],nota:'Sin crema batida',min:2,pz:[pz('Frappé Oreo',1,2,'Chispas de chocolate'),pz('Frappé Oreo',2,2,'Chispas de chocolate'),pz('Smoothie de fresa')]},
+    {id:'b',tit:'RONDA 1',sub:['MESA 3'],min:0,pz:[pz('Malteada de vainilla')]}
+  ];
+}
+function marcar(s,id,i,v){var c=s.cards.filter(function(x){return x.id===id})[0];c.pz[i].h=v}
+
+/* ── Admin › Barra fría ── */
+function pAdmin(s){
+  var h='<h3>Panel Admin</h3><div class="cards">'+[['ac-buzon','📬 Buzón de avisos','Salidas · descuentos'],['ac-catalogo','🏷️ Catálogo','Productos · categorías'],['ac-personal','👥 Personal','Colaboradores · asistencia'],['ac-config','🛠️ Configuración','Mesas · impresora'],['ac-barra','🧊 Barra fría','Quién la usa · impresión · categorías']].map(function(c){return '<button class="card" data-t="'+c[0]+'"><b>'+c[1]+'</b><small>'+c[2]+'</small></button>'}).join('')+'</div>';
+  return marco('caja','admin',h,{velo:s.modal?vBarraAdmin(s):''});
+}
+function op(t,on,txt,radio){return '<button class="op'+(on?' on':'')+'" data-t="'+t+'"><span class="cb'+(radio?' rd':'')+'">'+(on?'✓':'')+'</span>'+txt+'</button>'}
+function vBarraAdmin(s){
+  return '<div class="modal"><h4>🧊 Barra fría</h4>'+
+    '<div class="sec">Pantallas conectadas</div><p class="ayuda">'+(s.ana?'Ninguna pantalla abierta ahora. Mientras tanto, la caja imprime.':'Ninguna pantalla abierta ahora.')+'</p>'+
+    '<div class="sec">Quién usa la pantalla de barra</div><div class="dos">'+op('per-ana',s.ana,'Ana')+op('per-luis',false,'Luis')+op('per-maria',false,'María')+op('per-sofi',false,'Sofía')+'</div>'+
+    '<div class="sec">Cómo llega la comanda</div>'+op('modo-imprimir',s.modo==='imprimir','Solo impresa (como antes)',1)+op('modo-pantalla',s.modo==='pantalla','Solo en la pantalla de barra',1)+op('modo-ambos',s.modo==='ambos','En pantalla y también impresa',1)+
+    '<div class="sec">Qué categorías van a la barra fría</div><div class="dos">'+op('cat-1',true,'Frappés de leche')+op('cat-2',true,'Frappés frutales')+op('cat-3',true,'Malteadas')+op('cat-4',true,'Smoothies')+'</div>'+
+    '<button class="btn prim ancho" data-t="guardar">Guardar cambios</button></div>';
+}
+
+/* ── Órdenes por folio ── */
+function teclado(){return '<div class="teclado">'+[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(function(d){return d===''?'<span></span>':'<button data-t="k-'+d+'">'+d+'</button>'}).join('')+'</div>'}
+function pOrdenes(s){
+  var h='<h3>📋 '+(s.encontrada?'Folio #0819':'Órdenes del Día')+'</h3><div class="filtros"><div class="campo"><label>Fecha</label><div class="caja">14/11/2026</div></div>'+
+    '<div class="campo"><label>Número de folio</label><button class="caja" data-t="folio">'+(s.num||'<span style="color:var(--muted)">ej. 819</span>')+'</button></div><button class="btn prim" data-t="buscar">Buscar</button></div>';
+  if(s.tec)h+=teclado();
+  if(s.encontrada)h+='<div class="venta-f"><span><b>#0819 · 💵 $135.00</b><small>12/11/26 17:42 · Ana · 1x Frappé Oreo, 1x Sundae de fresa</small></span><button class="mini" data-t="reimprimir">🔁 Reimprimir</button></div><p class="ayuda">Las ventas de otros días se consultan y reimprimen; anular solo se puede el mismo día.</p>';
+  else h+='<div class="venta-f"><span><b>#0901 · 💳 $80.00</b><small>Hoy 10:15 · Ana · 1x Frappé Oreo</small></span><button class="mini" data-t="otra">🔁 Reimprimir</button></div>';
+  return marco('caja','ordenes',h);
+}
+function pVenta(){return marco('caja','venta','<div class="vacio">Pantalla de Venta</div>')}
+
+function pFinal(titulo,puntos){
+  return '<div class="exito"><div class="grande">✅</div><h3>'+titulo+'</h3><ul>'+puntos.map(function(p){return '<li>'+p+'</li>'}).join('')+'</ul></div>';
+}
+
+/* ── Lecciones: cada paso dice qué tocar (t) y qué cambia al tocarlo ── */
+var LECCIONES=[
+ {id:'entrar',grupo:'barra',ic:'🧊',n:'Entrar a la barra',d:'Abrir la pantalla con tu usuario',ini:function(){return {cards:cartasOrden()}},pasos:[
+  {txt:'Entraste con tu usuario. Como el admin te dio acceso, en el menú aparece «Barra». Tócalo.',p:function(){return pInventario()},t:'sb-barra'},
+  {txt:'Esta es la pantalla de barra. Arriba dice «Conectada»: mientras la tengas abierta, la caja ya no imprime las comandas de frappés. Toca «Conectada».',p:function(s){return pBarra(s)},t:'conectada'},
+  {fin:true,txt:'¡Listo! Ya estás en la barra.',p:function(){return pFinal('Ya estás en la barra',['Las comandas llegan solas y en orden: la más vieja va primero.','Mientras tengas la sección Barra abierta, la tableta no se apaga y tu sesión no se cierra.','Puedes usar cualquier tableta o celular: el acceso va con tu usuario.'])}}]},
+ {id:'marcar',grupo:'barra',ic:'✅',n:'Marcar pieza por pieza',d:'Preparar una orden completa',ini:function(){return {cards:cartasOrden()}},pasos:[
+  {txt:'Llegó la orden 820 de Ana: dos frappés Oreo y un smoothie. Prepara el primer frappé y, cuando esté listo, toca «Frappé Oreo 1 de 2».',p:function(s){return pBarra(s)},t:'pz-a-0',al:function(s){marcar(s,'a',0,true)}},
+  {txt:'Se marcó con una palomita. Termina el segundo frappé y toca «Frappé Oreo 2 de 2».',p:function(s){return pBarra(s)},t:'pz-a-1',al:function(s){marcar(s,'a',1,true)}},
+  {txt:'Falta el smoothie de fresa. Cuando esté listo, tócalo.',p:function(s){return pBarra(s)},t:'pz-a-2',al:function(s){marcar(s,'a',2,true)}},
+  {txt:'La tarjeta de Ana se puso gris y se fue al final: ya está completa. Ahora prepara la malteada de la mesa 3 y tócala.',p:function(s){return pBarra(s)},t:'pz-b-0',al:function(s){marcar(s,'b',0,true)}},
+  {fin:true,txt:'¡Muy bien! Terminaste las dos comandas.',p:function(){return pFinal('Así se marca una comanda',['Toca cada pieza cuando la termines. Si piden tres iguales, son tres toques: 1 de 3, 2 de 3, 3 de 3.','Cuando todas están marcadas, la tarjeta queda gris 5 minutos y luego desaparece sola. No hay que tocar nada más.','«Parte 1 de 2» quiere decir que la orden también lleva algo de la barra general: júntalo antes de entregar.'])}}]},
+ {id:'error',grupo:'barra',ic:'↩️',n:'Me equivoqué',d:'Desmarcar una pieza',ini:function(){var c=cartasOrden();c[0].pz.forEach(function(p){p.h=true});return {cards:c}},pasos:[
+  {txt:'Marcaste el smoothie de Ana, pero todavía no estaba listo. En la tarjeta gris, toca «Smoothie de fresa» para desmarcarlo.',p:function(s){return pBarra(s)},t:'pz-a-2',al:function(s){marcar(s,'a',2,false)}},
+  {txt:'La tarjeta volvió a activarse y regresó a su lugar. Cuando el smoothie esté listo, tócalo otra vez.',p:function(s){return pBarra(s)},t:'pz-a-2',al:function(s){marcar(s,'a',2,true)}},
+  {fin:true,txt:'¡Arreglado!',p:function(){return pFinal('Desmarcar es fácil',['Mientras la tarjeta está gris, toca la pieza que marcaste por error y la tarjeta vuelve a activarse.','Después de 5 minutos ya no aparece. Si te hace falta, pide a la caja que reimprima el ticket desde Órdenes.'])}}]},
+ {id:'cancelar',grupo:'barra',ic:'🚫',n:'Una cancelación',d:'Cuando la caja cancela un frappé',ini:function(){return {cards:[
+    {id:'m',tit:'RONDA 2',sub:['MESA 3'],min:6,pz:[{n:'Frappé de cajeta',k:1,t:2,h:true},{n:'Frappé de cajeta',k:2,t:2,x:true}]},
+    {id:'c',canc:true,tit:'MESA 3',sub:[],nota:'Observación: se arrepintió',min:0,pz:[pz('Frappé de cajeta')]}]}},pasos:[
+  {txt:'La mesa 3 cambió de opinión y la caja canceló un frappé de cajeta. Llegó una tarjeta roja y el frappé que faltaba se tachó solo. Toca la pieza de la tarjeta roja para confirmar que lo viste.',p:function(s){return pBarra(s)},t:'pz-c-0',al:function(s){marcar(s,'c',0,true)}},
+  {fin:true,txt:'¡Enterado!',p:function(){return pFinal('Así llega una cancelación',['Si la pieza todavía no estaba hecha, se tacha sola en la tarjeta de la mesa. No la prepares.','Si ya la habías preparado, solo llega el aviso rojo: avísale a la caja.','Los colores también avisan: la tarjeta se pone amarilla a los 5 minutos de espera y roja a los 10.'])}}]},
+ {id:'almacen',grupo:'barra',ic:'📦',n:'Si estoy en el almacén',d:'Volver a la barra cuando llega algo',ini:function(){return {cards:[{id:'d',tit:'ORDEN #0821',sub:['LUIS · COMER AQUÍ'],min:0,pz:[pz('Frappé de mazapán')]}]}},pasos:[
+  {txt:'Estás contando el almacén en Inventario. Sonó la tableta y abajo apareció «1 en barra fría». Tócalo.',p:function(){return pInventario({pill:1,num:1})},t:'pill'},
+  {txt:'Volviste a la barra. Prepara el frappé de mazapán y tócalo.',p:function(s){return pBarra(s)},t:'pz-d-0',al:function(s){marcar(s,'d',0,true)}},
+  {fin:true,txt:'¡Muy bien!',p:function(){return pFinal('Fuera de la barra',['Importante: mientras estás en otra sección, la caja imprime en papel las comandas nuevas, para que ningún pedido se pierda.','Las que ya estaban en la pantalla te siguen avisando con sonido, con el número en el menú y con el botón de abajo.','Regresa a Barra en cuanto termines.'])}}]},
+ {id:'admin',grupo:'admin',ic:'🔑',n:'Dar acceso a distancia',d:'Para el admin: quién usa la barra',ini:function(){return {modo:'imprimir'}},pasos:[
+  {txt:'Eres el admin y quieres que Ana atienda la barra. Toca «Admin».',p:function(){return pVenta()},t:'sb-admin'},
+  {txt:'Toca la tarjeta «Barra fría».',p:function(s){return pAdmin(s)},t:'ac-barra',al:function(s){s.modal=true}},
+  {txt:'En «Quién usa la pantalla de barra», toca a Ana. Se guarda al momento y le llega a su tableta, aunque estés lejos.',p:function(s){return pAdmin(s)},t:'per-ana',al:function(s){s.ana=true}},
+  {txt:'Ahora elige cómo llega la comanda. Toca «Solo en la pantalla de barra».',p:function(s){return pAdmin(s)},t:'modo-pantalla',al:function(s){s.modo='pantalla'}},
+  {txt:'Toca «Guardar cambios».',p:function(s){return pAdmin(s)},t:'guardar'},
+  {fin:true,txt:'¡Listo! Ana ya puede usar la barra.',p:function(){return pFinal('Acceso dado',['El acceso va con la persona, no con la tableta: Ana entra con su usuario en cualquier equipo.','Para quitarlo, toca otra vez su nombre. También se da o se quita en Personal, Colaboradores.','En la misma ventana eliges qué categorías van a la barra fría, los minutos de los colores y el sonido.','Antes de dejarlo solo en pantalla, prueba un día con «En pantalla y también impresa» y compara.'])}}]},
+ {id:'folio',grupo:'caja',ic:'🧾',n:'Buscar un ticket viejo',d:'Para la caja: reclamos por folio',ini:function(){return {}},pasos:[
+  {txt:'Un cliente regresa con su ticket del martes para hacer un reclamo. Toca «Órdenes».',p:function(){return pVenta()},t:'sb-ordenes'},
+  {txt:'Su ticket dice folio 819. Toca el cuadro «Número de folio».',p:function(s){return pOrdenes(s)},t:'folio',al:function(s){s.tec=true}},
+  {txt:'Escribe 819: toca 8, luego 1, luego 9.',p:function(s){return pOrdenes(s)},teclado:'819',al:function(s){s.tec=false}},
+  {txt:'Toca «Buscar».',p:function(s){return pOrdenes(s)},t:'buscar',al:function(s){s.encontrada=true}},
+  {txt:'Apareció la venta del martes, con lo que llevó y quién la cobró. Toca «Reimprimir».',p:function(s){return pOrdenes(s)},t:'reimprimir'},
+  {fin:true,txt:'¡Ticket encontrado!',p:function(){return pFinal('Búsqueda por folio',['También puedes elegir una fecha para ver todas las ventas de ese día.','Las ventas de otros días se consultan y reimprimen; anular solo se puede el mismo día.','Si el ticket trae un folio con P, por ejemplo P-AB12CD, escríbelo tal cual.','Si eres cajera, ves solo tus ventas. La encargada de cajas y el admin ven todas.'])}}]}
+];
+var GRUPOS={barra:'🧊 Para quien atiende la barra',admin:'🔑 Para el admin',caja:'🧾 Para la caja'};
+
+/* ── Motor (el mismo de la práctica del inventario y de pedidos) ── */
+var hechos={};try{hechos=JSON.parse(localStorage.getItem('dr_tut_barra_hechos')||'{}')||{}}catch(e){}
+function guardarHechos(){try{localStorage.setItem('dr_tut_barra_hechos',JSON.stringify(hechos))}catch(e){}}
+var L=null,iPaso=0,st=null,cuenta=0,tecleado='';
+var app=document.getElementById('app');
+/* Voz: primero la grabación voz/<clave>.wav (voz Sabina es-MX); si no hay,
+   la voz del sistema. La clave es djb2 del texto sin «»: al cambiar un texto
+   hay que volver a grabarlo. */
+var vozAudio=null;
+function claveVoz(t){var x=5381;for(var i=0;i<t.length;i++)x=(((x<<5)+x)+t.charCodeAt(i))>>>0;return x.toString(36)}
+function hablar(t){
+  t=String(t).replace(/[«»]/g,'').replace(/\s+/g,' ').trim();
+  try{if(vozAudio){vozAudio.pause();vozAudio=null}if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  var usado=false;function sistema(){if(usado)return;usado=true;hablarSistema(t)}
+  try{
+    var a=new Audio('voz/'+claveVoz(t)+'.wav');vozAudio=a;
+    a.onerror=sistema;
+    var p=a.play();if(p&&p.catch)p.catch(function(e){if(e&&e.name==='NotAllowedError')return;sistema()});
+  }catch(e){sistema()}
+}
+function vozEspanol(){
+  if(!window.speechSynthesis)return null;
+  var v=speechSynthesis.getVoices()||[];
+  return v.filter(function(x){return /^es[-_]MX/i.test(x.lang)})[0]||v.filter(function(x){return /^es/i.test(x.lang)})[0]||null;
+}
+if(window.speechSynthesis&&speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',vozEspanol);
+function hablarSistema(t){
+  try{
+    if(!window.speechSynthesis)return;
+    speechSynthesis.cancel();
+    setTimeout(function(){
+      var u=new SpeechSynthesisUtterance(t);u.lang='es-MX';u.rate=.95;
+      var v=vozEspanol();if(v)u.voice=v;
+      speechSynthesis.resume();speechSynthesis.speak(u);
+    },120);
+  }catch(e){}
+}
+function menu(){
+  L=null;var n=LECCIONES.filter(function(x){return hechos[x.id]}).length;
+  var h='<header style="display:flex;flex-direction:column;gap:8px"><div style="font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fram)">POS Dulce Ruta · práctica</div><h1>Practica la barra fría</h1>'+
+   '<p class="sub">Los frappés, malteadas y smoothies ya no tienen que salir en papel: llegan a una pantalla en la barra, en orden, y ahí se marcan pieza por pieza. Sigue la instrucción de arriba y toca el botón que <b>brilla</b> 👆. Si te equivocas no pasa nada: solo es práctica.</p></header>'+
+   '<div class="camino" aria-label="Los pasos de siempre"><span>🔔 Llega</span><i>→</i><span>🥤 Preparas</span><i>→</i><span>✓ Marcas cada pieza</span><i>→</i><span>⏳ Se quita sola</span></div>'+
+   '<div class="barra-prog"><span>'+n+' de '+LECCIONES.length+'</span><div class="pista"><div class="lleno" style="width:'+(n/LECCIONES.length*100)+'%"></div></div></div>';
+  Object.keys(GRUPOS).forEach(function(g){
+    h+='<h2 class="grupo">'+GRUPOS[g]+'</h2><div class="lecciones">'+LECCIONES.map(function(x,i){if(x.grupo!==g)return '';return '<button class="lec" data-lec="'+i+'"><span class="n">'+x.ic+'</span><span><b>'+(i+1)+'. '+x.n+'</b><small>'+x.d+'</small></span>'+(hechos[x.id]?'<span class="chk" aria-label="hecha">✓</span>':'')+'</button>'}).join('')+'</div>';
+  });
+  app.innerHTML=h;
+}
+function empezar(i){L=LECCIONES[i];iPaso=0;st=L.ini();cuenta=0;tecleado='';pintar('')}
+function pintar(msg,clase){
+  var p=L.pasos[iPaso],fin=!!p.fin,total=L.pasos.length-1;
+  var h='<div class="instr"><span class="num">'+(fin?'✓':(iPaso+1)+'/'+total)+'</span><p id="txt">'+p.txt+'</p><button class="oir" data-oir="1" aria-label="Escuchar la instrucción">🔊 Escuchar</button></div>';
+  h+='<div class="msg '+(clase||'')+'" role="status">'+(msg||'')+'</div>';
+  h+=p.p(st);
+  var sig=LECCIONES.indexOf(L)+1;
+  h+='<div class="controles"><button class="ctl" data-menu="1">← Lecciones</button>'+(fin?(sig<LECCIONES.length?'<button class="ctl prim" data-lec="'+sig+'">Siguiente lección →</button>':'<button class="ctl prim" data-menu="1">¡Terminaste! Ver lecciones</button>'):'<button class="ctl" data-reiniciar="1">↺ Empezar de nuevo</button>')+'</div>';
+  app.innerHTML=h;
+  if(fin){hechos[L.id]=1;guardarHechos();return}
+  if(p.t){var b=app.querySelector('[data-t="'+p.t+'"]');if(b)b.classList.add('brilla')}
+  if(p.teclado){var d=p.teclado.charAt(tecleado.length),k=app.querySelector('[data-t="k-'+d+'"]');if(k)k.classList.add('brilla')}
+}
+function avanzar(){iPaso++;cuenta=0;tecleado='';pintar('¡Muy bien! 👏','bien')}
+app.addEventListener('click',function(ev){
+  var x=ev.target.closest('button');if(!x)return;
+  if(x.dataset.lec){empezar(+x.dataset.lec);window.scrollTo(0,0);return}
+  if(x.dataset.menu){menu();window.scrollTo(0,0);return}
+  if(x.dataset.reiniciar){empezar(LECCIONES.indexOf(L));return}
+  if(x.dataset.oir){hablar(document.getElementById('txt').textContent);return}
+  if(!L)return;
+  var p=L.pasos[iPaso],t=x.dataset.t;if(!t||p.fin)return;
+  if(p.teclado){
+    var esperado=p.teclado.charAt(tecleado.length);
+    if(t==='k-'+esperado){tecleado+=esperado;st.num=tecleado;
+      if(tecleado===p.teclado){if(p.al)p.al(st);avanzar()}else pintar('¡Eso! Sigue: ahora el '+p.teclado.charAt(tecleado.length)+'.','bien');}
+    else{x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Toca el número que brilla 👆'}
+    return;
+  }
+  if(t===p.t){
+    if(p.al)p.al(st);cuenta++;
+    if(p.veces&&cuenta<p.veces){pintar('¡Bien! Una vez más.','bien');return}
+    avanzar();
+  }else{
+    x.classList.add('sacude');var m=document.querySelector('.msg');m.className='msg mal';m.textContent='Casi. Busca el botón que brilla 👆';
+  }
+});
+menu();
+</script>
+</body>
+</html>
